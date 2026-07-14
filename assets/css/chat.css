@@ -1,0 +1,334 @@
+/* --- Messages --- */
+.msg-row { display: flex; width: 100%; }
+.msg-me { justify-content: flex-end; }
+.msg-partner { justify-content: flex-start; }
+
+.msg-bubble {
+    max-width: 75%;
+    padding: 10px 14px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-wrap: break-word;
+    position: relative;
+}
+
+.msg-me .msg-bubble {
+    background: #007bff;
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.msg-partner .msg-bubble {
+    background: #ffffff;
+    color: #333;
+    border: 1px solid #eee;
+    border-bottom-left-radius: 4px;
+}
+
+/* --- Offer Card --- */
+.offer-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+    width: 240px;
+    font-size: 13px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.offer-header {
+    background: #28a745;
+    color: white;
+    padding: 8px 12px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+}
+.offer-body { padding: 12px; }
+.offer-price { font-size: 18px; color: #28a745; font-weight: bold; margin: 8px 0; }
+.btn-action {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 8px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    font-size: 13px;
+}
+.btn-blue { background: #007bff; }
+.btn-green { background: #28a745; }
+.btn-orange { background: #fd7e14; color: white; }
+.btn-red { background: #dc2626; color: white; }
+
+/* --- Share product in chat --- */
+.chat-product-card {
+    display: flex;
+    gap: 10px;
+    max-width: 280px;
+    background: white;
+    border: 1px solid #e8ecf4;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.chat-product-card-img {
+    width: 80px;
+    flex-shrink: 0;
+    background: #f0f4ff;
+}
+
+.chat-product-card-img img {
+    width: 100%;
+    height: 100%;
+    min-height: 80px;
+    object-fit: cover;
+}
+
+.chat-product-card-body {
+    padding: 8px 10px 10px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.chat-product-card-badge {
+    font-size: 10px;
+    font-weight: 600;
+    color: #0050cb;
+}
+
+.chat-product-card-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.3;
+}
+
+.chat-product-card-price {
+    font-size: 15px;
+    font-weight: 700;
+    color: #28a745;
+    margin-bottom: 4px;
+}
+
+.share-product-list-wrap {
+    max-height: 280px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+}
+
+/* Share modal — widget floating chat */
+#widget-share-product-modal.modern-modal {
+    width: min(340px, calc(100vw - 24px));
+    max-height: min(420px, calc(100vh - 120px));
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+    padding: 0;
+}
+
+#widget-share-product-modal.is-open {
+    display: flex !important;
+}
+
+#widget-share-product-modal .modal-header-modern {
+    padding: 16px 18px 10px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+#widget-share-product-modal .modal-icon-large {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+#widget-share-product-modal .share-product-list-wrap {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    padding: 0 18px 12px;
+    margin-bottom: 0;
+}
+
+#widget-share-product-modal .modal-actions-modern {
+    flex-shrink: 0;
+    margin-top: 0;
+    padding: 10px 18px 14px;
+    border-top: 1px solid #eee;
+}
+
+.share-product-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.share-product-pick {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+    border: 1px solid #e8ecf4;
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    overflow: hidden;
+    text-align: left;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.share-product-pick:hover {
+    border-color: #0050cb;
+    box-shadow: 0 2px 8px rgba(0, 80, 203, 0.12);
+}
+
+.share-product-pick img {
+    width: 100%;
+    height: 72px;
+    object-fit: cover;
+    background: #f0f4ff;
+}
+
+.share-product-pick-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: #333;
+    padding: 6px 8px 2px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.share-product-pick-price {
+    font-size: 12px;
+    font-weight: 700;
+    color: #0050cb;
+    padding: 0 8px 8px;
+}
+
+.share-product-empty,
+.share-product-loading {
+    text-align: center;
+    padding: 24px 12px;
+    color: #888;
+    font-size: 13px;
+}
+
+.share-product-empty .material-symbols-outlined {
+    font-size: 36px;
+    opacity: 0.4;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.share-product-empty-link {
+    display: inline-block;
+    margin-top: 10px;
+    color: #0050cb;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+/* --- Modals (positioning in chat-page.css via .flixo-chat-modals) --- */
+
+/* =========================================
+   ✨ MODERN MODAL DESIGN (อัปเกรดกล่องเสนอราคา)
+   ========================================= */
+
+.super-chat-modal.modern-modal {
+    width: 320px; /* ขยายให้กว้างขึ้นนิดนึงดูไม่อึดอัด */
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    border: 1px solid var(--border-color);
+}
+
+/* ส่วนหัว */
+.modal-header-modern { text-align: center; margin-bottom: 20px; }
+.modal-icon-large {
+    font-size: 35px;
+    margin: 0 auto 15px auto;
+    background: #f8faff;
+    width: 70px; height: 70px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    border: 3px solid #e3f2fd;
+    box-shadow: 0 5px 15px rgba(0,123,255,0.1);
+}
+
+/* กลุ่มช่องกรอกข้อมูล */
+.modern-input-group { margin-bottom: 15px; text-align: left; }
+.modern-input-group label {
+    display: block; font-size: 13px; font-weight: 600;
+    color: var(--text-color); margin-bottom: 8px;
+}
+.modern-input {
+    width: 100%; padding: 12px 15px;
+    border: 2px solid var(--border-color); border-radius: 12px;
+    background: var(--bg-color); color: var(--text-color);
+    font-size: 14px; box-sizing: border-box; transition: 0.3s;
+    font-family: 'Prompt', sans-serif;
+}
+.modern-input:focus {
+    border-color: #007bff; outline: none;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(0,123,255,0.1);
+}
+
+/* ช่องกรอกราคา (มีสัญลักษณ์ ฿) */
+.input-with-icon { position: relative; display: flex; align-items: center; }
+.currency-symbol {
+    position: absolute; left: 15px;
+    color: #007bff; font-weight: bold; font-size: 18px;
+}
+.modern-input.has-icon {
+    padding-left: 40px; font-weight: bold; color: #28a745; font-size: 16px;
+}
+
+/* ปุ่มกดยืนยัน / ยกเลิก */
+.modal-actions-modern { display: flex; gap: 10px; margin-top: 25px; }
+.btn-modern-confirm {
+    flex: 2; background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white; border: none; padding: 12px; border-radius: 12px;
+    font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 14px;
+    box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+}
+.btn-modern-confirm:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,123,255,0.4); }
+.btn-modern-confirm:active { transform: scale(0.95); }
+
+.btn-modern-cancel {
+    flex: 1; background: transparent; color: #888;
+    border: 2px solid var(--border-color); padding: 12px; border-radius: 12px;
+    font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 14px;
+}
+.btn-modern-cancel:hover { background: #f4f6f8; color: #333; border-color: #ddd; }
+
+/* 🌑 รองรับ Dark Mode อัตโนมัติ */
+[data-theme="dark"] .modal-icon-large { background: #1e1e1e; border-color: #333; box-shadow: none; }
+[data-theme="dark"] .modern-input { background: #121212; border-color: #333; }
+[data-theme="dark"] .modern-input:focus { border-color: #4da3ff; background: #1a1a1a; }
+[data-theme="dark"] .btn-modern-cancel { color: #aaa; border-color: #444; }
+[data-theme="dark"] .btn-modern-cancel:hover { background: #333; color: white; border-color: #555; }
+/* --- Animation for Messages --- */
+@keyframes fadeInSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+

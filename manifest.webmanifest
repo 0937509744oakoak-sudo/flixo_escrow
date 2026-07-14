@@ -1,0 +1,26 @@
+{
+  "name": "FLIXO Escrow",
+  "short_name": "FLIXO",
+  "description": "ซื้อขายปลอดภัยด้วยระบบ Escrow",
+  "start_url": "/flixo_escrow/dashboard.php?tab=home",
+  "scope": "/flixo_escrow/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "lang": "th",
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

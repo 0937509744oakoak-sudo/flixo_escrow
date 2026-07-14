@@ -1,0 +1,3 @@
+# ปฏิเสธการเข้าถึงผ่าน URL โดยตรงทั้งหมด
+Order Deny,Allow
+Deny from all

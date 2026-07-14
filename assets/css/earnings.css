@@ -1,0 +1,227 @@
+.earnings-page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 20px 48px;
+}
+
+.earnings-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--flixo-primary, #2563eb);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.earnings-back:hover { text-decoration: underline; }
+
+.earnings-hero {
+    margin-bottom: 24px;
+}
+
+.earnings-hero h1 {
+    margin: 0 0 6px;
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+.earnings-hero p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.earnings-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.earnings-stat {
+    border-radius: 16px;
+    padding: 20px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+.earnings-stat--available {
+    background: linear-gradient(135deg, #059669, #10b981);
+}
+
+.earnings-stat--escrow {
+    background: linear-gradient(135deg, #d97706, #f59e0b);
+    color: #1f2937;
+}
+
+.earnings-stat--meta {
+    background: linear-gradient(135deg, #475569, #334155);
+}
+
+.earnings-stat-label {
+    margin: 0 0 8px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.9;
+}
+
+.earnings-stat-value {
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.earnings-stat-sub {
+    margin-top: 6px;
+    font-size: 13px;
+    opacity: 0.92;
+}
+
+.earnings-notice {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.earnings-notice .material-symbols-outlined {
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.earnings-notice--info {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+}
+
+.earnings-notice--warn {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+}
+
+.earnings-notice--success {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+}
+
+.earnings-card-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.earnings-card-head h2 {
+    margin: 0;
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: 1.1rem;
+}
+
+.earnings-card-head .material-symbols-outlined {
+    color: var(--flixo-primary, #2563eb);
+}
+
+.earnings-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.earnings-field,
+.earnings-form-grid select,
+.earnings-form-grid input,
+.earnings-full-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: inherit;
+    background: var(--flixo-surface, #fff);
+    box-sizing: border-box;
+}
+
+.earnings-field:focus,
+.earnings-form-grid select:focus,
+.earnings-form-grid input:focus,
+.earnings-full-input:focus {
+    outline: 2px solid rgba(37, 99, 235, 0.25);
+    border-color: var(--flixo-primary, #2563eb);
+}
+
+.earnings-bank-current {
+    padding: 12px 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+.earnings-table-wrap { overflow-x: auto; }
+
+.earnings-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.earnings-table th,
+.earnings-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+}
+
+.earnings-table th {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+}
+
+.earnings-amount--credit { color: #059669; font-weight: 600; }
+.earnings-amount--debit { color: #dc2626; font-weight: 600; }
+
+.earnings-type-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.earnings-empty {
+    text-align: center;
+    padding: 28px 16px;
+    color: #94a3b8;
+}
+
+.earnings-withdraw-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: end;
+}
+
+@media (max-width: 640px) {
+    .earnings-form-grid,
+    .earnings-withdraw-row {
+        grid-template-columns: 1fr;
+    }
+}

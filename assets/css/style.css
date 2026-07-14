@@ -1,0 +1,1427 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+
+
+:root {
+    --bg-color: #f8f9ff;
+    --text-color: #0b1c30;
+    --navbar-bg: #ffffff;
+    --footer-bg: #e5eeff;
+    --footer-text: #424656;
+    --card-bg: #ffffff;
+    --border-color: #c2c6d8;
+    --primary-color: #0050cb;
+    --primary-gradient: linear-gradient(135deg, #0050cb 0%, #003fa4 100%);
+    --card-hover: #eff4ff;
+    --shadow-color: rgba(0,0,0,0.05);
+    --price-color: #006645;
+
+    --font-heading: 'Hanken Grotesk', sans-serif;
+    --font-body: 'Inter', sans-serif;
+}
+
+[data-theme="dark"] {
+    --bg-color: #0b1c30;
+    --text-color: #eaf1ff;
+    --navbar-bg: #213145;
+    --footer-bg: #131b2e;
+    --footer-text: #bec6e0;
+    --card-bg: #131b2e;
+    --border-color: #3f465c;
+    --primary-color: #b3c5ff;
+    --primary-gradient: linear-gradient(135deg, #003fa4 0%, #001849 100%);
+    --card-hover: #213145;
+    --shadow-color: rgba(0,0,0,0.2);
+    --price-color: #4edea3;
+}
+
+body {
+   font-family: var(--font-body);
+    margin: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    padding-bottom: 24px;
+}
+h1, h2, h3, h4, h5, h6, .logo a {
+    font-family: var(--font-heading);
+    letter-spacing: -0.01em;
+}
+body.page-loaded {
+    animation: fadeInPage 0.45s ease forwards;
+}
+
+a { text-decoration: none; color: inherit; }
+
+@keyframes fadeInPage {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================
+   2. NAVBAR
+   ========================================= */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 15px 40px;
+    background-color: var(--navbar-bg, #ffffff);
+    border-bottom: 1px solid var(--border-color, #c2c6d8);
+    position: sticky;
+    top: 0;
+    z-index: 1100;
+    box-shadow: 0 12px 30px var(--shadow-color, rgba(0, 0, 0, 0.05));
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    isolation: isolate;
+}
+.logo a, .logo { font-size: 24px; font-weight: bold; color: var(--primary-color); letter-spacing: 1px; }
+.nav-links { display: flex; align-items: center; gap: 25px; }
+.navbar .nav-item {
+    font-weight: 500; font-size: 15px; display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 12px; border-radius: 8px; transition: background 0.2s ease, color 0.2s ease;
+}
+.navbar .nav-item:hover { background: var(--card-hover); color: var(--primary-color); }
+.theme-btn {
+    background: transparent; border: 1px solid var(--border-color);
+    color: var(--text-color); padding: 8px 15px; border-radius: 20px;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-family: 'Prompt', sans-serif;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.theme-btn:hover { background: var(--card-hover); }
+#theme-toggle { cursor: pointer; }
+
+.bottom-nav {
+    position: fixed !important;
+    bottom: 0 !important;
+    top: auto !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    background: var(--card-bg);
+    display: flex; justify-content: space-around; padding: 10px 0;
+    box-shadow: 0 -8px 30px var(--shadow-color);
+    z-index: 10000; border-top: 1px solid var(--border-color);
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
+}
+.bottom-nav .nav-item {
+    position: relative; display: inline-flex; align-items: center; justify-content: center;
+    text-align: center; color: var(--text-color); text-decoration: none;
+    font-size: 14px; font-weight: 500; transition: background 0.3s ease, color 0.3s ease;
+    padding: 8px 12px; border-radius: 12px; min-width: 70px;
+}
+.bottom-nav .nav-item:hover {
+    color: var(--primary-color); background: var(--card-hover);
+}
+.bottom-nav form { margin: 0; }
+.bottom-nav .badge {
+    position: absolute; top: 6px; right: 8px; background: #e74c3c;
+    color: white; border-radius: 50%; padding: 2px 6px;
+    font-size: 10px; font-weight: bold;
+}
+
+/* =========================================
+   3. DASHBOARD COMPONENTS
+   ========================================= */
+.dashboard-banner {
+    background: var(--primary-gradient); color: white; padding: 60px 20px;
+    text-align: center; border-radius: 0 0 20px 20px; margin-bottom: 30px;
+}
+.hero-header {
+    padding: 40px 20px 20px; margin-bottom: 20px;
+    animation: fadeInUp 0.55s ease forwards;
+}
+.hero-content { max-width: 900px; margin: 0 auto; text-align: center; }
+.hero-header h1 { font-size: 38px; margin-bottom: 8px; line-height: 1.05; }
+.hero-header p { opacity: 0.85; margin-bottom: 20px; }
+.modern-search {
+    display: inline-flex; width: 100%; max-width: 540px; overflow: hidden;
+    border-radius: 999px; box-shadow: 0 12px 30px var(--shadow-color);
+    background: var(--card-bg);
+}
+.modern-search input {
+    flex: 1; padding: 16px 20px; border: none; outline: none;
+    font-size: 16px; background: var(--card-bg); color: var(--text-color);
+}
+.modern-search button {
+    border: none; background: var(--card-bg); color: var(--primary-color);
+    padding: 0 22px; font-weight: 700; cursor: pointer;
+}
+.modern-search button:hover { background: var(--card-hover); }
+.search-results { display: grid; gap: 15px; margin-top: 24px; }
+.quick-actions {
+    display: flex; justify-content: center; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; padding: 0 20px;
+}
+.action-card {
+    background: var(--card-bg); border: 1px solid var(--border-color);
+    padding: 20px; border-radius: 18px; text-align: center; width: 140px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06); transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    transform: translateY(0);
+    animation: fadeInUp 0.6s ease forwards;
+}
+.action-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 35px rgba(0,0,0,0.12);
+    border-color: rgba(0,123,255,0.22);
+}
+.menu-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 18px; padding: 0 40px; margin-bottom: 35px;
+}
+.menu-card {
+    background: var(--card-bg); border-radius: 18px;
+    padding: 20px; display: flex; align-items: center; gap: 14px;
+    border: 1px solid var(--border-color); box-shadow: 0 14px 30px var(--shadow-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+    animation: fadeInUp 0.55s ease forwards;
+}
+.menu-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 24px 45px var(--shadow-color);
+    border-color: rgba(0,123,255,0.2);
+    background: var(--card-hover);
+}
+.menu-icon { font-size: 28px; }
+.menu-card span { font-weight: 600; }
+.user-result-card {
+    background: var(--card-bg); border: 1px solid var(--border-color);
+    border-radius: 18px; padding: 18px; display: flex;
+    justify-content: space-between; align-items: center; gap: 16px;
+    box-shadow: 0 14px 30px rgba(0,0,0,0.05); transition: transform 0.25s ease, box-shadow 0.25s ease;
+    animation: fadeInUp 0.55s ease forwards;
+}
+.user-result-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 22px 40px rgba(0,0,0,0.1);
+}
+.user-info-group { display: flex; align-items: center; gap: 14px; }
+.result-avatar {
+    width: 50px; height: 50px; border-radius: 50%; background: #e8f1ff;
+    display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--primary-color);
+    font-weight: 700;
+}
+.result-name { font-size: 16px; font-weight: 700; }
+.result-rating { font-size: 13px; color: #777; margin-top: 4px; }
+.user-action-group { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.btn-outline {
+    border: 1px solid var(--border-color); background: transparent; color: var(--text-color);
+    border-radius: 12px; padding: 10px 18px; transition: all 0.2s ease;
+}
+.btn-outline:hover { background: rgba(0,123,255,0.08); border-color: rgba(0,123,255,0.3); }
+.btn-solid {
+    border-radius: 12px; padding: 10px 18px; color: white;
+    background: var(--primary-color); border: none; transition: background 0.2s ease, transform 0.2s ease;
+}
+.btn-solid:hover { background: #0056cc; transform: translateY(-2px); }
+.product-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 25px; padding: 0 40px 60px; max-width: 1200px; margin: 0 auto;
+}
+.product-card {
+    background: var(--card-bg); border-radius: 18px; overflow: hidden;
+    border: 1px solid var(--border-color); display: flex; flex-direction: column;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.06); transform: translateY(0);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    animation: fadeInUp 0.65s ease forwards;
+}
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 24px 45px rgba(0,0,0,0.12);
+    border-color: rgba(0,123,255,0.18);
+}
+.product-img-container { width: 100%; height: 180px; }
+.product-img-container img { width: 100%; height: 100%; object-fit: cover; }
+.product-info { padding: 18px; }
+
+/* =========================================
+   4. ORDERS TABLE
+   ========================================= */
+.order-container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+.table-card {
+    background: var(--card-bg); border-radius: 20px; padding: 25px;
+    margin-bottom: 40px; border: 1px solid var(--border-color);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+    transform: translateY(0);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    animation: fadeInUp 0.7s ease forwards;
+}
+.table-card:hover { transform: translateY(-3px); box-shadow: 0 22px 40px var(--shadow-color); }
+table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+th { text-align: left; padding: 15px; color: #888; border-bottom: 2px solid var(--border-color); }
+td { padding: 15px; vertical-align: middle; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
+.order-img { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; }
+.status-badge { padding: 8px 14px; border-radius: 999px; font-weight: 700; font-size: 12px; letter-spacing: 0.02em; }
+.status-paid { background: #fff8e5; color: #7a5b00; }
+.status-shipped { background: #e8f7ff; color: #05516b; }
+.status-completed { background: #e9f7ec; color: #1a6f2d; }
+.status-cancelled { background: #f8d7da; color: #842029; }
+.btn-action { padding: 8px 15px; border-radius: 9px; cursor: pointer; color: white; display: inline-block; transition: transform 0.2s ease, opacity 0.2s ease; }
+.btn-action:hover { transform: translateY(-2px); opacity: 0.95; }
+
+.site-footer {
+    background: var(--footer-bg); padding: 40px 20px; text-align: center;
+    border-top: 1px solid var(--border-color); margin-top: 40px;
+    animation: fadeInUp 0.6s ease forwards;
+}
+.footer-logo { font-size: 22px; font-weight: 700; margin-bottom: 10px; color: var(--text-color); }
+.footer-text { color: var(--footer-text); margin-bottom: 10px; }
+.copyright { color: var(--footer-text); font-size: 13px; }
+
+/* =========================================
+   5. MOBILE RESPONSIVE
+   ========================================= */
+@media screen and (max-width: 768px) {
+    body { padding-bottom: 90px; font-size: 14px; }
+    .navbar { padding: 10px 15px; justify-content: center; }
+    .nav-links {
+        position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg);
+        border-top: 1px solid var(--border-color); padding: 8px 0 25px;
+        display: flex; justify-content: space-around; z-index: 1000;
+        box-shadow: 0 -5px 15px rgba(0,0,0,0.03);
+    }
+    .menu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 0 15px; gap: 12px; }
+    .menu-card { padding: 18px; }
+    .nav-item { flex-direction: column; font-size: 9px; width: 60px; gap: 3px; background: transparent !important; color: #999; }
+    .nav-item.active { color: var(--primary-color); }
+    .nav-icon { font-size: 20px; margin-bottom: 2px; }
+    .theme-btn { border: none; padding: 0; color: #999; } #theme-text { display: none; }
+
+    .dashboard-banner { padding: 20px 20px 50px 20px; border-radius: 0 0 25px 25px; margin-bottom: 0; text-align: left; }
+    .dashboard-banner h2 { font-size: 20px; margin-bottom: 5px; }
+    .dashboard-banner p { font-size: 12px; opacity: 0.8; margin-bottom: 15px; }
+    .search-box { margin-top: -30px; margin-left: 15px; margin-right: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    .search-box input { padding: 12px 20px; font-size: 14px; }
+    .search-box button { padding: 8px 20px; font-size: 12px; }
+
+    .quick-actions {
+        display: grid !important; grid-template-columns: repeat(4, 1fr) !important;
+        gap: 15px 10px !important; padding: 20px 15px !important; justify-content: center;
+    }
+    .action-card { width: auto !important; min-width: 0 !important; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
+    .action-icon {
+        width: 55px; height: 55px; background: var(--card-bg); border-radius: 18px;
+        display: flex; align-items: center; justify-content: center; font-size: 24px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08); color: var(--primary-color); margin-bottom: 0;
+    }
+    .action-title { font-size: 11px; color: var(--text-color); font-weight: 500; line-height: 1.2; }
+
+    .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 10px; }
+    .product-card { border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border-radius: 10px; }
+    .product-img-container { height: 160px; }
+    .product-img-container img { border-radius: 10px 10px 0 0; }
+    .product-title { font-size: 13px; height: 36px; -webkit-line-clamp: 2; }
+    .product-price { font-size: 16px; font-weight: 600; margin-top: 2px; }
+
+    .btn-chat, .buy-btn { font-size: 11px; padding: 5px 0; border-radius: 4px; height: 28px; display: flex; align-items: center; justify-content: center; }
+    .btn-chat { border: 1px solid var(--border-color); background: transparent; }
+    .buy-btn { background: var(--primary-color); color: white; box-shadow: none; }
+
+    .order-container { padding: 10px !important; margin-top: 10px !important; width: 100% !important; }
+    .table-card { padding: 0 !important; border: none !important; box-shadow: none !important; }
+    table, thead, tbody, th, td, tr { display: block; } thead { display: none; }
+    tr {
+        display: grid; grid-template-areas: "head head" "img detail" "img user" "addr addr" "action action";
+        grid-template-columns: 60px 1fr; gap: 5px 12px; background: var(--card-bg); margin-bottom: 12px; padding: 12px;
+        border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: none;
+    }
+    td { padding: 0 !important; border: none !important; background: transparent !important; }
+    .td-id { grid-area: head; font-size: 11px; color: #999; border-bottom: 1px solid #f0f0f0 !important; padding-bottom: 8px !important; margin-bottom: 8px; }
+    .td-status { position: absolute; top: 12px; right: 12px; transform: scale(0.9); }
+    .td-img { grid-area: img; }
+    .order-img { width: 60px !important; height: 60px !important; border-radius: 4px; }
+    .td-detail { grid-area: detail; font-size: 14px; align-self: start; }
+    .td-user { grid-area: user; font-size: 11px; color: #888; align-self: end; }
+    .td-action { grid-area: action; margin-top: 8px; padding-top: 8px !important; border-top: 1px solid #f0f0f0 !important; }
+    .btn-action { width: 100%; text-align: center; }
+}
+
+/* =========================================
+   6. CHAT WIDGET STYLES (ส่วนที่หายไป)
+   ========================================= */
+
+#chat-launcher {
+    position: fixed; bottom: 20px; right: 20px;
+    width: 60px; height: 60px; background: var(--primary-color);
+    color: white; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px; cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 9999;
+    transition: transform 0.2s;
+}
+#chat-launcher:hover { transform: scale(1.1); }
+
+#chat-window {
+    position: fixed; bottom: 90px; right: 20px;
+    width: 320px; height: 450px;
+    background: white; border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    display: none; /* ซ่อนไว้ก่อน */
+    flex-direction: column; /* เรียงแนวตั้ง */
+    z-index: 9999; border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+/* Header */
+.chat-header {
+    background: var(--primary-color); color: white; padding: 12px 15px;
+    display: flex; justify-content: space-between; align-items: center; font-weight: 600;
+}
+.chat-title-group { display: flex; align-items: center; gap: 10px; }
+.chat-back-btn { display: none; cursor: pointer; font-size: 14px; }
+.chat-minimize-btn { cursor: pointer; font-size: 18px; line-height: 10px; }
+
+/* Body Area */
+.chat-body {
+    flex: 1; overflow-y: auto; padding: 10px; background: #f8f9fa;
+}
+
+/* User List Items */
+.user-row {
+    display: flex; align-items: center; gap: 12px; padding: 10px;
+    background: white; border-bottom: 1px solid #eee;
+    cursor: pointer; transition: background 0.2s;
+}
+.user-row:hover { background: #f1f1f1; }
+.user-avatar {
+    width: 35px; height: 35px; background: #ddd; color: #555;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: bold; font-size: 14px;
+}
+.user-name { font-size: 14px; color: var(--text-color); font-weight: 500; }
+.empty-chat-list { text-align: center; color: #999; margin-top: 20px; font-size: 13px; }
+
+/* Footer Input Area */
+.chat-footer {
+    padding: 10px; background: white; border-top: 1px solid #eee;
+    display: flex; align-items: center; gap: 8px;
+}
+.btn-attach { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--primary-color); }
+#chat-input {
+    flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 20px;
+    outline: none; font-size: 14px; font-family: 'Prompt', sans-serif;
+}
+.send-btn {
+    background: var(--primary-color); color: white; border: none;
+    padding: 8px 12px; border-radius: 50%; cursor: pointer;
+}
+
+/* --- Modals & Messages (ส่วนสำคัญที่ขาดไป!) --- */
+
+.chat-modal {
+    display: none; /* ซ่อนไว้จนกว่า JS จะสั่งเปิด */
+    position: absolute; bottom: 60px; left: 10px; right: 10px;
+    background: white; padding: 15px; border-radius: 10px;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color); z-index: 10001;
+}
+.chat-modal h4 { margin: 0 0 10px; font-size: 16px; color: var(--text-color); }
+.modal-input {
+    width: 100%; padding: 8px; margin-bottom: 5px;
+    border: 1px solid var(--border-color); border-radius: 5px; box-sizing: border-box;
+}
+.btn-confirm {
+    width: 100%; background: #28a745; color: white;
+    border: none; padding: 8px; border-radius: 5px; margin-bottom: 5px; cursor: pointer;
+}
+.btn-cancel {
+    width: 100%; background: #eee; border: none;
+    padding: 8px; border-radius: 5px; cursor: pointer;
+}
+
+/* Chat Messages */
+.msg-row { display: flex; margin-bottom: 10px; }
+.msg-me { justify-content: flex-end; }
+.msg-partner { justify-content: flex-start; }
+.msg-bubble {
+    max-width: 70%; padding: 8px 12px; border-radius: 15px; font-size: 14px; word-wrap: break-word;
+}
+.msg-me .msg-bubble { background: var(--primary-color); color: white; border-bottom-right-radius: 2px; }
+.msg-partner .msg-bubble { background: #e9ecef; color: #333; border-bottom-left-radius: 2px; }
+
+/* Offer Card */
+.offer-card {
+    background: white; border: 1px solid var(--border-color);
+    border-radius: 10px; overflow: hidden; width: 220px; font-size: 13px;
+}
+.offer-header { background: #28a745; color: white; padding: 5px 10px; font-weight: bold; }
+.offer-body { padding: 10px; }
+.offer-price { font-size: 16px; color: #28a745; font-weight: bold; margin: 5px 0; }
+.status-wait { font-size: 11px; color: #888; font-style: italic; }
+.btn-action { width: 100%; padding: 8px; border: none; border-radius: 5px; color: white; cursor: pointer; font-size: 12px; margin-top: 5px; text-decoration: none; display: inline-block; text-align: center; }
+.btn-blue { background: #007bff; }
+.btn-green { background: #28a745; }
+.btn-orange { background: #ffc107; color: #333; }
+/* =========================================
+   7. DASHBOARD REDESIGN (Blue Theme Edition 🔵)
+   ========================================= */
+
+/* Hero Section (คืนชีพสีฟ้าแบบดูแพง) */
+.hero-header {
+    background: var(--primary-gradient); /* กลับมาใช้สีฟ้าไล่เฉด */
+    padding: 40px 20px 80px 20px; /* เพิ่ม Padding ด้านล่างเผื่อให้การ์ดลอยทับ */
+    text-align: center;
+    border-radius: 0 0 40px 40px; /* โค้งมนด้านล่าง */
+    margin-bottom: 0; /* เอา margin ออก เพราะจะใช้ margin ติดลบดึงการ์ดขึ้นมา */
+    position: relative;
+    z-index: 1;
+}
+.hero-header h1 { 
+    margin: 0 0 10px; 
+    color: white; /* ตัวหนังสือสีขาว */
+    font-size: 26px; 
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+}
+.hero-header p { 
+    color: rgba(255,255,255,0.9); /* สีขาวจางๆ */
+    margin: 0 0 25px; 
+    font-size: 15px; 
+}
+
+/* Search Bar บนพื้นฟ้า */
+.modern-search {
+    position: relative; 
+    max-width: 500px; 
+    margin: 0 auto; 
+    display: flex;
+    background: white; /* พื้นหลังขาวตัดกับสีฟ้า */
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15); /* เงาฟุ้งๆ */
+    border-radius: 50px; 
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: 0.3s;
+}
+.modern-search:focus-within {
+    border-color: rgba(255,255,255,0.5);
+    transform: scale(1.02);
+}
+.modern-search input {
+    flex: 1; 
+    border: none; 
+    padding: 15px 25px; 
+    outline: none; 
+    font-size: 15px;
+    color: var(--text-color);
+}
+.modern-search button {
+    background: var(--text-color); /* ปุ่มสีเข้มตัดขาว */
+    color: white; 
+    border: none;
+    padding: 0 30px; 
+    font-weight: 600; 
+    cursor: pointer; 
+    transition: 0.2s;
+}
+.modern-search button:hover { background: black; }
+
+/* Container หลัก (ดึงขึ้นไปทับสีฟ้า) */
+.dashboard-container {
+    max-width: 1000px; 
+    margin: -50px auto 0; /* Negative Margin ดึงขึ้น 50px */
+    padding: 0 20px 40px;
+    position: relative;
+    z-index: 2;
+}
+
+/* Stats Widgets (การ์ดลอย) */
+.stats-row {
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px; 
+    margin-bottom: 40px;
+}
+.stat-card {
+    background: white; 
+    padding: 20px; 
+    border-radius: 16px;
+    display: flex; 
+    align-items: center; 
+    gap: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08); /* เงาต้องนุ่มเพื่อให้ดูลอย */
+    border: 1px solid rgba(0,0,0,0.02);
+    transition: transform 0.2s;
+}
+.stat-card:hover { transform: translateY(-5px); }
+
+/* ไอคอนในการ์ด */
+.stat-icon {
+    width: 50px; height: 50px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 22px;
+}
+.icon-blue { background: #e3f2fd; color: #007bff; }
+.icon-orange { background: #fff3cd; color: #ffc107; }
+.icon-green { background: #d4edda; color: #28a745; }
+
+.stat-info h3 { margin: 0; font-size: 22px; color: var(--text-color); font-weight: 700; }
+.stat-info p { margin: 0; font-size: 13px; color: #888; }
+
+/* Menu Grid (เมนูลัด) */
+.section-heading { 
+    font-size: 18px; 
+    margin-bottom: 20px; 
+    color: var(--text-color); 
+    border-left: 5px solid var(--primary-color); /* ขีดฟ้าด้านหน้า */
+    padding-left: 12px; 
+    font-weight: 600;
+}
+.menu-grid {
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px; 
+    margin-bottom: 40px;
+}
+.menu-card {
+    background: white; 
+    padding: 25px 15px; 
+    border-radius: 16px;
+    text-align: center; 
+    text-decoration: none; 
+    color: var(--text-color);
+    border: 1px solid var(--border-color); 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+    transition: 0.3s; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+}
+/* เพิ่มลูกเล่นสีฟ้าเวลาเอาเมาส์ชี้ */
+.menu-card::after {
+    content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 4px;
+    background: var(--primary-color); transform: scaleX(0); transition: 0.3s;
+}
+.menu-card:hover { 
+    transform: translateY(-5px); 
+    box-shadow: 0 10px 20px rgba(0, 123, 255, 0.1); /* เงาสีฟ้าจางๆ */
+    border-color: transparent;
+}
+.menu-card:hover::after { transform: scaleX(1); }
+
+.menu-icon { 
+    font-size: 32px; 
+    background: #f8f9fa; 
+    width: 60px; height: 60px; 
+    border-radius: 50%; 
+    display: flex; align-items: center; justify-content: center;
+    transition: 0.3s;
+}
+.menu-card:hover .menu-icon { background: #e3f2fd; color: #007bff; }
+
+.highlight-card { 
+    background: #007bff; /* การ์ดนี้สีฟ้าไปเลย */
+    color: white !important;
+    border: none;
+}
+.highlight-card .menu-icon { background: rgba(255,255,255,0.2); color: white; }
+.highlight-card:hover { background: #0056b3; color: white !important; }
+.highlight-card:hover .menu-icon { background: rgba(255,255,255,0.3); color: white; }
+
+/* Search Results */
+.user-result-card {
+    background: white; padding: 15px 20px; border-radius: 12px;
+    border: 1px solid var(--border-color); margin-bottom: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+.user-info-group { display: flex; align-items: center; gap: 15px; }
+.result-avatar {
+    width: 45px; height: 45px; 
+    background: linear-gradient(135deg, #007bff, #0056b3); /* Avatar สีฟ้า */
+    color: white; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-weight: bold;
+}
+.result-name { font-weight: 600; color: var(--text-color); }
+.result-rating { font-size: 12px; color: #ffc107; }
+.user-action-group { display: flex; gap: 10px; }
+.btn-outline {
+    padding: 6px 15px; border: 1px solid var(--border-color); border-radius: 20px;
+    text-decoration: none; font-size: 13px; color: var(--text-color);
+}
+.btn-solid {
+    padding: 6px 15px; background: var(--primary-color); border: none; border-radius: 20px;
+    color: white; cursor: pointer; font-size: 13px;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+}
+.empty-search { text-align: center; padding: 40px; color: #888; background: white; border-radius: 15px; border: 1px dashed #ddd; }
+
+/* Mobile Adjustments */
+@media screen and (max-width: 768px) {
+    .stats-row { grid-template-columns: 1fr; }
+    .hero-header { padding: 30px 15px 70px 15px; border-radius: 0 0 30px 30px; }
+    .dashboard-container { margin-top: -50px; }
+    .user-result-card { flex-direction: column; gap: 15px; align-items: flex-start; }
+    .user-action-group { width: 100%; justify-content: space-between; }
+    .user-action-group a, .user-action-group button { flex: 1; text-align: center; }
+}
+/* =========================================
+   8. ANIMATIONS & EFFECTS (ส่วนเพิ่มความสวย)
+   ========================================= */
+
+/* 1. Chat Widget Animation (เด้งดึ๋ง) */
+#chat-window {
+    /* ตั้งค่าเริ่มต้นให้ซ่อนแบบมีความนัย */
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy Curve */
+    pointer-events: none; /* ห้ามกดตอนซ่อน */
+}
+
+/* คลาสที่จะเติมด้วย JS เพื่อแสดงผล */
+#chat-window.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+}
+
+/* ปุ่มเปิดแชทเด้งตอน Hover */
+#chat-launcher {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
+}
+#chat-launcher:hover {
+    transform: scale(1.1) rotate(-5deg);
+    box-shadow: 0 10px 25px rgba(0, 123, 255, 0.4);
+}
+#chat-launcher:active {
+    transform: scale(0.95);
+}
+
+/* 2. Ripple Effect (คลื่นน้ำเวลากดปุ่ม) */
+.ripple-btn {
+    position: relative;
+    overflow: hidden;
+    transform: translate3d(0, 0, 0);
+}
+.ripple-btn::after {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transform: scale(10, 10);
+    opacity: 0;
+    transition: transform .5s, opacity 1s;
+}
+.ripple-btn:active::after {
+    transform: scale(0, 0);
+    opacity: 0.3;
+    transition: 0s;
+}
+
+/* 3. Skeleton Loading (โหลดข้อความเท่ๆ) */
+@keyframes shimmer {
+    0% { background-position: -468px 0 }
+    100% { background-position: 468px 0 }
+}
+.loading-skeleton {
+    height: 40px;
+    background: #f6f7f8;
+    background-image: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+    background-repeat: no-repeat;
+    background-size: 800px 104px; 
+    animation: shimmer 1s linear infinite;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+/* =========================================
+   9. PROFESSIONAL DARK MODE OVERRIDES 🌑
+   ========================================= */
+
+[data-theme="dark"] {
+    /* 1. ปรับโทนสีพื้นหลังให้ดูแพง (ไม่ใช่ดำสนิท) */
+    --bg-color: #121212;       /* สีพื้นหลังหลัก (เกือบดำ) */
+    --card-bg: #1e1e1e;        /* สีการ์ด (เทาเข้ม) ให้ลอยขึ้นมา */
+    --navbar-bg: #1e1e1e;      /* สีบาร์ด้านบน */
+    --border-color: #333333;   /* สีเส้นขอบ */
+    --text-color: #e0e0e0;     /* สีตัวหนังสือ (ขาวนวล ไม่แสบตา) */
+    
+    /* 2. ปรับสี Primary ให้สว่างขึ้นเพื่อให้เห็นชัดบนพื้นดำ */
+    --primary-color: #4da3ff;  
+    --primary-gradient: linear-gradient(135deg, #102a4e 0%, #163c68 100%); /* Gradient แบบ Deep Blue */
+}
+
+/* --- Global Fixes for Dark Mode --- */
+[data-theme="dark"] body {
+    color-scheme: dark; /* บอก Browser ให้ปรับ Scrollbar เป็นสีดำอัตโนมัติ */
+}
+
+/* Inputs & Forms (แก้ช่องกรอกข้อมูลให้ไม่ขาวโดด) */
+[data-theme="dark"] input, 
+[data-theme="dark"] textarea, 
+[data-theme="dark"] select,
+[data-theme="dark"] .modern-search {
+    background-color: #2d2d2d !important;
+    color: #fff !important;
+    border-color: #444 !important;
+}
+[data-theme="dark"] .modern-search button {
+    background-color: #444 !important; /* ปุ่มค้นหาสีเทาเข้ม */
+}
+
+/* Cards & Shadows (เปลี่ยนเงาเป็นเส้นขอบบางๆ แทน) */
+[data-theme="dark"] .stat-card, 
+[data-theme="dark"] .menu-card, 
+[data-theme="dark"] .user-result-card,
+[data-theme="dark"] .review-card,
+[data-theme="dark"] .table-card,
+[data-theme="dark"] .product-card {
+    box-shadow: none !important; /* เอาเงาออกเพราะมองไม่เห็น */
+    border: 1px solid #333 !important; /* ใส่ขอบแทน */
+}
+
+/* Hover Effects (ทำให้ปุ่มสว่างขึ้นเมื่อชี้) */
+[data-theme="dark"] .menu-card:hover {
+    background-color: #252525;
+    border-color: var(--primary-color) !important;
+}
+
+/* Hero Section (ปรับหัวสีฟ้าให้ดูเข้มขรึม) */
+[data-theme="dark"] .hero-header {
+    background: linear-gradient(180deg, #0f172a 0%, #1e1e1e 100%);
+    border-bottom: 1px solid #333;
+}
+[data-theme="dark"] .hero-header h1 {
+    color: #fff;
+    text-shadow: none;
+}
+
+/* Icons Backgrounds (ปรับพื้นหลังไอคอนให้นุ่มลง) */
+[data-theme="dark"] .icon-blue { background: rgba(77, 163, 255, 0.15); color: #4da3ff; }
+[data-theme="dark"] .icon-orange { background: rgba(255, 193, 7, 0.15); color: #ffc107; }
+[data-theme="dark"] .icon-green { background: rgba(40, 167, 69, 0.15); color: #28a745; }
+[data-theme="dark"] .menu-icon { background: #2d2d2d; }
+
+/* Table Adjustments */
+[data-theme="dark"] th { color: #aaa; border-bottom-color: #444; }
+[data-theme="dark"] td { border-color: #333; }
+[data-theme="dark"] .td-addr div { background: #2d2d2d !important; }
+
+/* Chat Specifics (แก้แชทให้สวยในโหมดมืด) */
+[data-theme="dark"] .chat-header,
+[data-theme="dark"] .chat-footer,
+[data-theme="dark"] .chat-input-wrapper {
+    background-color: #1e1e1e;
+    border-color: #333;
+}
+[data-theme="dark"] .chat-body {
+    background-color: #121212; /* พื้นหลังแชทมืดสุด */
+}
+[data-theme="dark"] .user-row:hover {
+    background-color: #2d2d2d;
+}
+[data-theme="dark"] .partner-msg .bubble {
+    background-color: #2d2d2d; /* บับเบิ้ลคู่สนทนาสีเทาเข้ม */
+    color: #e0e0e0;
+    border: 1px solid #333;
+}
+[data-theme="dark"] .my-msg .bubble {
+    background-color: #0056b3; /* บับเบิ้ลเราสีน้ำเงินเข้มขึ้น */
+    color: #fff;
+}
+/* =========================================
+   10. FIX GRAY TEXT CONTRAST (แก้สีเทาให้ชัดขึ้น)
+   ========================================= */
+
+[data-theme="dark"] p,
+[data-theme="dark"] .stat-info p,
+[data-theme="dark"] .stat-sub,
+[data-theme="dark"] .chat-time,
+[data-theme="dark"] .date-text,
+[data-theme="dark"] .review-date,
+[data-theme="dark"] .product-seller,
+[data-theme="dark"] .td-user,
+[data-theme="dark"] .td-detail div:nth-child(2), /* วันที่ในตาราง */
+[data-theme="dark"] .empty-search,
+[data-theme="dark"] .empty-state,
+[data-theme="dark"] .nav-item {
+    color: #b0b3b8 !important; /* เปลี่ยนเป็นสีเทาสว่าง (Cool Gray) */
+}
+
+/* แก้หัวตารางให้ชัดขึ้น */
+[data-theme="dark"] th {
+    color: #d1d5db !important; /* สีเกือบขาว */
+    border-bottom-color: #444;
+}
+
+/* แก้ไอคอนและข้อความในเมนูที่ยังจมอยู่ */
+[data-theme="dark"] .nav-item {
+    color: #9ca3af !important;
+}
+[data-theme="dark"] .nav-item.active {
+    color: var(--primary-color) !important;
+}
+
+/* แก้ Placeholder ในช่องกรอกข้อมูล */
+[data-theme="dark"] ::placeholder {
+    color: #6b7280 !important; /* เทากลางๆ ไม่จม */
+}
+
+/* แก้ปุ่มยกเลิก/ปุ่มรอง ให้เห็นขอบชัดขึ้น */
+[data-theme="dark"] .btn-cancel,
+[data-theme="dark"] .btn-outline {
+    border-color: #555 !important;
+    color: #e0e0e0 !important;
+}
+[data-theme="dark"] .btn-cancel:hover,
+[data-theme="dark"] .btn-outline:hover {
+    background: #333 !important;
+}
+/* =========================================
+   11. FIX CARDS IN DARK MODE (แก้การ์ดให้เป็นพื้นดำ ตัวหนังสือขาว)
+   ========================================= */
+
+/* 1. แก้กล่องเมนู (Menu Card) และ กล่องสถานะ (Stat Card) */
+[data-theme="dark"] .menu-card,
+[data-theme="dark"] .stat-card {
+    background-color: #1e1e1e !important; /* เปลี่ยนพื้นหลังเป็นสีเทาเข้มเกือบดำ */
+    border: 1px solid #333 !important;    /* เส้นขอบสีเทาเข้ม */
+    box-shadow: none !important;          /* เอาเงาออก */
+}
+
+/* 2. แก้สีตัวหนังสือข้างในให้เป็นสีขาว */
+[data-theme="dark"] .menu-card span,      /* ข้อความในเมนู */
+[data-theme="dark"] .stat-info h3,        /* ตัวเลขใน Stat */
+[data-theme="dark"] .stat-info p {        /* คำอธิบายใน Stat */
+    color: #ffffff !important;
+}
+
+/* 3. แก้สีพื้นหลังของไอคอนวงกลมในเมนู */
+[data-theme="dark"] .menu-icon {
+    background-color: #2d2d2d !important; /* พื้นหลังไอคอนสีเทาเข้ม */
+    color: #4da3ff !important;            /* ไอคอนสีฟ้าสว่าง */
+}
+
+/* 4. ยกเว้นการ์ด Highlight (ปุ่มเปิดแชท) ให้เป็นสีฟ้าเหมือนเดิม */
+[data-theme="dark"] .highlight-card {
+    background-color: var(--primary-color) !important;
+    border: none !important;
+}
+[data-theme="dark"] .highlight-card span {
+    color: #ffffff !important;
+}
+[data-theme="dark"] .highlight-card .menu-icon {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+/* 5. เอฟเฟกต์ตอนเอาเมาส์ชี้ (Hover) ในโหมดมืด */
+[data-theme="dark"] .menu-card:not(.highlight-card):hover {
+    background-color: #2d2d2d !important; /* สว่างขึ้นนิดนึงตอนชี้ */
+    border-color: var(--primary-color) !important;
+}
+
+/* =========================================
+   7. APP NAVBAR (Dashboard UI)
+   ========================================= */
+.navbar-app {
+    padding: 14px 32px;
+    gap: 20px;
+    background-color: var(--navbar-bg, #ffffff);
+}
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+    min-width: 0;
+}
+.nav-main-links {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+.nav-main-link {
+    font-size: 15px;
+    font-weight: 500;
+    color: #6b7280;
+    padding-bottom: 6px;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+.nav-main-link:hover {
+    color: var(--primary-color);
+}
+.nav-main-link.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    font-weight: 600;
+}
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+.nav-search-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f3f4f8;
+    border: 1px solid #e5e7ef;
+    border-radius: 999px;
+    padding: 8px 14px;
+    min-width: 180px;
+}
+.nav-search-form input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 14px;
+    color: var(--text-color);
+    width: 120px;
+}
+.nav-search-icon {
+    font-size: 14px;
+    opacity: 0.55;
+    line-height: 1;
+}
+.nav-icon-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid #e5e7ef;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 600;
+    color: #4b5563;
+    position: relative;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+.nav-icon-btn:hover {
+    background: var(--card-hover);
+    border-color: #cdd5e8;
+}
+.nav-theme-btn {
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+}
+.nav-theme-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+.nav-icon-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    background: #e74c3c;
+    color: #fff;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+}
+.nav-profile-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0056d2, #3b82f6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+}
+.nav-login-btn {
+    background: var(--primary-color);
+    color: #fff;
+    padding: 8px 15px;
+    border-radius: 20px;
+}
+
+/* =========================================
+   8. DASHBOARD V2 LAYOUT
+   ========================================= */
+.dashboard-v2 {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px 40px;
+}
+.dashboard-v2 .hero-section {
+    background: linear-gradient(135deg, #0056d2 0%, #0f6dff 100%);
+    color: #fff;
+    border-radius: 0 0 28px 28px;
+    padding: 48px 40px 56px;
+    margin: 0 -24px 32px;
+    box-shadow: 0 12px 40px rgba(0, 86, 210, 0.22);
+}
+.dashboard-v2 .hero-content {
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+}
+.dashboard-v2 .hero-section h1 {
+    font-size: 36px;
+    margin: 0 0 8px;
+    line-height: 1.15;
+}
+.dashboard-v2 .hero-section p {
+    opacity: 0.92;
+    margin: 0 0 28px;
+    font-size: 16px;
+}
+.dashboard-v2 .search-box {
+    display: flex;
+    gap: 0;
+    max-width: 720px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+.dashboard-v2 .search-box input {
+    flex: 1;
+    border: none;
+    padding: 18px 22px;
+    font-size: 15px;
+    outline: none;
+    color: #1f2937;
+}
+.dashboard-v2 .search-box button {
+    border: none;
+    background: #0056d2;
+    color: #fff;
+    padding: 0 32px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.dashboard-v2 .search-box button:hover {
+    background: #004bb5;
+}
+.quick-menu-section h2 {
+    font-size: 18px;
+    margin: 0 0 16px;
+    font-weight: 700;
+}
+.quick-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+}
+.quick-card {
+    background: #fff;
+    border: 1px solid #e8ecf4;
+    border-radius: 16px;
+    text-decoration: none;
+    color: #1f2937;
+    text-align: center;
+    padding: 22px 14px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+.quick-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+}
+.quick-card.active {
+    border: 2px solid #0056d2;
+    box-shadow: 0 8px 24px rgba(0, 86, 210, 0.12);
+}
+.quick-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+    line-height: 1;
+}
+.quick-label {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.35;
+}
+.search-results-section {
+    margin-bottom: 28px;
+}
+.dashboard-main {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+.transactions-card,
+.wallet-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eef1f6;
+}
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+.card-header h3 {
+    margin: 0;
+    font-size: 17px;
+}
+.card-header-link {
+    font-size: 14px;
+    color: #0056d2;
+    font-weight: 600;
+}
+.transaction-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: #f5f8ff;
+    border-radius: 14px;
+    margin-bottom: 10px;
+}
+.transaction-item:last-child {
+    margin-bottom: 0;
+}
+.transaction-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+.transaction-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+.transaction-title {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+.transaction-right {
+    text-align: right;
+    flex-shrink: 0;
+}
+.transaction-right .amount {
+    color: #0056d2;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 6px;
+}
+.status-pill {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.status-success {
+    background: #d1fae5;
+    color: #047857;
+}
+.status-progress {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+.status-pending {
+    background: #fef3c7;
+    color: #b45309;
+}
+.status-dispute {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+.status-cancelled {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+.small-text {
+    color: #6b7280;
+    font-size: 13px;
+}
+.sidebar-box {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.wallet-card h3 {
+    margin: 0 0 4px;
+    font-size: 17px;
+}
+.wallet-label {
+    color: #6b7280;
+    font-size: 13px;
+}
+.wallet-balance {
+    font-size: 34px;
+    font-weight: 700;
+    margin: 12px 0 8px;
+    line-height: 1.1;
+}
+.wallet-escrow-note {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 16px;
+}
+.wallet-actions {
+    display: flex;
+    gap: 10px;
+}
+.wallet-actions .btn-primary,
+.wallet-actions .btn-outline {
+    flex: 1;
+    text-align: center;
+    padding: 13px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    display: block;
+}
+.wallet-actions .btn-primary {
+    background: #0056d2;
+    color: #fff;
+    border: none;
+}
+.wallet-actions .btn-primary:hover {
+    background: #004bb5;
+}
+.wallet-actions .btn-outline {
+    border: 1px solid #0056d2;
+    color: #0056d2;
+    background: #fff;
+}
+.wallet-actions .btn-outline:hover {
+    background: #f0f6ff;
+}
+.security-card {
+    background: linear-gradient(145deg, #1e2d3e 0%, #14233c 100%);
+    color: #fff;
+    border-radius: 20px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+}
+.security-shield {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    font-size: 64px;
+    opacity: 0.12;
+}
+.security-card h3 {
+    margin: 0 0 6px;
+    font-size: 17px;
+}
+.security-card p {
+    margin: 0;
+    opacity: 0.85;
+    font-size: 14px;
+}
+.security-btn {
+    display: inline-block;
+    margin-top: 18px;
+    background: #fff;
+    color: #14233c;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+}
+.security-btn:hover {
+    background: #f0f4ff;
+}
+.admin-quick-link {
+    margin-top: 20px;
+    text-align: center;
+}
+.admin-quick-link a {
+    color: #4b5563;
+    font-weight: 600;
+}
+
+@media screen and (max-width: 992px) {
+    .navbar-app {
+        padding: 12px 16px;
+        flex-wrap: wrap;
+    }
+    .nav-main-links {
+        gap: 16px;
+    }
+    .nav-search-form {
+        min-width: 0;
+    }
+    .quick-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .dashboard-main {
+        grid-template-columns: 1fr;
+    }
+    .dashboard-v2 .hero-section {
+        padding: 32px 20px 40px;
+        margin: 0 -16px 24px;
+        border-radius: 0 0 20px 20px;
+    }
+    .dashboard-v2 .hero-section h1 {
+        font-size: 26px;
+    }
+    .dashboard-v2 {
+        padding: 0 16px 32px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .nav-main-links {
+        display: none;
+    }
+    .nav-search-form input {
+        width: 80px;
+    }
+    .quick-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .transaction-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .transaction-right {
+        text-align: left;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+}

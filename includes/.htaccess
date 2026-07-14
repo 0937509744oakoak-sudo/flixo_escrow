@@ -1,0 +1,5 @@
+# Deny all direct access to the includes folder
+<Files *>
+    Order Deny,Allow
+    Deny from all
+</Files>
