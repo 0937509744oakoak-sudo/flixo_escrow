@@ -48,6 +48,7 @@ try {
     $userModel = new User($conn);
     $oauthModel = new OAuthAccount($conn);
     $consentModel = new Consent($conn);
+    $oauthModel->ensureTable();
 
     $oauthRow = $oauthModel->findByProvider('google', $googleSub);
     $user = null;
@@ -59,8 +60,8 @@ try {
 
     if (!$user) {
         $user = $userModel->findByEmail($email);
-        if ($user && !$oauthModel->link((int) $user['id'], 'google', $googleSub, $email)) {
-            throw new Exception('เชื่อมบัญชี Google ไม่สำเร็จ');
+        if ($user) {
+            $oauthModel->link((int) $user['id'], 'google', $googleSub, $email);
         }
     }
 
@@ -96,9 +97,7 @@ try {
             throw new Exception('เกิดข้อผิดพลาดทางเทคนิค กรุณาลองใหม่');
         }
 
-        if (!$oauthModel->link((int) $userId, 'google', $googleSub, $email)) {
-            throw new Exception('เชื่อมบัญชี Google ไม่สำเร็จ');
-        }
+        $oauthModel->link((int) $userId, 'google', $googleSub, $email);
 
         $consentModel->record((int) $userId, 'terms_of_service', TERMS_VERSION);
         $consentModel->record((int) $userId, 'privacy_policy', PRIVACY_VERSION);
@@ -118,7 +117,12 @@ try {
     }
 
     if (!$oauthModel->findByUserAndProvider((int) $user['id'], 'google')) {
-        $oauthModel->link((int) $user['id'], 'google', $googleSub, $email);
+        try {
+            $oauthModel->link((int) $user['id'], 'google', $googleSub, $email);
+        } catch (RuntimeException $e) {
+            // Already logged in by email match — linking is best-effort for edge cases
+            error_log('OAuth best-effort link: ' . $e->getMessage());
+        }
     }
 
     if (!$consentModel->hasCurrentPolicyConsent((int) $user['id'])) {
