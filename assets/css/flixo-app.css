@@ -958,6 +958,42 @@ body.flixo-chat-active {
     color: var(--flixo-primary);
 }
 
+.profile-pdpa-card .profile-pdpa-list {
+    margin: 12px 0 16px;
+    padding-left: 18px;
+    color: var(--flixo-on-surface-variant, #5c647a);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.profile-pdpa-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+@media (min-width: 640px) {
+    .profile-pdpa-actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+}
+
+.profile-pdpa-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 12px;
+}
+
+.profile-pdpa-btn .material-symbols-outlined {
+    font-size: 20px;
+}
+
 /* Escrow guide strip */
 .escrow-guide-card {
     margin-top: 32px;

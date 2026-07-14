@@ -167,7 +167,51 @@ $display_name = User::resolveDisplayName($user['real_name'] ?? '', $me);
 
         <a href="earnings.php" class="btn-flixo-primary">เปิดกระเป๋าเงิน</a>
 
-        <a href="privacy.php" class="btn-flixo-outline" style="margin-left:8px;">ความเป็นส่วนตัว</a>
+    </div>
+
+</div>
+
+
+
+<div class="flixo-card profile-pdpa-card">
+
+    <div class="card-header-flex">
+
+        <div>
+
+            <h3>ความเป็นส่วนตัว (PDPA)</h3>
+
+            <p class="tx-meta" style="margin:4px 0 0;">จัดการสิทธิข้อมูลส่วนบุคคลตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล</p>
+
+        </div>
+
+    </div>
+
+    <ul class="profile-pdpa-list">
+
+        <li>ดาวน์โหลดข้อมูลของฉัน</li>
+
+        <li>ถอนความยินยอม KYC</li>
+
+        <li>ขอลบบัญชี / ดูประวัติความยินยอม</li>
+
+    </ul>
+
+    <div class="profile-pdpa-actions">
+
+        <a href="privacy.php" class="btn-flixo-primary profile-pdpa-btn">
+
+            <span class="material-symbols-outlined" aria-hidden="true">privacy_tip</span>
+
+            เปิดการตั้งค่าความเป็นส่วนตัว
+
+        </a>
+
+        <a href="privacy_policy.php" class="btn-flixo-outline profile-pdpa-btn" target="_blank" rel="noopener">
+
+            อ่านนโยบายความเป็นส่วนตัว
+
+        </a>
 
     </div>
 
