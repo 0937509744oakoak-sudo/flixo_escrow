@@ -35,6 +35,9 @@ try {
         if ($price === false || $price <= 0 || $p_name === '') {
             throw new Exception('กรุณากรอกชื่อสินค้าและราคาให้ถูกต้อง');
         }
+        if (empty($_POST['consent_listing_rules'])) {
+            throw new Exception('กรุณายืนยันว่าสินค้าไม่ผิดกฎหมาย ไม่ละเมิดลิขสิทธิ์ และไม่ใช่สินค้าควบคุม');
+        }
         if (mb_strlen($p_name) > 100) {
             $p_name = mb_substr($p_name, 0, 100);
         }

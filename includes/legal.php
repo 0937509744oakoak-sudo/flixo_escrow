@@ -2,7 +2,7 @@
 // includes/legal.php — PDPA document versions (bump when policies change)
 
 if (!defined('TERMS_VERSION')) {
-    define('TERMS_VERSION', '1.0');
+    define('TERMS_VERSION', '1.1');
 }
 if (!defined('PRIVACY_VERSION')) {
     define('PRIVACY_VERSION', '1.0');

@@ -4,6 +4,7 @@
  */
 require_once __DIR__ . '/includes/init.php';
 require_once __DIR__ . '/models/Product.php';
+require_once __DIR__ . '/includes/platform_rules.php';
 
 if (!empty($_SESSION['user'])) {
     redirectTo('dashboard.php');
@@ -89,6 +90,24 @@ $catalogPageUrl = static function (int $page) use ($search_query, $category_filt
                 <span>ระบบโอนเงินให้ผู้ขายหลังคุณพอใจ</span>
             </li>
         </ol>
+    </section>
+
+    <section class="landing-rules" aria-labelledby="rules-title" id="hard-rules">
+        <h2 id="rules-title" class="landing-section-title">กฎเหล็กความปลอดภัย</h2>
+        <p class="landing-section-sub">เรามีมาตรการควบคุม — ห้ามลงขายสินค้าผิดกฎหมาย ละเมิดลิขสิทธิ์ และสินค้าควบคุม</p>
+        <ul class="landing-rules-grid">
+            <?php foreach (flixo_hard_rules() as $rule): ?>
+            <li class="landing-rule-card">
+                <span class="material-symbols-outlined landing-rule-icon" aria-hidden="true"><?php echo htmlspecialchars($rule['icon']); ?></span>
+                <strong><?php echo htmlspecialchars($rule['title']); ?></strong>
+                <span><?php echo htmlspecialchars($rule['desc']); ?></span>
+            </li>
+            <?php endforeach; ?>
+        </ul>
+        <p class="landing-rules-foot">
+            ผู้ละเมิดอาจถูกถอดประกาศ ระงับบัญชี และส่งเรื่องต่อตามกฎหมาย
+            <a href="terms_of_service.php#hard-rules">อ่านข้อกำหนดการใช้งานฉบับเต็ม</a>
+        </p>
     </section>
 
     <section class="landing-catalog product-catalog-section" id="catalog">
@@ -189,7 +208,7 @@ $catalogPageUrl = static function (int $page) use ($search_query, $category_filt
         <span class="landing-footer-brand">FLIXO</span>
         <nav>
             <a href="privacy_policy.php">นโยบายความเป็นส่วนตัว</a>
-            <a href="terms_of_service.php">ข้อกำหนดการใช้งาน</a>
+            <a href="terms_of_service.php#hard-rules">ข้อกำหนดและกฎเหล็ก</a>
             <a href="mailto:<?php echo htmlspecialchars(defined('MAIL_FROM_ADDRESS') && MAIL_FROM_ADDRESS ? MAIL_FROM_ADDRESS : 'support@flixo.app'); ?>">ติดต่อฝ่ายสนับสนุน</a>
         </nav>
         <p>© <?php echo date('Y'); ?> FLIXO — เงินพักกลางจนกว่าของถึงมือ</p>

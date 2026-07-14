@@ -132,6 +132,70 @@
     color: var(--flixo-on-surface-variant, #5c647a);
 }
 
+.landing-rules {
+    margin-bottom: 40px;
+}
+
+.landing-rules-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 14px;
+}
+
+@media (min-width: 768px) {
+    .landing-rules-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+}
+
+.landing-rule-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 18px 16px;
+    background: #fff;
+    border: 1px solid rgba(183, 28, 28, 0.12);
+    border-radius: 16px;
+    border-left: 3px solid #c62828;
+}
+
+.landing-rule-icon {
+    color: #c62828;
+    font-size: 24px;
+    font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+
+.landing-rule-card strong {
+    font-size: 15px;
+    color: var(--flixo-on-surface, #0b1c30);
+}
+
+.landing-rule-card span:last-child {
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--flixo-on-surface-variant, #5c647a);
+}
+
+.landing-rules-foot {
+    margin: 16px 0 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--flixo-on-surface-variant, #5c647a);
+}
+
+.landing-rules-foot a {
+    color: var(--flixo-primary, #0050cb);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.landing-rules-foot a:hover {
+    text-decoration: underline;
+}
+
 .landing-filters {
     display: flex;
     flex-wrap: wrap;

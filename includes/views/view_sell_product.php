@@ -80,6 +80,32 @@ $max_images = Product::MAX_IMAGES;
                 </div>
             </div>
 
+            <?php
+            require_once __DIR__ . '/../platform_rules.php';
+            $hardRules = flixo_hard_rules();
+            ?>
+            <div class="sell-rules-box">
+                <div class="sell-rules-head">
+                    <span class="material-symbols-outlined">policy</span>
+                    <div>
+                        <h4 class="sell-rules-title">กฎเหล็กการลงประกาศ</h4>
+                        <p class="sell-rules-lead">ห้ามลงขายสินค้าผิดกฎหมาย สินค้าละเมิดลิขสิทธิ์ หรือสินค้าควบคุม</p>
+                    </div>
+                </div>
+                <ul class="sell-rules-list">
+                    <?php foreach ($hardRules as $rule): ?>
+                        <li><strong><?php echo htmlspecialchars($rule['title']); ?></strong> — <?php echo htmlspecialchars($rule['desc']); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+                <label class="sell-rules-consent">
+                    <input type="checkbox" name="consent_listing_rules" id="sell-consent-rules" value="1" required>
+                    <span>
+                        ข้าพเจ้ายืนยันว่าสินค้านี้ไม่ผิดกฎหมาย ไม่ละเมิดลิขสิทธิ์ ไม่ใช่สินค้าควบคุม
+                        และยอมรับ <a href="terms_of_service.php#hard-rules" target="_blank" rel="noopener">ข้อกำหนดการใช้งาน</a>
+                    </span>
+                </label>
+            </div>
+
             <div class="sell-form-actions">
                 <button type="submit" class="sell-btn-primary" id="sell-submit-btn">
                     <span class="sell-btn-text">ลงประกาศขายสินค้า</span>
@@ -91,9 +117,9 @@ $max_images = Product::MAX_IMAGES;
     </section>
 
     <p class="sell-terms">
-        <a href="terms_of_service.php">
+        <a href="terms_of_service.php#hard-rules">
             <span class="material-symbols-outlined">info</span>
-            อ่านข้อกำหนดและเงื่อนไขการลงประกาศขาย
+            อ่านข้อกำหนดและกฎเหล็กสินค้าต้องห้าม
         </a>
     </p>
 </div>
@@ -262,6 +288,12 @@ $max_images = Product::MAX_IMAGES;
             return;
         }
 
+        const rulesConsent = document.getElementById('sell-consent-rules');
+        if (!rulesConsent || !rulesConsent.checked) {
+            Swal.fire('กรุณายืนยันกฎเหล็ก', 'ต้องยอมรับว่าสินค้าไม่ผิดกฎหมาย ไม่ละเมิดลิขสิทธิ์ และไม่ใช่สินค้าควบคุม', 'warning');
+            return;
+        }
+
         const formData = new FormData();
         formData.append('csrf_token', form.querySelector('[name="csrf_token"]').value);
         formData.append('action', 'sell_product');
@@ -269,6 +301,7 @@ $max_images = Product::MAX_IMAGES;
         formData.append('product_category', document.getElementById('sell-product-category').value);
         formData.append('price', document.getElementById('sell-product-price').value);
         formData.append('description', document.getElementById('sell-product-desc').value);
+        formData.append('consent_listing_rules', '1');
 
         images.forEach(function (item) {
             formData.append('product_images[]', item.file);

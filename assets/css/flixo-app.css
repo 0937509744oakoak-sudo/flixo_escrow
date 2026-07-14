@@ -2546,6 +2546,84 @@ body.flixo-chat-active {
     line-height: 1.5;
 }
 
+.sell-rules-box {
+    padding: 16px;
+    background: #fff8f8;
+    border: 1px solid rgba(198, 40, 40, 0.22);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+[data-theme="dark"] .sell-rules-box {
+    background: rgba(198, 40, 40, 0.08);
+    border-color: rgba(198, 40, 40, 0.28);
+}
+
+.sell-rules-head {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.sell-rules-head .material-symbols-outlined {
+    color: #c62828;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.sell-rules-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #b71c1c;
+    margin: 0 0 4px;
+}
+
+.sell-rules-lead {
+    font-size: 12px;
+    color: var(--flixo-on-surface-variant);
+    margin: 0;
+    line-height: 1.45;
+}
+
+.sell-rules-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--flixo-on-surface-variant);
+}
+
+.sell-rules-list li + li {
+    margin-top: 6px;
+}
+
+.sell-rules-consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--flixo-on-surface);
+    cursor: pointer;
+}
+
+.sell-rules-consent input {
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.sell-rules-consent a {
+    color: var(--flixo-primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.sell-rules-consent a:hover {
+    text-decoration: underline;
+}
+
 .sell-form-actions {
     display: flex;
     flex-direction: column;
