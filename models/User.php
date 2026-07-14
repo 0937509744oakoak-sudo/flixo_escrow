@@ -44,6 +44,20 @@ class User {
         return $this->decryptUserRow($stmt->get_result()->fetch_assoc());
     }
 
+    public function findById(int $userId): ?array {
+        if ($userId <= 0) {
+            return null;
+        }
+        $sql = 'SELECT * FROM users WHERE id = ? LIMIT 1';
+        $stmt = $this->prepareStatement($sql);
+        if (!$stmt) {
+            return null;
+        }
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        return $this->decryptUserRow($stmt->get_result()->fetch_assoc());
+    }
+
     public function findByEmail(string $email): ?array {
         $email = trim($email);
         if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {

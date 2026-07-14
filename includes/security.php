@@ -26,6 +26,6 @@ if (!headers_sent()) {
         header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
     }
 
-    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdn.tailwindcss.com https://static.sumsub.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://cdn.jsdelivr.net https://api.sumsub.com; frame-src https://api.sumsub.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'");
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdn.tailwindcss.com https://static.sumsub.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://accounts.google.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://cdn.jsdelivr.net https://api.sumsub.com https://accounts.google.com https://oauth2.googleapis.com https://www.googleapis.com; frame-src https://api.sumsub.com https://accounts.google.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'");
 }
 ?>

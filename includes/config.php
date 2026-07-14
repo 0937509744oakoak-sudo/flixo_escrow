@@ -186,6 +186,9 @@ define('DISPUTE_EVIDENCE_HOURS', getenv('DISPUTE_EVIDENCE_HOURS') !== false && g
 // Support chat account (auto-created on first use if missing)
 define('SUPPORT_USERNAME', getenv('SUPPORT_USERNAME') ?: 'FLIXO_Support');
 
+// Google Sign-In (GIS) — Client ID only; verify ID tokens server-side
+define('GOOGLE_CLIENT_ID', getenv('GOOGLE_CLIENT_ID') ?: '');
+
 // Important: ใน Production ให้เก็บค่าลับใน Environment Variables เท่านั้น
 // หากต้องการทดสอบในเครื่อง ให้ตั้งตัวแปร SLIP_API_KEY หรือ MAIL_ENABLED ในสภาพแวดล้อมแทนการแก้โค้ดโดยตรง
 

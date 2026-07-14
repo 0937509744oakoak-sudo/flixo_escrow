@@ -233,6 +233,15 @@ $page_title = "สมัครสมาชิก";
                 </div>
             <?php endif; ?>
 
+            <?php if (defined('GOOGLE_CLIENT_ID') && GOOGLE_CLIENT_ID !== ''): ?>
+            <?php $googleConsentInline = true; require __DIR__ . '/includes/google_signin.php'; ?>
+            <div class="flex items-center gap-3 my-6">
+                <div class="flex-1 h-px bg-outline-variant/50"></div>
+                <span class="font-label-md text-label-md text-on-surface-variant whitespace-nowrap">หรือสมัครด้วยอีเมล</span>
+                <div class="flex-1 h-px bg-outline-variant/50"></div>
+            </div>
+            <?php endif; ?>
+
             <form class="flex flex-col gap-6" method="post">
                 <input type="hidden" name="csrf_token" value="<?php echo safeText($csrf_token); ?>">
                 <?php if ($redirectAfter !== ''): ?>
