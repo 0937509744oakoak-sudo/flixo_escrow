@@ -20,7 +20,7 @@ if ($endDate !== '' && validateDate($endDate)) {
     $where[] = "created_at <= '$endDateEsc 23:59:59'";
 }
 
-$sql_notifications = "SELECT id, user_name, message, link_url, is_read, created_at FROM notifications";
+$sql_notifications = "SELECT id, user_name, type, title, message, link_url, icon, is_read, channels, created_at FROM notifications";
 if (!empty($where)) {
     $sql_notifications .= " WHERE " . implode(' AND ', $where);
 }
@@ -103,8 +103,10 @@ include 'layout_head.php';
                             <tr>
                                 <th>ID</th>
                                 <th>User</th>
-                                <th>Message</th>
+                                <th>Type</th>
+                                <th>Title / Message</th>
                                 <th>Link</th>
+                                <th>Channels</th>
                                 <th>Read</th>
                                 <th>Created At</th>
                             </tr>
@@ -112,17 +114,41 @@ include 'layout_head.php';
                         <tbody>
                         <?php if ($res_notifications && $res_notifications->num_rows > 0): ?>
                             <?php while ($row = $res_notifications->fetch_assoc()): ?>
+                                <?php
+                                $notifChannels = [];
+                                if (!empty($row['channels'])) {
+                                    $decoded = json_decode($row['channels'], true);
+                                    if (is_array($decoded)) {
+                                        $notifChannels = $decoded;
+                                    }
+                                }
+                                ?>
                                 <tr>
                                     <td>#<?php echo $row['id']; ?></td>
                                     <td><?php echo htmlspecialchars($row['user_name']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['message']); ?></td>
+                                    <td><?php echo htmlspecialchars(($row['icon'] ?? '') . ' ' . ($row['type'] ?? '')); ?></td>
+                                    <td>
+                                        <?php if (!empty($row['title'])): ?>
+                                            <strong><?php echo htmlspecialchars($row['title']); ?></strong><br>
+                                        <?php endif; ?>
+                                        <?php echo htmlspecialchars($row['message']); ?>
+                                    </td>
                                     <td class="admin-text-muted"><?php echo htmlspecialchars($row['link_url']); ?></td>
+                                    <td class="admin-text-muted">
+                                        <?php
+                                        $channelParts = [];
+                                        foreach ($notifChannels as $channelName => $channelOk) {
+                                            $channelParts[] = htmlspecialchars($channelName) . ' ' . ($channelOk ? '✅' : '❌');
+                                        }
+                                        echo $channelParts ? implode(' · ', $channelParts) : '—';
+                                        ?>
+                                    </td>
                                     <td><?php echo $row['is_read'] ? 'ใช่' : 'ไม่'; ?></td>
                                     <td class="admin-text-muted"><?php echo $row['created_at']; ?></td>
                                 </tr>
                             <?php endwhile; ?>
                         <?php else: ?>
-                            <tr><td colspan="6" class="empty">ไม่มีการแจ้งเตือนภายในระบบ</td></tr>
+                            <tr><td colspan="8" class="empty">ไม่มีการแจ้งเตือนภายในระบบ</td></tr>
                         <?php endif; ?>
                         </tbody>
                     </table>

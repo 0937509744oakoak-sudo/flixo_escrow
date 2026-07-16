@@ -53,26 +53,24 @@ function guardOrderPaymentAction(array $order): ?array {
 }
 
 /**
- * แจ้งผู้ใช้ผ่านแชททีมงาน FLIXO (+ อีเมลถ้ามี)
+ * แจ้งผู้ใช้ผ่านระบบ Notifications (in-app + email + push)
+ *
+ * Kept the original signature so every existing call site
+ * (OrderController, DisputeController, DisputeFlowService, CourierService,
+ * omise_helper, webhook_ekyc, admin/escrow_list.php) needs no changes.
+ * Support chat is no longer used as a notification channel — it's reserved
+ * for real two-way human support conversations (see support_chat.php).
  */
 function createNotification($conn, $user, $msg, $url = '', $buttonLabel = '') {
-    require_once __DIR__ . '/support_chat.php';
+    require_once __DIR__ . '/NotificationService.php';
 
-    $chatMsg = $msg;
-    $emailLink = '';
-    if ($url !== '') {
-        $emailLink = (strpos($url, 'http') === 0) ? $url : rtrim(BASE_URL, '/') . '/' . ltrim($url, '/');
-        $label = $buttonLabel !== '' ? $buttonLabel : supportChatActionLabel($url);
-        $chatMsg .= "\n[[flixo-btn:{$url}|{$label}]]";
-    }
-
-    sendSupportMessage($conn, $user, $chatMsg);
-
-    $email_body = $msg;
-    if ($emailLink !== '') {
-        $email_body .= "\n\nดูรายละเอียด: " . $emailLink;
-    }
-    sendOrderEmailNotification($conn, $user, 'ข้อความจาก FLIXO', $email_body);
+    // $buttonLabel is kept in the signature for backward compatibility with
+    // existing call sites but is no longer used — NotificationService infers
+    // a suitable title/icon from $url.
+    NotificationService::notifyUser($conn, $user, [
+        'message' => $msg,
+        'url' => $url,
+    ]);
 }
 
 /**
@@ -148,7 +146,12 @@ function secureUpload($fileArray, $targetDir, $maxSize = 5242880) {
     }
 
     $newFilename = bin2hex(random_bytes(16)) . '.' . $allowed[$mime];
-    if (!is_dir($targetDir)) mkdir($targetDir, 0755, true);
+    if (!is_dir($targetDir) && !mkdir($targetDir, 0755, true)) {
+        throw new Exception('ไม่สามารถสร้างโฟลเดอร์เก็บไฟล์ได้');
+    }
+    if (!is_writable($targetDir)) {
+        throw new Exception('โฟลเดอร์เก็บไฟล์ไม่มีสิทธิ์เขียน');
+    }
 
     if (!move_uploaded_file($fileArray['tmp_name'], $targetDir . $newFilename)) {
         throw new Exception('ไม่สามารถบันทึกไฟล์ได้');

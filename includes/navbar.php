@@ -20,6 +20,10 @@ if ($is_logged_in && isset($conn) && isset($_SESSION['user'])) {
 
 ?>
 
+<?php if ($is_logged_in): ?>
+<link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/notifications.css?v=<?php echo time(); ?>">
+<?php endif; ?>
+
 <header class="navbar <?php echo $is_logged_in ? 'navbar-app' : ''; ?>">
 
     <div class="nav-left">
@@ -104,6 +108,8 @@ if ($is_logged_in && isset($conn) && isset($_SESSION['user'])) {
         </a>
         <?php endif; ?>
 
+        <?php include __DIR__ . '/partials/notification_panel.php'; ?>
+
         <?php if ($is_app_shell): ?>
 
         <button type="button" class="nav-profile-btn" data-app-tab="profile" title="โปรไฟล์" style="border:none;cursor:pointer;">
@@ -123,6 +129,8 @@ if ($is_logged_in && isset($conn) && isset($_SESSION['user'])) {
         <?php endif; ?>
 
     </div>
+
+    <script src="<?php echo ASSETS_URL; ?>/js/notifications.js?v=<?php echo time(); ?>" defer></script>
 
     <?php else: ?>
 

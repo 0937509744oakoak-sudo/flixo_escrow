@@ -189,6 +189,12 @@ define('SUPPORT_USERNAME', getenv('SUPPORT_USERNAME') ?: 'FLIXO_Support');
 // Google Sign-In (GIS) — Client ID only; verify ID tokens server-side
 define('GOOGLE_CLIENT_ID', getenv('GOOGLE_CLIENT_ID') ?: '');
 
+// Web Push (VAPID) — generate with: php scripts/generate_vapid_keys.php
+define('VAPID_PUBLIC_KEY', getenv('VAPID_PUBLIC_KEY') ?: '');
+define('VAPID_PRIVATE_KEY', getenv('VAPID_PRIVATE_KEY') ?: '');
+define('VAPID_SUBJECT', getenv('VAPID_SUBJECT') ?: 'mailto:support@flixo.local');
+define('PUSH_NOTIFICATIONS_ENABLED', VAPID_PUBLIC_KEY !== '' && VAPID_PRIVATE_KEY !== '');
+
 // Important: ใน Production ให้เก็บค่าลับใน Environment Variables เท่านั้น
 // หากต้องการทดสอบในเครื่อง ให้ตั้งตัวแปร SLIP_API_KEY หรือ MAIL_ENABLED ในสภาพแวดล้อมแทนการแก้โค้ดโดยตรง
 

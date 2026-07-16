@@ -173,6 +173,50 @@ $display_name = User::resolveDisplayName($user['real_name'] ?? '', $me);
 
 
 
+<div class="flixo-card" id="notif-settings-card">
+
+    <div class="card-header-flex">
+
+        <div>
+
+            <h3>การแจ้งเตือน</h3>
+
+            <p class="tx-meta" style="margin:4px 0 0;">เลือกช่องทางที่ต้องการรับการแจ้งเตือนเรื่องออเดอร์ ข้อพิพาท และรายได้</p>
+
+        </div>
+
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;margin-top:14px;">
+
+        <label style="display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;">
+            <span>
+                <strong style="display:block;font-size:14px;">อีเมล</strong>
+                <span class="tx-meta">ส่งอีเมลแจ้งเตือนเมื่อมีความเคลื่อนไหวสำคัญ</span>
+            </span>
+            <input type="checkbox" id="notif-pref-email" style="width:20px;height:20px;">
+        </label>
+
+        <label style="display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;">
+            <span>
+                <strong style="display:block;font-size:14px;">Push บนเบราว์เซอร์</strong>
+                <span class="tx-meta">แจ้งเตือนทันทีบนเบราว์เซอร์/มือถือ แม้ปิดแท็บอยู่</span>
+            </span>
+            <input type="checkbox" id="notif-pref-push" style="width:20px;height:20px;">
+        </label>
+
+        <p id="notif-settings-msg" class="tx-meta" style="margin:0;display:none;"></p>
+
+        <button type="button" id="notif-enable-push-btn" class="btn-flixo-outline" style="align-self:flex-start;padding:8px 18px;display:none;">
+            เปิดการแจ้งเตือนบนเบราว์เซอร์นี้
+        </button>
+
+    </div>
+
+</div>
+
+
+
 <div class="flixo-card profile-pdpa-card">
 
     <div class="card-header-flex">
@@ -265,6 +309,81 @@ $display_name = User::resolveDisplayName($user['real_name'] ?? '', $me);
                 }
             });
     });
+})();
+
+(function () {
+    var emailToggle = document.getElementById('notif-pref-email');
+    var pushToggle = document.getElementById('notif-pref-push');
+    var enablePushBtn = document.getElementById('notif-enable-push-btn');
+    var msg = document.getElementById('notif-settings-msg');
+    if (!emailToggle || !pushToggle || typeof notifFetch !== 'function') return;
+
+    var pushConfigured = false;
+
+    function showMsg(text, isError) {
+        if (!msg) return;
+        msg.style.display = 'block';
+        msg.style.color = isError ? '#ba1a1a' : '#1b5e20';
+        msg.textContent = text;
+    }
+
+    function refreshPushButtonVisibility() {
+        var hasPushApi = 'serviceWorker' in navigator && 'PushManager' in window;
+        if (!hasPushApi || !pushConfigured) {
+            if (enablePushBtn) enablePushBtn.style.display = 'none';
+            return;
+        }
+        if (!('serviceWorker' in navigator)) return;
+        navigator.serviceWorker.ready.then(function (reg) {
+            return reg.pushManager.getSubscription();
+        }).then(function (sub) {
+            if (enablePushBtn) enablePushBtn.style.display = (pushToggle.checked && !sub) ? 'inline-block' : 'none';
+        }).catch(function () {});
+    }
+
+    notifFetch('get_preferences').then(function (data) {
+        if (!data || data.status !== 'success') return;
+        emailToggle.checked = !!data.preferences.email_enabled;
+        pushToggle.checked = !!data.preferences.push_enabled;
+        pushConfigured = !!data.push_configured;
+        refreshPushButtonVisibility();
+    });
+
+    function savePreferences() {
+        notifFetch('update_preferences', {
+            email_enabled: emailToggle.checked ? '1' : '0',
+            push_enabled: pushToggle.checked ? '1' : '0',
+            marketing_enabled: '1',
+        }).then(function (data) {
+            if (data && data.status === 'success') {
+                showMsg('บันทึกการตั้งค่าแล้ว', false);
+            } else {
+                showMsg('ไม่สามารถบันทึกการตั้งค่าได้', true);
+            }
+            refreshPushButtonVisibility();
+        }).catch(function () {
+            showMsg('เกิดข้อผิดพลาด กรุณาลองใหม่', true);
+        });
+    }
+
+    emailToggle.addEventListener('change', savePreferences);
+    pushToggle.addEventListener('change', savePreferences);
+
+    if (enablePushBtn) {
+        enablePushBtn.addEventListener('click', function () {
+            enablePushBtn.disabled = true;
+            enablePushBtn.textContent = 'กำลังเปิด...';
+            window.flixoEnablePushNotifications().then(function () {
+                showMsg('เปิดการแจ้งเตือนบนเบราว์เซอร์นี้แล้ว', false);
+                enablePushBtn.style.display = 'none';
+            }).catch(function (err) {
+                showMsg((err && err.message) || 'ไม่สามารถเปิดการแจ้งเตือนได้', true);
+            }).finally(function () {
+                enablePushBtn.disabled = false;
+                enablePushBtn.textContent = 'เปิดการแจ้งเตือนบนเบราว์เซอร์นี้';
+            });
+        });
+    }
 })();
 </script>
 
