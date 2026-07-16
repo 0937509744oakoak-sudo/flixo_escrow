@@ -37,6 +37,7 @@ function adminNavLink(string $file, string $label, int $badge = 0, string $badge
         <?php adminNavLink('support_inbox.php', '💬 แชทช่วยเหลือ', $badges['support_unread']); ?>
         <?php adminNavLink('ekyc_logs.php', '🪪 eKYC Logs'); ?>
         <?php adminNavLink('product_fraud_queue.php', '🖼️ ตรวจรูปสินค้า (AI)', $badges['fraud_queue'], 'warn'); ?>
+        <?php adminNavLink('products_list.php', '📦 จัดการสินค้า'); ?>
         <?php adminNavLink('chat_moderation_queue.php', '🔍 ตรวจแชท (AI)', $badges['chat_moderation_queue'], 'warn'); ?>
         <?php adminNavLink('dispute_list.php', '⚠️ จัดการข้อพิพาท', $badges['open_disputes']); ?>
         <?php adminNavLink('logs.php', '📋 ดู Logs'); ?>

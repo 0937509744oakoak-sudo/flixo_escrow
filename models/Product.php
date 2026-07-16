@@ -355,6 +355,104 @@ class Product {
         return $deleted;
     }
 
+    /**
+     * Admin hard-delete (no seller ownership check).
+     */
+    public function deleteByAdmin(int $id): bool {
+        $product = $this->getById($id);
+        if (!$product) {
+            return false;
+        }
+
+        $imagePaths = $this->getImageFilePaths($id);
+
+        $sql = "DELETE FROM products WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('i', $id);
+        $deleted = $stmt->execute() && $stmt->affected_rows > 0;
+
+        if ($deleted) {
+            foreach ($imagePaths as $path) {
+                deleteProductImageFile($path);
+            }
+        }
+
+        return $deleted;
+    }
+
+    /**
+     * Admin product listing (includes hidden / fraud-rejected items).
+     */
+    public function adminList(int $limit = 30, int $offset = 0, string $search = '') {
+        $sellerMeta = $this->sellerMetaSelect();
+        $where = '1=1';
+        $types = '';
+        $params = [];
+        $search = trim($search);
+
+        if ($search !== '') {
+            $like = '%' . $search . '%';
+            if ($this->hasCategoryColumn()) {
+                $where .= ' AND (p.product_name LIKE ? OR p.description LIKE ? OR p.seller_name LIKE ? OR p.category LIKE ?
+                       OR EXISTS (SELECT 1 FROM users u WHERE u.username = p.seller_name AND u.real_name LIKE ?))';
+                $types .= 'sssss';
+                array_push($params, $like, $like, $like, $like, $like);
+            } else {
+                $where .= ' AND (p.product_name LIKE ? OR p.description LIKE ? OR p.seller_name LIKE ?
+                       OR EXISTS (SELECT 1 FROM users u WHERE u.username = p.seller_name AND u.real_name LIKE ?))';
+                $types .= 'ssss';
+                array_push($params, $like, $like, $like, $like);
+            }
+        }
+
+        $sql = "SELECT p.*, $sellerMeta FROM products p WHERE {$where} ORDER BY p.id DESC LIMIT ? OFFSET ?";
+        $types .= 'ii';
+        $params[] = $limit;
+        $params[] = $offset;
+
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        return $stmt->get_result();
+    }
+
+    public function countAdminList(string $search = ''): int {
+        $where = '1=1';
+        $types = '';
+        $params = [];
+        $search = trim($search);
+
+        if ($search !== '') {
+            $like = '%' . $search . '%';
+            if ($this->hasCategoryColumn()) {
+                $where .= ' AND (product_name LIKE ? OR description LIKE ? OR seller_name LIKE ? OR category LIKE ?
+                       OR EXISTS (SELECT 1 FROM users u WHERE u.username = products.seller_name AND u.real_name LIKE ?))';
+                $types .= 'sssss';
+                array_push($params, $like, $like, $like, $like, $like);
+            } else {
+                $where .= ' AND (product_name LIKE ? OR description LIKE ? OR seller_name LIKE ?
+                       OR EXISTS (SELECT 1 FROM users u WHERE u.username = products.seller_name AND u.real_name LIKE ?))';
+                $types .= 'ssss';
+                array_push($params, $like, $like, $like, $like);
+            }
+        }
+
+        $sql = "SELECT COUNT(*) AS cnt FROM products WHERE {$where}";
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return 0;
+        }
+        if ($types !== '') {
+            $stmt->bind_param($types, ...$params);
+        }
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        return (int) ($row['cnt'] ?? 0);
+    }
+
     private function getImageFilePaths($productId) {
         $paths = [];
         foreach ($this->getImages($productId) as $img) {
