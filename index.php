@@ -57,16 +57,26 @@ $catalogPageUrl = static function (int $page) use ($search_query, $category_filt
 <main class="landing-page">
     <section class="landing-hero">
         <div class="landing-hero-inner">
-            <p class="landing-brand">FLIXO</p>
-            <h1 class="landing-headline">เงินพักกลางจนกว่าของถึงมือคุณ</h1>
+            <p class="landing-eyebrow">
+                <span class="material-symbols-outlined" aria-hidden="true">verified_user</span>
+                FLIXO — Escrow Marketplace ของมือสอง
+            </p>
+            <h1 class="landing-headline">
+                ซื้อของมือสองแบบไม่ต้องเสี่ยง<br>
+                <span class="landing-headline-accent">เงินไม่ถึงมือผู้ขาย จนกว่าคุณจะได้รับของ</span>
+            </h1>
             <p class="landing-lead">
-                ซื้อขายมือสองระหว่างบุคคล — ไม่ต้องโอนเงินให้คนแปลกหน้าโดยตรง
-                FLIXO เก็บเงินไว้กลาง และโอนให้ผู้ขายเมื่อคุณยืนยันรับสินค้าแล้วเท่านั้น
+                ซื้อขายสบายใจด้วยระบบพักเงินกลาง (Escrow) ระบบไกล่เกลี่ยข้อพิพาท
+                และกระเป๋าเงินออนไลน์ที่มี AI ช่วยดูแล — ผู้ขายได้รับเงินเมื่อคุณยืนยันรับสินค้าแล้วเท่านั้น
             </p>
             <div class="landing-cta-row">
-                <a href="#catalog" class="btn-flixo-primary landing-cta">ดูประกาศขาย</a>
-                <a href="register.php" class="btn-flixo-outline landing-cta-secondary">สมัครฟรี</a>
+                <a href="register.php" class="btn-flixo-primary landing-cta">เริ่มซื้อขายอย่างปลอดภัย</a>
+                <a href="#catalog" class="btn-flixo-outline landing-cta-secondary">สำรวจตลาดมือสอง</a>
             </div>
+            <p class="landing-trust-note">
+                <span aria-hidden="true">⚡</span>
+                ปลอดภัย 100% ด้วยระบบเงินฝากส่วนกลาง — คืนเงินเต็มจำนวนหากไม่ได้รับสินค้า
+            </p>
         </div>
     </section>
 
@@ -90,6 +100,33 @@ $catalogPageUrl = static function (int $page) use ($search_query, $category_filt
                 <span>ระบบโอนเงินให้ผู้ขายหลังคุณพอใจ</span>
             </li>
         </ol>
+    </section>
+
+    <section class="landing-features" aria-labelledby="features-title" id="features">
+        <h2 id="features-title" class="landing-section-title">ระบบที่อยู่เบื้องหลังความปลอดภัย</h2>
+        <p class="landing-section-sub">ทุกออเดอร์บน FLIXO ถูกคุ้มครองด้วยเครื่องมือเหล่านี้โดยอัตโนมัติ</p>
+        <ul class="landing-features-grid">
+            <li class="landing-feature-card">
+                <span class="material-symbols-outlined landing-feature-icon" aria-hidden="true">account_balance</span>
+                <strong>ระบบพักเงินกลาง (Escrow)</strong>
+                <span>เงินของผู้ซื้อถูกเก็บไว้ที่ระบบกลาง ไม่โอนเข้าบัญชีผู้ขายจนกว่าผู้ซื้อจะกดยืนยันรับสินค้า</span>
+            </li>
+            <li class="landing-feature-card">
+                <span class="material-symbols-outlined landing-feature-icon" aria-hidden="true">balance</span>
+                <strong>ระบบไกล่เกลี่ยข้อพิพาท (Dispute)</strong>
+                <span>ของไม่ตรงปกหรือมีปัญหา? เปิดข้อพิพาทได้ทันที มีทีมงานและระบบช่วยตัดสินอย่างเป็นธรรม</span>
+            </li>
+            <li class="landing-feature-card">
+                <span class="material-symbols-outlined landing-feature-icon" aria-hidden="true">account_balance_wallet</span>
+                <strong>กระเป๋าเงินออนไลน์ (Wallet)</strong>
+                <span>รับเงิน ถอนเงิน และติดตามยอดได้ในที่เดียว พร้อมประวัติธุรกรรมครบทุกรายการ</span>
+            </li>
+            <li class="landing-feature-card">
+                <span class="material-symbols-outlined landing-feature-icon" aria-hidden="true">smart_toy</span>
+                <strong>AI ช่วยตรวจสอบ</strong>
+                <span>AI ช่วยคัดกรองประกาศหลอกลวง ตรวจสลิปโอนเงิน และช่วยวิเคราะห์ข้อพิพาทให้เร็วขึ้น</span>
+            </li>
+        </ul>
     </section>
 
     <section class="landing-rules" aria-labelledby="rules-title" id="hard-rules">
