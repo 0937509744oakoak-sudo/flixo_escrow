@@ -397,41 +397,76 @@ if ($action == 'update_status') {
 
 
 if ($action == 'save_tracking') {
+    header('Content-Type: application/json; charset=utf-8');
+
     $oid = (int)($_POST['oid'] ?? 0);
     $track = trim(filter_var($_POST['tracking'] ?? '', FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_LOW));
     $courier = trim(filter_var($_POST['courier'] ?? '', FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_LOW));
 
-    if ($oid <= 0 || empty($track) || empty($courier)) {
-        http_response_code(400); echo "กรุณากรอกข้อมูลให้ครบถ้วน"; exit();
+    if ($oid <= 0 || $track === '' || $courier === '') {
+        http_response_code(400);
+        echo json_encode(['status' => 'error', 'message' => 'กรุณากรอกข้อมูลให้ครบถ้วน'], JSON_UNESCAPED_UNICODE);
+        exit();
     }
 
     $orderModel = new Order($conn);
     $order = $orderModel->findById($oid);
 
     if (!$order) {
-        http_response_code(400); echo "ไม่พบออเดอร์"; exit();
+        http_response_code(400);
+        echo json_encode(['status' => 'error', 'message' => 'ไม่พบออเดอร์'], JSON_UNESCAPED_UNICODE);
+        exit();
     }
 
-    
+    $sessionRole = strtolower((string) ($_SESSION['role'] ?? 'user'));
     $currentUser = ['username' => $me, 'role' => 'user'];
-    if ($me === $order['seller_name']) $currentUser['role'] = 'seller';
+    if ($me === $order['seller_name']) {
+        $currentUser['role'] = 'seller';
+    } elseif ($sessionRole === 'admin') {
+        $currentUser['role'] = 'admin';
+    }
 
     try {
-        
-        OrderStateMachine::validate($order, OrderStateMachine::SHIPPED, $currentUser);
-        
-        
-        $orderModel->updateTracking($oid, $track, $courier);
-        $courierService = new CourierService($conn);
-        $courierService->onShipmentCreated($oid, $courier, $track);
-      
-        $orderModel->changeStatus($oid, $order['status'], OrderStateMachine::SHIPPED, $me, "จัดส่งผ่าน $courier ($track)");
+        if ($order['status'] === OrderStateMachine::SHIPPED) {
+            $orderModel->updateTracking($oid, $track, $courier);
+            try {
+                (new CourierService($conn))->onShipmentCreated($oid, $courier, $track);
+            } catch (Throwable $e) {
+                error_log('save_tracking courier update: ' . $e->getMessage());
+            }
+            echo json_encode(['status' => 'success', 'message' => 'อัปเดตเลขพัสดุแล้ว'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
 
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode(['status' => 'success'], JSON_UNESCAPED_UNICODE);
+        OrderStateMachine::validate($order, OrderStateMachine::SHIPPED, $currentUser);
+
+        if (!$orderModel->updateTracking($oid, $track, $courier)) {
+            throw new Exception('บันทึกเลขพัสดุไม่สำเร็จ');
+        }
+
+        if (!$orderModel->changeStatus($oid, $order['status'], OrderStateMachine::SHIPPED, $me, "จัดส่งผ่าน $courier ($track)")) {
+            throw new Exception('อัปเดตสถานะออเดอร์ไม่สำเร็จ');
+        }
+
+        try {
+            (new CourierService($conn))->onShipmentCreated($oid, $courier, $track);
+        } catch (Throwable $e) {
+            error_log('save_tracking courier enrich: ' . $e->getMessage());
+        }
+
+        createNotification(
+            $conn,
+            $order['buyer_name'],
+            "🚚 ผู้ขายจัดส่งออเดอร์ #{$oid} แล้ว\nขนส่ง: {$courier}\nเลขพัสดุ: {$track}",
+            'dashboard.php?tab=orders'
+        );
+
+        echo json_encode(['status' => 'success', 'message' => 'แจ้งเลขพัสดุเรียบร้อย'], JSON_UNESCAPED_UNICODE);
         exit;
     } catch (Exception $e) {
-        http_response_code(400); echo $e->getMessage(); exit();
+        http_response_code(400);
+        echo json_encode(['status' => 'error', 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+        exit();
     }
 }
 ?>

@@ -5,35 +5,50 @@ class CourierService {
     private mysqli $conn;
 
     private const COURIERS = [
-        'Thailand Post' => ['code' => 'thaipost', 'url' => 'https://track.thailandpost.co.th/?trackNumber=%s'],
-        'Kerry Express' => ['code' => 'kerry', 'url' => 'https://th.kerryexpress.com/en/track/?track=%s'],
-        'Flash Express' => ['code' => 'flash', 'url' => 'https://www.flashexpress.co.th/tracking/?se=%s'],
-        'J&T' => ['code' => 'jnt', 'url' => 'https://www.jtexpress.co.th/index/query/gzquery.html?billCodes=%s'],
-        'Ninja Van' => ['code' => 'ninja', 'url' => 'https://www.ninjavan.co/en-th/tracking?id=%s'],
-        'DHL' => ['code' => 'dhl', 'url' => 'https://www.dhl.com/th-en/home/tracking.html?tracking-id=%s'],
-        'Other' => ['code' => 'other', 'url' => ''],
+        'Thailand Post' => ['code' => 'thaipost', 'url' => 'https://track.thailandpost.co.th/?trackNumber=%s', 'aliases' => ['ไปรษณีย์ไทย', 'thailand post']],
+        'Kerry Express' => ['code' => 'kerry', 'url' => 'https://th.kerryexpress.com/en/track/?track=%s', 'aliases' => ['kerry']],
+        'Flash Express' => ['code' => 'flash', 'url' => 'https://www.flashexpress.co.th/tracking/?se=%s', 'aliases' => ['flash']],
+        'J&T Express' => ['code' => 'jnt', 'url' => 'https://www.jtexpress.co.th/index/query/gzquery.html?billCodes=%s', 'aliases' => ['j&t', 'j&t express', 'jnt']],
+        'Ninja Van' => ['code' => 'ninja', 'url' => 'https://www.ninjavan.co/en-th/tracking?id=%s', 'aliases' => ['ninja']],
+        'DHL' => ['code' => 'dhl', 'url' => 'https://www.dhl.com/th-en/home/tracking.html?tracking-id=%s', 'aliases' => ['dhl']],
+        'Other' => ['code' => 'other', 'url' => '', 'aliases' => ['อื่นๆ', 'other']],
     ];
 
     public function __construct(mysqli $conn) {
         $this->conn = $conn;
     }
 
-    public static function normalizeCourierCode(string $courierLabel): string {
+    private static function resolveCourier(string $courierLabel): ?array {
+        $needle = strtolower(trim($courierLabel));
+        if ($needle === '') {
+            return null;
+        }
+
         foreach (self::COURIERS as $label => $meta) {
             if (strcasecmp($label, $courierLabel) === 0) {
-                return $meta['code'];
+                return $meta + ['label' => $label];
+            }
+            foreach ($meta['aliases'] ?? [] as $alias) {
+                if ($needle === strtolower($alias) || str_contains($needle, strtolower($alias))) {
+                    return $meta + ['label' => $label];
+                }
             }
         }
-        return 'other';
+
+        return null;
+    }
+
+    public static function normalizeCourierCode(string $courierLabel): string {
+        $meta = self::resolveCourier($courierLabel);
+        return $meta['code'] ?? 'other';
     }
 
     public function buildTrackingUrl(string $courierLabel, string $trackingNumber): string {
-        foreach (self::COURIERS as $label => $meta) {
-            if (strcasecmp($label, $courierLabel) === 0 && $meta['url'] !== '') {
-                return sprintf($meta['url'], rawurlencode($trackingNumber));
-            }
+        $meta = self::resolveCourier($courierLabel);
+        if (!$meta || ($meta['url'] ?? '') === '') {
+            return '';
         }
-        return '';
+        return sprintf($meta['url'], rawurlencode($trackingNumber));
     }
 
     public function onShipmentCreated(int $orderId, string $courier, string $trackingNumber): void {
@@ -42,29 +57,51 @@ class CourierService {
 
         $stmt = $this->conn->prepare(
             "UPDATE orders SET courier_code = ?, tracking_url = ?, shipped_at = COALESCE(shipped_at, NOW()),
-             tracking_status = 'shipped', tracking_status_code = 'SHIPPED' WHERE id = ?"
+             tracking_status = 'จัดส่งแล้ว', tracking_status_code = 'SHIPPED' WHERE id = ?"
         );
-        $stmt->bind_param('ssi', $code, $url, $orderId);
-        $stmt->execute();
+        if ($stmt) {
+            $stmt->bind_param('ssi', $code, $url, $orderId);
+            $stmt->execute();
+        } else {
+            error_log('CourierService onShipmentCreated prepare failed: ' . $this->conn->error);
+        }
 
-        $this->addEvent($orderId, 'SHIPPED', 'ผู้ขายแจ้งจัดส่งแล้ว', null, 'manual');
-        $this->syncOrderTracking($orderId);
+        try {
+            $this->addEvent($orderId, 'SHIPPED', 'ผู้ขายแจ้งจัดส่งแล้ว', null, 'manual');
+        } catch (Throwable $e) {
+            error_log('CourierService addEvent failed: ' . $e->getMessage());
+        }
+
+        try {
+            $this->syncOrderTracking($orderId);
+        } catch (Throwable $e) {
+            error_log('CourierService syncOrderTracking failed: ' . $e->getMessage());
+        }
     }
 
     public function addEvent(int $orderId, string $statusCode, string $statusLabel, ?string $location, string $source, ?array $raw = null): void {
         $payload = $raw !== null ? json_encode($raw, JSON_UNESCAPED_UNICODE) : null;
+        $locationValue = $location ?? '';
+
         $stmt = $this->conn->prepare(
             "INSERT INTO shipment_events (order_id, status_code, status_label, location, event_at, source, raw_payload)
-             VALUES (?, ?, ?, ?, NOW(), ?, ?)"
+             VALUES (?, ?, ?, NULLIF(?, ''), NOW(), ?, ?)"
         );
-        $stmt->bind_param('isssss', $orderId, $statusCode, $statusLabel, $location, $source, $payload);
-        $stmt->execute();
+        if (!$stmt) {
+            throw new RuntimeException('shipment_events unavailable: ' . $this->conn->error);
+        }
+        $stmt->bind_param('isssss', $orderId, $statusCode, $statusLabel, $locationValue, $source, $payload);
+        if (!$stmt->execute()) {
+            throw new RuntimeException('shipment_events insert failed: ' . $stmt->error);
+        }
 
         $upd = $this->conn->prepare(
             "UPDATE orders SET tracking_status = ?, tracking_status_code = ?, last_tracking_sync_at = NOW() WHERE id = ?"
         );
-        $upd->bind_param('ssi', $statusLabel, $statusCode, $orderId);
-        $upd->execute();
+        if ($upd) {
+            $upd->bind_param('ssi', $statusLabel, $statusCode, $orderId);
+            $upd->execute();
+        }
     }
 
     public function getTimeline(int $orderId): array {
@@ -72,9 +109,12 @@ class CourierService {
             "SELECT status_code, status_label, location, event_at, source FROM shipment_events
              WHERE order_id = ? ORDER BY event_at ASC, id ASC"
         );
+        if (!$stmt) {
+            return [];
+        }
         $stmt->bind_param('i', $orderId);
         $stmt->execute();
-        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?: [];
     }
 
     /**
@@ -84,6 +124,9 @@ class CourierService {
         $stmt = $this->conn->prepare(
             "SELECT id, courier, courier_code, tracking_number, tracking_url, tracking_status_code FROM orders WHERE id = ? LIMIT 1"
         );
+        if (!$stmt) {
+            return ['ok' => false, 'message' => 'orders_prepare_failed'];
+        }
         $stmt->bind_param('i', $orderId);
         $stmt->execute();
         $order = $stmt->get_result()->fetch_assoc();
@@ -140,6 +183,9 @@ class CourierService {
 
     private function notifyDelivered(int $orderId): void {
         $stmt = $this->conn->prepare("SELECT buyer_name FROM orders WHERE id = ? LIMIT 1");
+        if (!$stmt) {
+            return;
+        }
         $stmt->bind_param('i', $orderId);
         $stmt->execute();
         $row = $stmt->get_result()->fetch_assoc();

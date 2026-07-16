@@ -44,7 +44,7 @@ class OrderStateMachine {
         $permissions = [
             self::WAITING_VERIFY  => ['buyer'],           // ผู้ซื้อเท่านั้นที่แจ้งโอนได้
             self::PAID            => ['admin'],           // แอดมิน/ระบบ เท่านั้นที่ยืนยันเงินเข้าได้
-            self::SHIPPED         => ['seller'],          // ผู้ขายเท่านั้นที่แจ้งส่งของได้
+            self::SHIPPED         => ['seller', 'admin'],  // ผู้ขายแจ้งส่งของ (แอดมินช่วยได้)
             self::COMPLETED       => ['buyer', 'admin'],  // ผู้ซื้อยืนยันรับของ หรือ แอดมินบังคับจบ
             self::DISPUTE         => ['buyer'],           // ผู้ซื้อเท่านั้นที่เปิดข้อพิพาทได้
             self::CANCELLED       => ['buyer', 'admin'],  // ผู้ซื้อขอยกเลิก (ถ้ายังไม่จ่าย) หรือแอดมินสั่ง

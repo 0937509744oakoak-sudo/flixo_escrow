@@ -6,6 +6,9 @@ let currentPartner = '';
 let chatInterval;
 
 const CHAT_CONTROLLER_URL = (() => {
+    if (window.FLIXO_BASE_URL) {
+        return String(window.FLIXO_BASE_URL).replace(/\/$/, '') + '/controllers/ChatController.php';
+    }
     const script = document.currentScript || document.querySelector('script[src*="chat.js"]');
     if (script && script.src) {
         return script.src.replace(/\/assets\/js\/chat\.js(?:\?.*)?$/, '') + '/controllers/ChatController.php';
@@ -25,7 +28,7 @@ function chatFetch(formData) {
     return fetch(CHAT_CONTROLLER_URL, {
         method: 'POST',
         body: formData,
-        credentials: 'same-origin',
+        credentials: 'include',
         headers: {
             'X-CSRF-Token': window.CSRF_TOKEN || ''
         }
@@ -397,23 +400,29 @@ function submitTracking() {
     formData.append('courier', courier);
     appendCsrfToken(formData);
 
-    const btn = document.querySelector('#widget-tracking-modal button');
-    const oldText = btn.innerText;
-    btn.innerText = 'กำลังบันทึก...';
-    btn.disabled = true;
+    const btn = document.querySelector('#widget-tracking-modal .btn-confirm');
+    const oldText = btn ? btn.innerText : '';
+    if (btn) {
+        btn.innerText = 'กำลังบันทึก...';
+        btn.disabled = true;
+    }
 
     chatFetch(formData)
         .then(res => res.text())
         .then(text => {
+            let data = null;
             let ok = false;
+            let message = text;
             try {
-                const data = JSON.parse(text);
-                ok = data.status === 'success';
+                data = JSON.parse(text);
+                ok = data && data.status === 'success';
+                message = (data && data.message) ? data.message : text;
             } catch (e) {
                 ok = text.trim() === 'success';
+                message = ok ? 'แจ้งเลขพัสดุเรียบร้อย' : text;
             }
             if (ok) {
-                Swal.fire('สำเร็จ!', 'แจ้งเลขพัสดุเรียบร้อย', 'success').then(() => {
+                Swal.fire('สำเร็จ!', message || 'แจ้งเลขพัสดุเรียบร้อย', 'success').then(() => {
                     closeTrackingModal();
                     document.getElementById('w-tracking-num').value = '';
                     document.getElementById('w-courier').value = '';
@@ -424,15 +433,17 @@ function submitTracking() {
                     }
                 });
             } else {
-                Swal.fire('ข้อผิดพลาด', text, 'error');
+                Swal.fire('ข้อผิดพลาด', message || 'บันทึกไม่สำเร็จ', 'error');
             }
         })
         .catch(() => {
             Swal.fire('ข้อผิดพลาด', 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้', 'error');
         })
         .finally(() => {
-            btn.innerText = oldText;
-            btn.disabled = false;
+            if (btn) {
+                btn.innerText = oldText;
+                btn.disabled = false;
+            }
         });
 }
 
