@@ -507,7 +507,14 @@ class Product {
             $relative = self::UPLOAD_SUBDIR . $relative;
         }
 
+        $filename = basename($relative);
         $localPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relative);
+        if (function_exists('flixoUploadsSubdir')) {
+            $volPath = flixoUploadsSubdir('products') . $filename;
+            if (is_file($volPath)) {
+                $localPath = $volPath;
+            }
+        }
         if (!is_file($localPath)) {
             return self::placeholderUrl();
         }

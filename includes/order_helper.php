@@ -6,6 +6,51 @@ require_once __DIR__ . '/OrderStateMachine.php';
 require_once __DIR__ . '/EmailService.php';
 
 /**
+ * Persistent uploads root (Railway Volume when mounted).
+ */
+function flixoUploadsRoot(): string {
+    static $root = null;
+    if ($root !== null) {
+        return $root;
+    }
+
+    $candidates = [];
+    foreach (['UPLOADS_PATH', 'RAILWAY_VOLUME_MOUNT_PATH'] as $envKey) {
+        $val = getenv($envKey);
+        if (is_string($val) && trim($val) !== '') {
+            $candidates[] = rtrim(trim($val), "/\\");
+        }
+    }
+    $candidates[] = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads';
+
+    foreach ($candidates as $path) {
+        if (!is_dir($path)) {
+            @mkdir($path, 0755, true);
+        }
+        if (is_dir($path) && is_writable($path)) {
+            $root = $path;
+            return $root;
+        }
+    }
+
+    $root = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads';
+    @mkdir($root, 0755, true);
+    return $root;
+}
+
+/**
+ * Absolute path to an uploads subdirectory, with trailing directory separator.
+ */
+function flixoUploadsSubdir(string $sub): string {
+    $sub = trim(str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $sub), DIRECTORY_SEPARATOR);
+    $dir = flixoUploadsRoot() . DIRECTORY_SEPARATOR . $sub;
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0755, true);
+    }
+    return $dir . DIRECTORY_SEPARATOR;
+}
+
+/**
  * URL for viewing an order payment slip (authorized PHP endpoint).
  */
 function orderSlipUrl(?string $slipImage, ?int $orderId = null): string {
@@ -33,15 +78,17 @@ function orderSlipPath(?string $slipImage): ?string {
     if ($filename === '') {
         return null;
     }
-    $dir = realpath(__DIR__ . '/../uploads/slips');
-    if ($dir === false) {
+    $dir = rtrim(flixoUploadsSubdir('slips'), "/\\");
+    $path = $dir . DIRECTORY_SEPARATOR . $filename;
+    if (!is_file($path)) {
         return null;
     }
-    $path = realpath($dir . DIRECTORY_SEPARATOR . $filename);
-    if ($path === false || !str_starts_with($path, $dir . DIRECTORY_SEPARATOR) || !is_file($path)) {
+    $realDir = realpath($dir);
+    $realPath = realpath($path);
+    if ($realDir === false || $realPath === false || !str_starts_with($realPath, $realDir . DIRECTORY_SEPARATOR)) {
         return null;
     }
-    return $path;
+    return $realPath;
 }
 
 /**

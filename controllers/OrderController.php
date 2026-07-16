@@ -132,7 +132,7 @@ try {
         $ins->execute();
         $ins->close();
 
-        $target_dir = __DIR__ . "/../uploads/slips/"; 
+        $target_dir = flixoUploadsSubdir('slips');
         $new_filename = secureUpload($_FILES["slip_image"], $target_dir);
         $full_file_path = realpath($target_dir . $new_filename);
 

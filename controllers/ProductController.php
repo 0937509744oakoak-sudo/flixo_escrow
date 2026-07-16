@@ -61,7 +61,7 @@ try {
             throw new Exception('อัปโหลดได้สูงสุด ' . Product::MAX_IMAGES . ' รูป');
         }
 
-        $upload_dir = __DIR__ . '/../' . Product::UPLOAD_SUBDIR;
+        $upload_dir = flixoUploadsSubdir('products');
         $savedImages = [];
 
         try {

@@ -1,9 +1,9 @@
 <?php
 /**
  * Serve payment slip images to authorized users (buyer, seller, staff).
- * Avoids brittle direct /uploads/... links when files live on a volume.
  */
 require_once __DIR__ . '/../includes/init.php';
+require_once __DIR__ . '/../includes/order_helper.php';
 require_once __DIR__ . '/../includes/Rbac.php';
 require_once __DIR__ . '/../models/Order.php';
 
@@ -45,31 +45,28 @@ if ($filename === '' || preg_match('/[^a-zA-Z0-9._-]/', $filename)) {
     exit;
 }
 
-$slipsDir = realpath(__DIR__ . '/../uploads/slips');
-if ($slipsDir === false) {
-    @mkdir(__DIR__ . '/../uploads/slips', 0755, true);
-    $slipsDir = realpath(__DIR__ . '/../uploads/slips');
-}
-
-$filepath = ($slipsDir !== false) ? realpath($slipsDir . DIRECTORY_SEPARATOR . $filename) : false;
-$validPath = $filepath !== false
-    && $slipsDir !== false
-    && str_starts_with($filepath, $slipsDir . DIRECTORY_SEPARATOR)
-    && is_file($filepath);
-
-if (!$validPath) {
+$filepath = orderSlipPath($filename);
+if ($filepath === null) {
     http_response_code(404);
     header('Content-Type: text/html; charset=UTF-8');
+    $uploadsRoot = htmlspecialchars(flixoUploadsRoot(), ENT_QUOTES, 'UTF-8');
+    $vol = htmlspecialchars((string) (getenv('RAILWAY_VOLUME_MOUNT_PATH') ?: '(ไม่ได้ตั้งค่า)'), ENT_QUOTES, 'UTF-8');
     echo '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>ไม่พบสลิป</title></head>';
     echo '<body style="font-family:sans-serif;text-align:center;padding:48px;background:#f4f6f8;">';
-    echo '<div style="background:#fff;display:inline-block;padding:32px;border-radius:12px;max-width:480px;box-shadow:0 4px 16px rgba(0,0,0,.08);">';
-    echo '<h1 style="margin:0 0 12px;font-size:20px;">ไฟล์สลิปไม่พบบนเซิร์ฟเวอร์</h1>';
-    echo '<p style="color:#555;margin:0 0 16px;">อาจหายหลัง deploy หรือยังไม่ได้ผูก Volume ที่ uploads — ให้ผู้ซื้ออัปโหลดสลิปใหม่ที่หน้าชำระเงิน</p>';
+    echo '<div style="background:#fff;display:inline-block;padding:32px;border-radius:12px;max-width:520px;box-shadow:0 4px 16px rgba(0,0,0,.08);text-align:left;">';
+    echo '<h1 style="margin:0 0 12px;font-size:20px;text-align:center;">ไฟล์สลิปไม่พบบนเซิร์ฟเวอร์</h1>';
+    echo '<p style="color:#555;">ไฟล์เก่าอาจหายหลัง deploy หากยังไม่ได้ผูก Volume ให้ถูกต้อง</p>';
+    echo '<ul style="color:#666;font-size:13px;line-height:1.6;">';
+    echo '<li>Mount Path ที่ควรใช้: <code>/var/www/html/uploads</code></li>';
+    echo '<li>RAILWAY_VOLUME_MOUNT_PATH ตอนนี้: <code>' . $vol . '</code></li>';
+    echo '<li>Uploads root ที่ระบบใช้: <code>' . $uploadsRoot . '</code></li>';
+    echo '<li>ตัวแปรแนะนำ: <code>RAILWAY_RUN_UID=0</code></li>';
+    echo '</ul>';
     if ($me === ($order['buyer_name'] ?? '')) {
         $payUrl = htmlspecialchars(rtrim(BASE_URL, '/') . '/buy_product.php?order_id=' . $orderId, ENT_QUOTES, 'UTF-8');
-        echo '<p><a href="' . $payUrl . '" style="display:inline-block;padding:12px 18px;background:#2563eb;color:#fff;border-radius:8px;text-decoration:none;">อัปโหลดสลิปใหม่</a></p>';
+        echo '<p style="text-align:center;"><a href="' . $payUrl . '" style="display:inline-block;padding:12px 18px;background:#2563eb;color:#fff;border-radius:8px;text-decoration:none;">อัปโหลดสลิปใหม่</a></p>';
     }
-    echo '<p style="margin-top:12px;"><a href="javascript:history.back()">ย้อนกลับ</a></p>';
+    echo '<p style="text-align:center;margin-top:12px;"><a href="javascript:history.back()">ย้อนกลับ</a></p>';
     echo '</div></body></html>';
     exit;
 }
