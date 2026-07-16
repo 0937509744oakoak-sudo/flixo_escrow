@@ -216,9 +216,14 @@ try {
 
         if (isset($result['status']) && $result['status'] == 200) {
             
-            $slip_amount = (float)$result['data']['amount']; 
+            $slip_amount = extractSlipAmount($result['data'] ?? []);
+            $order_amount = round((float) $order['amount'], 2);
 
-            if ($slip_amount >= $order['amount']) {
+            if ($slip_amount <= 0) {
+                throw new Exception('ไม่สามารถอ่านยอดเงินจากสลิปได้ กรุณาอัปโหลดสลิปที่ชัดเจนหรือรอแอดมินตรวจสอบ');
+            }
+
+            if ($slip_amount + 0.009 >= $order_amount) {
              
                 $step1_status = OrderStateMachine::WAITING_VERIFY;
                 OrderStateMachine::validate($order, $step1_status, $currentUser);
@@ -233,7 +238,13 @@ try {
                 $orderModel->changeStatus($order_id, $order['status'], $step2_status, 'System_API', 'ตรวจสลิปอัตโนมัติสำเร็จผ่าน API');
 
              
-                $meta = json_encode(['via' => 'slip_api', 'verified_by' => 'System_API']);
+                $meta = json_encode([
+                    'via' => 'slip_api',
+                    'verified_by' => 'System_API',
+                    'slip_amount' => $slip_amount,
+                    'order_amount' => $order_amount,
+                    'raw_amount' => $result['data']['amount'] ?? null,
+                ], JSON_UNESCAPED_UNICODE);
                 $tx = $conn->prepare("INSERT INTO transaction_logs (order_id, type, amount, currency, meta) VALUES (?, ?, ?, ?, ?)");
                 $type = 'slip_auto_verified';
                 $currency = 'THB';
@@ -245,7 +256,9 @@ try {
 
                 echo json_encode(['status' => 'success', 'message' => 'ตรวจสอบสลิปสำเร็จ! ยอดเงินถูกต้อง']);
             } else {
-                throw new Exception("ยอดเงินในสลิป ({$slip_amount} บาท) ไม่ตรงกับราคาสินค้า ({$order['amount']} บาท)");
+                throw new Exception(
+                    'ยอดเงินในสลิป (' . number_format($slip_amount, 2) . ' บาท) ไม่ตรงกับราคาสินค้า (' . number_format($order_amount, 2) . ' บาท)'
+                );
             }
 
         } else {

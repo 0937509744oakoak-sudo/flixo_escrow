@@ -6,6 +6,30 @@ require_once 'OrderStateMachine.php';
 require_once 'EmailService.php';
 
 /**
+ * EasySlip returns amount as either a number or { amount: number, local: {...} }.
+ * Casting an array to float in PHP yields 1.0 — never do (float)$data['amount'].
+ */
+function extractSlipAmount(array $slipData): float {
+    $raw = $slipData['amount'] ?? null;
+
+    if (is_array($raw)) {
+        if (isset($raw['amount']) && is_numeric($raw['amount'])) {
+            return round((float) $raw['amount'], 2);
+        }
+        if (isset($raw['local']['amount']) && is_numeric($raw['local']['amount'])) {
+            return round((float) $raw['local']['amount'], 2);
+        }
+        return 0.0;
+    }
+
+    if (is_numeric($raw)) {
+        return round((float) $raw, 2);
+    }
+
+    return 0.0;
+}
+
+/**
  * ตรวจสอบว่าเป็นเจ้าของออเดอร์หรือไม่
  */
 function getOrderIfOwner($conn, $order_id, $user, $role_required = 'buyer') {
