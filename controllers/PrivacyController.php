@@ -3,13 +3,13 @@
 
 require_once __DIR__ . '/../includes/init.php';
 require_once __DIR__ . '/../includes/legal.php';
+require_once __DIR__ . '/../includes/order_helper.php';
 require_once __DIR__ . '/../models/Consent.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Order.php';
 
-header('Content-Type: application/json; charset=utf-8');
-
 if (!isset($_SESSION['user'])) {
+    header('Content-Type: application/json; charset=utf-8');
     http_response_code(403);
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
     exit;
@@ -22,6 +22,7 @@ $me = $_SESSION['user'];
 $userModel = new User($conn);
 $user = $userModel->findByUsername($me);
 if (!$user) {
+    header('Content-Type: application/json; charset=utf-8');
     echo json_encode(['status' => 'error', 'message' => 'User not found']);
     exit;
 }
@@ -31,10 +32,11 @@ $consentModel = new Consent($conn);
 try {
     switch ($action) {
         case 'export_data':
-            exportUserData($conn, $userModel, $user, $me);
+            exportUserData($conn, $user, $me);
             break;
 
         case 'withdraw_consent':
+            header('Content-Type: application/json; charset=utf-8');
             $type = $_POST['consent_type'] ?? '';
             $reason = trim($_POST['reason'] ?? '');
             if (!in_array($type, ['privacy_policy', 'kyc_data_collection', 'marketing'], true)) {
@@ -47,6 +49,7 @@ try {
             break;
 
         case 'request_deletion':
+            header('Content-Type: application/json; charset=utf-8');
             $note = trim($_POST['note'] ?? '');
             $stmt = $conn->prepare(
                 "INSERT INTO data_subject_requests (user_id, request_type, status, admin_note) VALUES (?, 'delete', 'pending', ?)"
@@ -59,6 +62,7 @@ try {
             break;
 
         case 'reconsent':
+            header('Content-Type: application/json; charset=utf-8');
             if (empty($_POST['consent_terms']) || empty($_POST['consent_privacy'])) {
                 throw new Exception('กรุณายอมรับข้อกำหนดและนโยบายความเป็นส่วนตัว');
             }
@@ -68,18 +72,25 @@ try {
             break;
 
         default:
+            header('Content-Type: application/json; charset=utf-8');
             throw new Exception('Action ไม่ถูกต้อง');
     }
 } catch (Exception $e) {
+    header('Content-Type: application/json; charset=utf-8');
     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
 }
 
-function exportUserData(mysqli $conn, User $userModel, array $user, string $username): void {
-    $orderModel = new Order($conn);
+function exportUserData(mysqli $conn, array $user, string $username): void {
     $consentModel = new Consent($conn);
 
     $orders = [];
-    $stmt = $conn->prepare("SELECT id, item_name, amount, status, created_at FROM orders WHERE buyer_name = ? OR seller_name = ? ORDER BY id DESC LIMIT 500");
+    $stmt = $conn->prepare(
+        "SELECT id, item_name, amount, status, created_at
+         FROM orders
+         WHERE buyer_name = ? OR seller_name = ?
+         ORDER BY id DESC
+         LIMIT 500"
+    );
     $stmt->bind_param('ss', $username, $username);
     $stmt->execute();
     $res = $stmt->get_result();
@@ -102,22 +113,47 @@ function exportUserData(mysqli $conn, User $userModel, array $user, string $user
         'orders' => $orders,
     ];
 
-    $dir = ROOT_PATH . '/storage/exports';
-    if (!is_dir($dir)) {
-        mkdir($dir, 0755, true);
+    $json = json_encode($export, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    if ($json === false) {
+        throw new Exception('ไม่สามารถสร้างไฟล์ข้อมูลได้');
     }
-    $filename = 'export_' . $username . '_' . date('Ymd_His') . '.json';
-    $path = $dir . '/' . $filename;
-    file_put_contents($path, json_encode($export, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
-    $stmt = $conn->prepare(
-        "INSERT INTO data_subject_requests (user_id, request_type, status, payload_path, completed_at) VALUES (?, 'export', 'completed', ?, NOW())"
+    $filename = 'flixo_export_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $username) . '_' . date('Ymd_His') . '.json';
+    $savedPath = '';
+
+    // Prefer persistent uploads volume (Railway); fall back to storage/; skip if neither writable.
+    foreach ([flixoUploadsSubdir('exports'), ROOT_PATH . '/storage/exports/'] as $dir) {
+        $dir = rtrim($dir, "/\\") . DIRECTORY_SEPARATOR;
+        if (!is_dir($dir) && !@mkdir($dir, 0755, true)) {
+            continue;
+        }
+        if (!is_writable($dir)) {
+            continue;
+        }
+        $path = $dir . $filename;
+        if (@file_put_contents($path, $json) !== false) {
+            $savedPath = $path;
+            break;
+        }
+    }
+
+    $userId = (int) $user['id'];
+    $logPath = $savedPath !== '' ? $savedPath : ('inline:' . $filename);
+    $log = $conn->prepare(
+        "INSERT INTO data_subject_requests (user_id, request_type, status, payload_path, completed_at)
+         VALUES (?, 'export', 'completed', ?, NOW())"
     );
-    $stmt->bind_param('is', $user['id'], $path);
-    $stmt->execute();
+    if ($log) {
+        $log->bind_param('is', $userId, $logPath);
+        $log->execute();
+    }
 
-    header('Content-Type: application/json; charset=utf-8');
+    // Force download path in the browser (do not use only application/json).
+    header('Content-Type: application/octet-stream');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
-    readfile($path);
+    header('Content-Length: ' . (string) strlen($json));
+    header('X-Content-Type-Options: nosniff');
+    header('Cache-Control: no-store');
+    echo $json;
     exit;
 }

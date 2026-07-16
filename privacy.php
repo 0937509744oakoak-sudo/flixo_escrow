@@ -91,24 +91,52 @@ async function privacyPost(action, extra = {}) {
     fd.append('action', action);
     fd.append('csrf_token', CSRF_TOKEN);
     Object.entries(extra).forEach(([k, v]) => fd.append(k, v));
-    const res = await fetch('controllers/PrivacyController.php', { method: 'POST', body: fd });
-    const ct = res.headers.get('content-type') || '';
-    if (ct.includes('application/json')) {
-        return res.json();
+    const res = await fetch('controllers/PrivacyController.php', { method: 'POST', body: fd, credentials: 'same-origin' });
+
+    if (action === 'export_data') {
+        const ct = (res.headers.get('content-type') || '').toLowerCase();
+        const disposition = res.headers.get('content-disposition') || '';
+        const asJson = ct.includes('application/json') && !disposition.includes('attachment');
+        if (!res.ok || asJson) {
+            let message = 'ดาวน์โหลดไม่สำเร็จ';
+            try {
+                const err = await res.json();
+                message = err.message || message;
+            } catch (_) {}
+            return { status: 'error', message };
+        }
+        const blob = await res.blob();
+        let filename = 'flixo_export.json';
+        const match = disposition.match(/filename=\"?([^\";]+)\"?/i);
+        if (match && match[1]) {
+            filename = match[1];
+        }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        return { status: 'success', message: 'ดาวน์โหลดข้อมูลแล้ว' };
     }
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'flixo_export.json';
-    a.click();
-    URL.revokeObjectURL(url);
-    return { status: 'success' };
+
+    return res.json();
 }
 
 document.getElementById('btn-export')?.addEventListener('click', async () => {
-    await privacyPost('export_data');
-    Swal.fire('สำเร็จ', 'ดาวน์โหลดข้อมูลแล้ว', 'success');
+    try {
+        const data = await privacyPost('export_data');
+        Swal.fire(
+            data.status === 'success' ? 'สำเร็จ' : 'ผิดพลาด',
+            data.message || (data.status === 'success' ? 'ดาวน์โหลดข้อมูลแล้ว' : 'ไม่สำเร็จ'),
+            data.status === 'success' ? 'success' : 'error'
+        );
+    } catch (e) {
+        Swal.fire('ผิดพลาด', 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้', 'error');
+    }
 });
 
 document.getElementById('btn-withdraw-kyc')?.addEventListener('click', async () => {
@@ -137,7 +165,7 @@ document.getElementById('reconsent-form')?.addEventListener('submit', async (e) 
     }
     fd.append('consent_terms', '1');
     fd.append('consent_privacy', '1');
-    const res = await fetch('controllers/PrivacyController.php', { method: 'POST', body: fd });
+    const res = await fetch('controllers/PrivacyController.php', { method: 'POST', body: fd, credentials: 'same-origin' });
     const data = await res.json();
     if (data.status === 'success') {
         window.location = data.redirect || 'dashboard.php';
