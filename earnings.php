@@ -171,7 +171,19 @@ include 'includes/header.php';
             <span class="material-symbols-outlined">payments</span>
             <h2>ถอนเงิน</h2>
         </div>
-        <p class="tx-meta" style="margin:0 0 14px;">ขั้นต่ำ ฿100 — ต้องผ่าน KYC และมีบัญชีธนาคารที่ชื่อตรงกับ KYC</p>
+        <?php
+        $minWithdraw = 100;
+        $maxWithdraw = max(0, (float) floor($available));
+        $canWithdrawAmount = $maxWithdraw >= $minWithdraw;
+        $withdrawDisabled = empty($bank_accounts) || !$is_verified || !$canWithdrawAmount;
+        $withdrawDisableReason = !$is_verified || empty($bank_accounts)
+            ? 'ต้องมีบัญชีธนาคารและผ่าน KYC'
+            : ('ยอดถอนได้ต้องอย่างน้อย ฿' . number_format($minWithdraw, 0));
+        ?>
+        <p class="tx-meta" style="margin:0 0 14px;">ขั้นต่ำ ฿<?php echo number_format($minWithdraw, 0); ?> — ต้องผ่าน KYC และมีบัญชีธนาคารที่ชื่อตรงกับ KYC</p>
+        <?php if (!$canWithdrawAmount && $is_verified && !empty($bank_accounts)): ?>
+        <p class="tx-meta" style="margin:0 0 14px;color:#b45309;">ยอดถอนได้ตอนนี้ ฿<?php echo number_format($available, 2); ?> — ยังไม่ถึงขั้นต่ำ ฿<?php echo number_format($minWithdraw, 0); ?></p>
+        <?php endif; ?>
         <form id="withdrawForm">
             <input type="hidden" name="csrf_token" value="<?php echo safeText($csrf_token); ?>">
             <input type="hidden" name="action" value="withdraw">
@@ -179,10 +191,15 @@ include 'includes/header.php';
             <div class="earnings-withdraw-row">
                 <div>
                     <label class="tx-meta" for="withdraw-amount">จำนวนเงิน (บาท)</label>
-                    <input type="number" id="withdraw-amount" name="amount" class="earnings-field" min="100" max="<?php echo max(0, floor($available)); ?>" step="0.01" placeholder="เช่น 500" required>
+                    <input type="number" id="withdraw-amount" name="amount" class="earnings-field"
+                           min="<?php echo $canWithdrawAmount ? (int)$minWithdraw : 0; ?>"
+                           max="<?php echo $canWithdrawAmount ? $maxWithdraw : 0; ?>"
+                           step="0.01"
+                           placeholder="<?php echo $canWithdrawAmount ? 'เช่น 500' : 'ยอดไม่ถึงขั้นต่ำ'; ?>"
+                           <?php echo $canWithdrawAmount ? 'required' : 'disabled'; ?>>
                 </div>
                 <button type="submit" class="btn-flixo-primary"
-                    <?php echo (empty($bank_accounts) || !$is_verified) ? 'disabled title="ต้องมีบัญชีธนาคารและผ่าน KYC"' : ''; ?>>
+                    <?php echo $withdrawDisabled ? 'disabled title="' . safeText($withdrawDisableReason) . '"' : ''; ?>>
                     ขอถอนเงิน
                 </button>
             </div>
