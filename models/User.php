@@ -255,12 +255,55 @@ class User {
         return $stmt->get_result();
     }
 
+    // ---------- Community: follow system ----------
+
+    public function follow(string $follower, string $target): bool {
+        if ($follower === '' || $target === '' || $follower === $target) {
+            return false;
+        }
+        $stmt = $this->prepareStatement('INSERT IGNORE INTO user_follows (follower_name, target_name) VALUES (?, ?)');
+        if (!$stmt) {
+            return false;
+        }
+        $stmt->bind_param('ss', $follower, $target);
+        return $stmt->execute();
+    }
+
+    public function unfollow(string $follower, string $target): bool {
+        $stmt = $this->prepareStatement('DELETE FROM user_follows WHERE follower_name = ? AND target_name = ?');
+        if (!$stmt) {
+            return false;
+        }
+        $stmt->bind_param('ss', $follower, $target);
+        return $stmt->execute();
+    }
+
+    public function isFollowing(string $follower, string $target): bool {
+        $stmt = $this->prepareStatement('SELECT id FROM user_follows WHERE follower_name = ? AND target_name = ? LIMIT 1');
+        if (!$stmt) {
+            return false;
+        }
+        $stmt->bind_param('ss', $follower, $target);
+        $stmt->execute();
+        return (bool) $stmt->get_result()->fetch_assoc();
+    }
+
+    public function countFollowers(string $username): int {
+        $stmt = $this->prepareStatement('SELECT COUNT(*) AS cnt FROM user_follows WHERE target_name = ?');
+        if (!$stmt) {
+            return 0;
+        }
+        $stmt->bind_param('s', $username);
+        $stmt->execute();
+        return (int) ($stmt->get_result()->fetch_assoc()['cnt'] ?? 0);
+    }
+
     /**
      * Aggregated stats for the seller card on the product page.
-     * @return array{sold_count:int, joined_year:?int, avg_response_minutes:?float}
+     * @return array{sold_count:int, joined_year:?int, avg_response_minutes:?float, response_rate:?float}
      */
     public function getSellerProfileStats(string $username): array {
-        $stats = ['sold_count' => 0, 'joined_year' => null, 'avg_response_minutes' => null];
+        $stats = ['sold_count' => 0, 'joined_year' => null, 'avg_response_minutes' => null, 'response_rate' => null];
 
         $stmt = $this->prepareStatement("SELECT COUNT(*) AS c FROM orders WHERE seller_name = ? AND status = 'COMPLETED'");
         if ($stmt) {
@@ -279,8 +322,13 @@ class User {
             }
         }
 
-        // Average time (minutes) the seller takes to reply, sampled from recent incoming messages.
-        $sql = "SELECT AVG(t.diff_min) AS avg_min FROM (
+        // Reply behaviour sampled from recent incoming messages:
+        //   avg_response_minutes — average time to first reply
+        //   response_rate        — % of messages answered within 24 h
+        $sql = "SELECT AVG(t.diff_min) AS avg_min,
+                       AVG(CASE WHEN t.diff_min IS NOT NULL AND t.diff_min <= 1440 THEN 1 ELSE 0 END) * 100 AS rate,
+                       COUNT(*) AS total
+                FROM (
                     SELECT TIMESTAMPDIFF(MINUTE, m.created_at,
                         (SELECT MIN(r.created_at) FROM messages r
                          WHERE r.sender_name = ? AND r.receiver_name = m.sender_name AND r.created_at >= m.created_at)
@@ -289,14 +337,17 @@ class User {
                     WHERE m.receiver_name = ? AND m.created_at > DATE_SUB(NOW(), INTERVAL 90 DAY)
                     ORDER BY m.id DESC
                     LIMIT 200
-                ) t WHERE t.diff_min IS NOT NULL";
+                ) t";
         $stmt = $this->prepareStatement($sql);
         if ($stmt) {
             $stmt->bind_param('ss', $username, $username);
             $stmt->execute();
             $row = $stmt->get_result()->fetch_assoc();
-            if ($row && $row['avg_min'] !== null) {
-                $stats['avg_response_minutes'] = (float) $row['avg_min'];
+            if ($row && (int) $row['total'] > 0) {
+                if ($row['avg_min'] !== null) {
+                    $stats['avg_response_minutes'] = (float) $row['avg_min'];
+                }
+                $stats['response_rate'] = (float) $row['rate'];
             }
         }
 

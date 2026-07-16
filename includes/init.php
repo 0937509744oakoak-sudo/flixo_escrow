@@ -21,6 +21,19 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/csrf.php';
 require_once __DIR__ . '/functions.php';
 
+// Presence: อัปเดตเวลาใช้งานล่าสุดของผู้ที่ล็อกอิน (throttle ทุก 60 วิ เพื่อลด write)
+if (!empty($_SESSION['user']) && php_sapi_name() !== 'cli') {
+    $lastTouch = (int) ($_SESSION['presence_touched_at'] ?? 0);
+    if (time() - $lastTouch >= 60) {
+        $_SESSION['presence_touched_at'] = time();
+        $touchStmt = $conn->prepare('UPDATE users SET last_active_at = NOW() WHERE username = ?');
+        if ($touchStmt) {
+            $touchStmt->bind_param('s', $_SESSION['user']);
+            $touchStmt->execute();
+        }
+    }
+}
+
 if (!defined('PUBLIC_PATH')) {
     define('PUBLIC_PATH', ROOT_PATH . '/public');
 }

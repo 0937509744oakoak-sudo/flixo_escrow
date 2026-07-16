@@ -501,6 +501,140 @@
     }
 }
 
+/* Public seller profile */
+.seller-profile-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px 16px 80px;
+}
+
+.seller-profile-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.seller-hero {
+    padding: 24px;
+}
+
+.seller-hero-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.seller-hero-avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.seller-hero-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--flixo-primary, #0050cb);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 28px;
+    font-family: 'Hanken Grotesk', sans-serif;
+}
+
+.seller-online-dot {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #22c55e;
+    border: 3px solid #fff;
+}
+
+.seller-hero-info {
+    flex: 1 1 260px;
+    min-width: 0;
+}
+
+.seller-hero-name {
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: 24px;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.seller-hero-presence {
+    margin: 0 0 6px;
+    font-size: 13px;
+    color: var(--flixo-on-surface-variant, #5c647a);
+}
+
+.seller-presence-online {
+    color: #16a34a;
+    font-weight: 600;
+}
+
+.seller-hero-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.seller-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    border-width: 1px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.seller-stats-strip {
+    list-style: none;
+    margin: 20px 0 0;
+    padding: 16px 0 0;
+    border-top: 1px solid rgba(194, 198, 216, 0.4);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 12px;
+}
+
+.seller-stats-strip li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 2px;
+}
+
+.seller-stat-value {
+    font-weight: 700;
+    font-size: 18px;
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--flixo-on-surface, #0b1c30);
+}
+
+.seller-stat-label {
+    font-size: 12px;
+    color: var(--flixo-on-surface-variant, #5c647a);
+}
+
+.seller-listings-section .landing-section-title {
+    margin-bottom: 14px;
+}
+
 .product-trust-row {
     display: flex;
     flex-wrap: wrap;

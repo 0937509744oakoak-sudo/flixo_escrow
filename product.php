@@ -45,6 +45,10 @@ $seller_review_stats = $userModel->getReviewStats($product['seller_name']);
 $seller_reviews = $reviewModel->getByTarget($product['seller_name'], 5);
 $seller_review_total = (int) ($seller_review_stats['total_reviews'] ?? 0);
 $seller_profile_stats = $userModel->getSellerProfileStats($product['seller_name']);
+$seller_row = $userModel->findByUsername($product['seller_name']);
+$seller_is_online = flixoIsOnline($seller_row['last_active_at'] ?? null);
+$seller_last_active = flixoTimeAgo($seller_row['last_active_at'] ?? null);
+$seller_profile_url = 'seller.php?u=' . rawurlencode($product['seller_name']);
 $seller_avg_score = (float) ($seller_review_stats['avg_score'] ?? 0);
 $seller_star_count = (int) round(min(5, max(0, $seller_avg_score)));
 
@@ -116,10 +120,13 @@ $login_redirect = 'login.php?redirect=' . urlencode('product.php?id=' . $product
 
                 <div class="product-detail-seller product-seller-card">
                     <div class="product-seller-head">
-                        <div class="product-seller-avatar"><?php echo strtoupper(mb_substr($seller_display, 0, 1)); ?></div>
+                        <a href="<?php echo htmlspecialchars($seller_profile_url); ?>" class="product-seller-avatar-link" aria-label="ดูโปรไฟล์ผู้ขาย">
+                            <div class="product-seller-avatar"><?php echo strtoupper(mb_substr($seller_display, 0, 1)); ?></div>
+                            <?php if ($seller_is_online): ?><span class="product-seller-online-dot" title="ออนไลน์อยู่"></span><?php endif; ?>
+                        </a>
                         <div class="product-seller-identity">
                             <div class="product-seller-name">
-                                <?php echo htmlspecialchars($seller_display); ?>
+                                <a href="<?php echo htmlspecialchars($seller_profile_url); ?>" class="product-seller-name-link"><?php echo htmlspecialchars($seller_display); ?></a>
                                 <?php if (!empty($product['seller_verified'])): ?>
                                     <span class="product-seller-verified" title="ยืนยันตัวตนแล้ว">
                                         <span class="material-symbols-outlined" aria-hidden="true">verified</span> ยืนยันตัวตนแล้ว
@@ -136,6 +143,13 @@ $login_redirect = 'login.php?redirect=' . urlencode('product.php?id=' . $product
                             <?php else: ?>
                                 <div class="product-seller-stars product-seller-stars-empty">ยังไม่มีรีวิว</div>
                             <?php endif; ?>
+                            <div class="product-seller-presence">
+                                <?php if ($seller_is_online): ?>
+                                    <span class="seller-presence-online">● ออนไลน์อยู่ตอนนี้</span>
+                                <?php elseif ($seller_last_active !== ''): ?>
+                                    ใช้งานล่าสุด <?php echo htmlspecialchars($seller_last_active); ?>
+                                <?php endif; ?>
+                            </div>
                         </div>
                         <?php if (!$isOwnProduct): ?>
                             <?php if ($is_logged_in): ?>

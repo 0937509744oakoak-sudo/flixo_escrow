@@ -34,6 +34,38 @@ function sendLineNotify($message) {
     return $result;
 }
 
+/** "ออนไลน์" = ใช้งานภายใน 5 นาทีล่าสุด */
+function flixoIsOnline(?string $lastActiveAt): bool {
+    if (!$lastActiveAt) {
+        return false;
+    }
+    return (time() - strtotime($lastActiveAt)) <= 300;
+}
+
+/** เวลาแบบอ่านง่ายภาษาไทย เช่น "5 นาทีที่แล้ว" */
+function flixoTimeAgo(?string $datetime): string {
+    if (!$datetime) {
+        return '';
+    }
+    $diff = time() - strtotime($datetime);
+    if ($diff < 60) {
+        return 'เมื่อสักครู่';
+    }
+    if ($diff < 3600) {
+        return floor($diff / 60) . ' นาทีที่แล้ว';
+    }
+    if ($diff < 86400) {
+        return floor($diff / 3600) . ' ชั่วโมงที่แล้ว';
+    }
+    if ($diff < 86400 * 30) {
+        return floor($diff / 86400) . ' วันที่แล้ว';
+    }
+    if ($diff < 86400 * 365) {
+        return floor($diff / (86400 * 30)) . ' เดือนที่แล้ว';
+    }
+    return floor($diff / (86400 * 365)) . ' ปีที่แล้ว';
+}
+
 function userDisplayName(mysqli $conn, string $username): string {
     static $cache = [];
     if (isset($cache[$username])) {
