@@ -728,8 +728,10 @@ body.chat-page-body .super-chat-modal {
 
 .flixo-chat-modals #widget-offer-modal,
 .flixo-chat-modals #widget-tracking-modal,
+.flixo-chat-modals #widget-tracking-timeline-modal,
 body.chat-page-body #widget-offer-modal,
-body.chat-page-body #widget-tracking-modal {
+body.chat-page-body #widget-tracking-modal,
+body.chat-page-body #widget-tracking-timeline-modal {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -743,6 +745,7 @@ body.chat-page-body #widget-tracking-modal {
     box-shadow: 0 24px 48px rgba(11, 28, 48, 0.18);
     padding: 20px 24px;
     background: #fff;
+    z-index: 10001;
 }
 
 .flixo-chat-modals #widget-share-product-modal,

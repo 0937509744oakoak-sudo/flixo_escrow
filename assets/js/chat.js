@@ -800,3 +800,14 @@ document.addEventListener('keydown', function (e) {
         closeAllModals();
     }
 });
+
+/** กดพื้นหลังเบลอเพื่อปิดโมดัล (กันค้างจนกดอะไรไม่ได้) */
+document.addEventListener('click', function (e) {
+    if (!document.body.classList.contains('chat-modal-open')) return;
+    const t = e.target;
+    if (!(t instanceof Element)) return;
+    if (t.closest('.super-chat-modal') || t.closest('#flixo-dispute-overlay')) return;
+    // คลิกที่ปุ่มในแชท (เช่น ติดตามพัสดุ) ไม่ให้ปิดทันทีก่อนเปิด
+    if (t.closest('.btn-action') || t.closest('.order-tab-btn')) return;
+    closeAllModals();
+});
