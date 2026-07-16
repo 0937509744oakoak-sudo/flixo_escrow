@@ -11,12 +11,21 @@ if (session_status() === PHP_SESSION_NONE) {
     $sessionLifetime = 60 * 60 * 24 * 30;
     ini_set('session.gc_maxlifetime', (string) $sessionLifetime);
 
+    // Prefer persistent volume path so sessions survive Railway redeploys.
+    $sessionPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'sessions';
+    if (!is_dir($sessionPath)) {
+        @mkdir($sessionPath, 0700, true);
+    }
+    if (is_dir($sessionPath) && is_writable($sessionPath)) {
+        session_save_path($sessionPath);
+    }
+
     $host = strtolower(preg_replace('/:\d+$/', '', (string) ($_SERVER['HTTP_HOST'] ?? '')));
+    $fwdProto = strtolower(trim(explode(',', (string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''))[0]));
 
     // Render/proxy terminates TLS before Apache — trust forwarded proto.
-    // Also force Secure on known HTTPS hosts when the proxy header is missing.
     $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-        || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower((string) $_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https')
+        || $fwdProto === 'https'
         || (!empty($_SERVER['HTTP_X_FORWARDED_SSL']) && strtolower((string) $_SERVER['HTTP_X_FORWARDED_SSL']) === 'on')
         || str_ends_with($host, '.onrender.com')
         || str_ends_with($host, '.up.railway.app')
@@ -36,7 +45,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 
     // Sliding expiry: refresh cookie on each request while the session is active.
-    if (!empty($_SESSION['user'])) {
+    if (!empty($_SESSION['user']) && !headers_sent()) {
         setcookie(session_name(), session_id(), [
             'expires' => time() + $sessionLifetime,
             'path' => '/',

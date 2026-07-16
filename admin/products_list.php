@@ -168,7 +168,7 @@ include 'layout_head.php';
                             <td>
                                 <div class="admin-product-cell">
                                     <img class="admin-thumb" src="<?php echo htmlspecialchars($imgUrl); ?>" alt=""
-                                         onerror="this.onerror=null;this.src=<?php echo json_encode(Product::placeholderUrl()); ?>">
+                                         onerror='this.onerror=null;this.src=<?php echo json_encode(Product::placeholderUrl()); ?>'>
                                     <div>
                                         <strong><?php echo safeText($row['product_name']); ?></strong><br>
                                         <span class="admin-text-muted">#<?php echo (int) $row['id']; ?>

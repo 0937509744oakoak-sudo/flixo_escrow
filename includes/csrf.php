@@ -13,18 +13,6 @@ function getCsrfToken() {
     return $_SESSION['csrf_token'];
 }
 
-function csrfTokenIsValid($token) {
-    if (session_status() === PHP_SESSION_NONE) {
-        require_once __DIR__ . '/session.php';
-    }
-
-    $headerToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
-    $submittedToken = $token ?: $headerToken;
-
-    return !empty($_SESSION['csrf_token'])
-        && hash_equals($_SESSION['csrf_token'], (string) $submittedToken);
-}
-
 function flixoParseIniSize(string $value): int {
     $value = trim($value);
     if ($value === '') {
@@ -38,6 +26,42 @@ function flixoParseIniSize(string $value): int {
         'k' => (int) ($num * 1024),
         default => (int) $num,
     };
+}
+
+function csrfTokenIsValid($token) {
+    if (session_status() === PHP_SESSION_NONE) {
+        require_once __DIR__ . '/session.php';
+    }
+
+    $headerToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($_SERVER['HTTP_X_CSRFTOKEN'] ?? '');
+    $submittedToken = is_string($token) && $token !== '' ? $token : (string) $headerToken;
+    $sessionToken = (string) ($_SESSION['csrf_token'] ?? '');
+
+    return $sessionToken !== ''
+        && $submittedToken !== ''
+        && hash_equals($sessionToken, $submittedToken);
+}
+
+function flixoIsLikelyOversizedMultipart(): bool {
+    $contentType = (string) ($_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '');
+    if (stripos($contentType, 'multipart/form-data') === false) {
+        return false;
+    }
+
+    // PHP discarded the body (common when post_max_size / proxy limit is hit).
+    if (!empty($_POST) || !empty($_FILES)) {
+        return false;
+    }
+
+    $contentLength = (int) ($_SERVER['CONTENT_LENGTH'] ?? 0);
+    $postMax = flixoParseIniSize((string) ini_get('post_max_size'));
+
+    if ($contentLength > 0 && ($postMax <= 0 || $contentLength > $postMax)) {
+        return true;
+    }
+
+    // Some proxies omit/alter CONTENT_LENGTH; empty multipart POST is still suspicious.
+    return $contentLength > 0 || (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST');
 }
 
 /**
@@ -58,16 +82,8 @@ function verifyCsrfToken($token, $onFail = 'json') {
 
     // Multipart POST with empty body usually means post_max_size was exceeded —
     // PHP drops $_POST/$_FILES, which looks like a CSRF failure.
-    $contentType = (string) ($_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '');
-    $contentLength = (int) ($_SERVER['CONTENT_LENGTH'] ?? 0);
-    $postMax = flixoParseIniSize((string) ini_get('post_max_size'));
-    $isOversizedUpload = $contentLength > 0
-        && empty($_POST)
-        && stripos($contentType, 'multipart/form-data') !== false
-        && ($postMax <= 0 || $contentLength > $postMax);
-
-    if ($isOversizedUpload) {
-        $message = 'ไฟล์ใหญ่เกินไป กรุณาลดขนาดรูปหรือจำนวนรูปแล้วลองใหม่';
+    if (flixoIsLikelyOversizedMultipart()) {
+        $message = 'ไฟล์ใหญ่เกินไป หรืออัปโหลดไม่สำเร็จ กรุณาลดขนาดรูป/จำนวนรูป แล้วรีเฟรชหน้าเว็บก่อนลองใหม่';
         if ($onFail === 'redirect') {
             require_once __DIR__ . '/functions.php';
             redirectTo('dashboard.php?tab=sell');
@@ -105,7 +121,10 @@ function verifyCsrfToken($token, $onFail = 'json') {
 
     header('Content-Type: application/json; charset=utf-8');
     http_response_code(403);
-    echo json_encode(['status' => 'error', 'message' => 'Security Error: ตรวจพบคำสั่งที่ไม่ปลอดภัย (CSRF)'], JSON_UNESCAPED_UNICODE);
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Security Error: เซสชันหมดอายุหรือไม่ถูกต้อง กรุณารีเฟรชหน้าแล้วลองใหม่ (CSRF)',
+    ], JSON_UNESCAPED_UNICODE);
     exit();
 }
 ?>

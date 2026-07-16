@@ -315,10 +315,10 @@ $max_images = Product::MAX_IMAGES;
         submitBtn.disabled = true;
         btnText.textContent = 'กำลังตรวจสอบรูปภาพ...';
 
-        fetch('<?php echo BASE_URL; ?>/controllers/ProductController.php', {
+        fetch('controllers/ProductController.php', {
             method: 'POST',
             body: formData,
-            credentials: 'same-origin',
+            credentials: 'include',
             headers: { 'X-CSRF-Token': csrfToken }
         })
             .then(function (res) { return res.json(); })

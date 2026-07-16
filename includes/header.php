@@ -44,8 +44,8 @@
                     headers.set('X-CSRF-Token', CSRF_TOKEN);
                 }
                 config.headers = headers;
-                if (config.credentials === undefined) {
-                    config.credentials = 'same-origin';
+                if (config.credentials === undefined || config.credentials === 'same-origin') {
+                    config.credentials = 'include';
                 }
             }
 

@@ -3,7 +3,7 @@ FROM php:8.2-apache
 RUN docker-php-ext-install mysqli
 
 # Allow multi-image product uploads without PHP dropping the whole POST body
-RUN printf "upload_max_filesize=10M\npost_max_size=40M\nmax_file_uploads=20\nmemory_limit=256M\n" \
+RUN printf "upload_max_filesize=12M\npost_max_size=64M\nmax_file_uploads=20\nmemory_limit=256M\n" \
     > /usr/local/etc/php/conf.d/flixo-uploads.ini
 
 COPY . /var/www/html/
@@ -12,9 +12,11 @@ RUN mkdir -p /var/www/html/uploads/products \
              /var/www/html/uploads/kyc \
              /var/www/html/uploads/slips \
              /var/www/html/uploads/disputes \
+             /var/www/html/uploads/sessions \
     && chown -R www-data:www-data /var/www/html/uploads
 
 EXPOSE 80
 
-# Railway can enable multiple Apache MPMs; keep only mpm_prefork for mod_php
-CMD ["bash", "-lc", "a2dismod mpm_event mpm_worker || true; rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.* || true; a2enmod mpm_prefork; exec apache2-foreground"]
+# Railway Volume mounts over /uploads at runtime — fix ownership each start.
+# Also keep only mpm_prefork for mod_php.
+CMD ["bash", "-lc", "mkdir -p /var/www/html/uploads/products /var/www/html/uploads/kyc /var/www/html/uploads/slips /var/www/html/uploads/disputes /var/www/html/uploads/sessions && chown -R www-data:www-data /var/www/html/uploads && a2dismod mpm_event mpm_worker || true; rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.* || true; a2enmod mpm_prefork; exec apache2-foreground"]

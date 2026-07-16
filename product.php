@@ -60,7 +60,7 @@ $login_redirect = 'login.php?redirect=' . urlencode('product.php?id=' . $product
             <div class="product-detail-gallery-wrap">
                 <div class="product-detail-gallery" id="product-main-gallery">
                     <?php if (!empty($images)): ?>
-                        <img id="product-main-image" src="<?php echo htmlspecialchars(Product::imageUrl($images[0]['file_path'])); ?>" alt="<?php echo htmlspecialchars($product['product_name']); ?>" onerror="this.onerror=null;this.src=<?php echo json_encode(Product::placeholderUrl()); ?>">
+                        <img id="product-main-image" src="<?php echo htmlspecialchars(Product::imageUrl($images[0]['file_path'])); ?>" alt="<?php echo htmlspecialchars($product['product_name']); ?>" onerror='this.onerror=null;this.src=<?php echo json_encode(Product::placeholderUrl()); ?>'>
                     <?php else: ?>
                         <img id="product-main-image" src="<?php echo htmlspecialchars(Product::imageUrl('')); ?>" alt="<?php echo htmlspecialchars($product['product_name']); ?>">
                     <?php endif; ?>
@@ -73,7 +73,7 @@ $login_redirect = 'login.php?redirect=' . urlencode('product.php?id=' . $product
                         data-src="<?php echo htmlspecialchars(Product::imageUrl($img['file_path'])); ?>"
                         aria-label="ดูรูปที่ <?php echo $index + 1; ?>"
                         aria-selected="<?php echo $index === 0 ? 'true' : 'false'; ?>">
-                        <img src="<?php echo htmlspecialchars(Product::imageUrl($img['file_path'])); ?>" alt="" onerror="this.onerror=null;this.src=<?php echo json_encode(Product::placeholderUrl()); ?>">
+                        <img src="<?php echo htmlspecialchars(Product::imageUrl($img['file_path'])); ?>" alt="" onerror='this.onerror=null;this.src=<?php echo json_encode(Product::placeholderUrl()); ?>'>
                     </button>
                     <?php endforeach; ?>
                 </div>
