@@ -447,7 +447,19 @@ include 'includes/header.php';
                         AI Dispute Assistant
                     </h2>
                     <p class="dispute-ai-sub">
-                        <?php echo DisputeAssistantService::isAiConfigured() ? 'OpenRouter AI — วิเคราะห์จากแชท, ขนส่ง และหลักฐาน' : 'Heuristic mode — ตั้ง OPENROUTER_API_KEY เพื่อ AI เต็มรูปแบบ'; ?>
+                        <?php
+                        if (DisputeAssistantService::isAiConfigured()) {
+                            if (DisputeAssistantService::isGroqConfigured()) {
+                                echo 'Groq AI — วิเคราะห์จากแชท, ขนส่ง และหลักฐาน';
+                            } elseif (DisputeAssistantService::isOpenRouterConfigured()) {
+                                echo 'OpenRouter AI — วิเคราะห์จากแชท, ขนส่ง และหลักฐาน';
+                            } else {
+                                echo 'Gemini AI — วิเคราะห์จากแชท, ขนส่ง และหลักฐาน';
+                            }
+                        } else {
+                            echo 'Heuristic mode — ตั้ง GROQ_API_KEY เพื่อ AI เต็มรูปแบบ';
+                        }
+                        ?>
                     </p>
                     <div id="ai-content">
                         <?php if ($latestAiAnalysis): ?>

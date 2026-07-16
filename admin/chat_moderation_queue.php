@@ -43,7 +43,7 @@ function chatModDecodeJson(?string $json): array {
         <div class="admin-topbar">
             <div>
                 <h1>💬 คิวตรวจสอบแชท</h1>
-                <p>Tier 1 Regex (ฟรี) → Tier 2 Gemini AI (เฉพาะข้อความน่าสงสัย) — เบอร์โทร, เลขบัญชี, ลิงก์, ชวนโอนนอกระบบ</p>
+                <p>Tier 1 Regex (ฟรี) → Tier 2 Groq/OpenRouter/Gemini (เฉพาะข้อความน่าสงสัย) — เบอร์โทร, เลขบัญชี, ลิงก์, ชวนโอนนอกระบบ</p>
             </div>
         </div>
 

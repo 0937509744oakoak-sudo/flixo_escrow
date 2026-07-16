@@ -17,7 +17,9 @@ $sellerPct = (int)($latestAiAnalysis['seller_fault_pct'] ?? 50);
         ความมั่นใจ <?php echo (int)($latestAiAnalysis['confidence'] ?? 0); ?>%
         · <?php
             $provider = $latestAiAnalysis['provider'] ?? '';
-            echo $provider === 'openrouter' ? 'OpenRouter AI' : ($provider === 'gemini' ? 'Gemini AI' : 'Heuristic');
+            echo $provider === 'groq' ? 'Groq AI'
+                : ($provider === 'openrouter' ? 'OpenRouter AI'
+                : ($provider === 'gemini' ? 'Gemini AI' : 'Heuristic'));
         ?>
         · <?php echo date('d/m/Y H:i', strtotime($latestAiAnalysis['created_at'] ?? 'now')); ?>
     </span>

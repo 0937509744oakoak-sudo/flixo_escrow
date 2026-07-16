@@ -3,9 +3,10 @@ require __DIR__ . '/../includes/init.php';
 require __DIR__ . '/../includes/DisputeAssistantService.php';
 
 echo "Dispute AI enabled: " . (DisputeAssistantService::isEnabled() ? 'yes' : 'no') . "\n";
+echo "Groq configured: " . (DisputeAssistantService::isGroqConfigured() ? 'yes' : 'no') . "\n";
 echo "OpenRouter configured: " . (DisputeAssistantService::isOpenRouterConfigured() ? 'yes' : 'no') . "\n";
 echo "AI configured: " . (DisputeAssistantService::isAiConfigured() ? 'yes' : 'no') . "\n";
-echo "Model: " . (defined('DISPUTE_AI_MODEL') ? DISPUTE_AI_MODEL : 'n/a') . "\n\n";
+echo "Groq model: " . (defined('DISPUTE_AI_GROQ_MODEL') ? DISPUTE_AI_GROQ_MODEL : 'n/a') . "\n\n";
 
 $disputeId = (int)($argv[1] ?? 0);
 if ($disputeId <= 0) {

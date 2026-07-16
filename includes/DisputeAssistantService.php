@@ -4,10 +4,12 @@
 require_once __DIR__ . '/CourierService.php';
 require_once __DIR__ . '/order_helper.php';
 require_once __DIR__ . '/OpenRouterService.php';
+require_once __DIR__ . '/GroqService.php';
 
 class DisputeAssistantService {
     public const PROVIDER_GEMINI = 'gemini';
     public const PROVIDER_OPENROUTER = 'openrouter';
+    public const PROVIDER_GROQ = 'groq';
     public const PROVIDER_HEURISTIC = 'heuristic';
 
     public const ACTION_REFUND = 'REFUND_BUYER';
@@ -33,8 +35,12 @@ class DisputeAssistantService {
         return OpenRouterService::isConfigured();
     }
 
+    public static function isGroqConfigured(): bool {
+        return GroqService::isConfigured();
+    }
+
     public static function isAiConfigured(): bool {
-        return self::isOpenRouterConfigured() || self::isGeminiConfigured();
+        return self::isGroqConfigured() || self::isOpenRouterConfigured() || self::isGeminiConfigured();
     }
 
     public function analyze(int $disputeId, string $requestedBy, bool $force = false): array {
@@ -61,9 +67,7 @@ class DisputeAssistantService {
         try {
             if (self::isAiConfigured()) {
                 try {
-                    $result = self::isOpenRouterConfigured()
-                        ? $this->analyzeWithOpenRouter($context)
-                        : $this->analyzeWithGemini($context);
+                    $result = $this->analyzeWithPreferredAi($context);
                 } catch (Throwable $aiError) {
                     error_log('DisputeAssistantService AI fallback: ' . $aiError->getMessage());
                     $result = $this->analyzeWithHeuristics($context);
@@ -220,6 +224,56 @@ class DisputeAssistantService {
         $stmt->bind_param('i', $orderId);
         $stmt->execute();
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    /**
+     * Prefer Groq → OpenRouter → Gemini.
+     *
+     * @param array<string, mixed> $context
+     * @return array<string, mixed>
+     */
+    private function analyzeWithPreferredAi(array $context): array {
+        $errors = [];
+
+        if (self::isGroqConfigured()) {
+            try {
+                return $this->analyzeWithGroq($context);
+            } catch (Throwable $e) {
+                $errors[] = 'Groq: ' . $e->getMessage();
+                error_log('DisputeAssistantService Groq: ' . $e->getMessage());
+            }
+        }
+
+        if (self::isOpenRouterConfigured()) {
+            try {
+                return $this->analyzeWithOpenRouter($context);
+            } catch (Throwable $e) {
+                $errors[] = 'OpenRouter: ' . $e->getMessage();
+                error_log('DisputeAssistantService OpenRouter: ' . $e->getMessage());
+            }
+        }
+
+        if (self::isGeminiConfigured()) {
+            try {
+                return $this->analyzeWithGemini($context);
+            } catch (Throwable $e) {
+                $errors[] = 'Gemini: ' . $e->getMessage();
+                error_log('DisputeAssistantService Gemini: ' . $e->getMessage());
+            }
+        }
+
+        throw new RuntimeException('AI providers failed: ' . implode(' | ', $errors));
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     * @return array<string, mixed>
+     */
+    private function analyzeWithGroq(array $context): array {
+        $model = defined('DISPUTE_AI_GROQ_MODEL') ? DISPUTE_AI_GROQ_MODEL : GroqService::defaultModel();
+        $prompt = $this->buildDisputeAnalysisPrompt($context);
+        $parsed = GroqService::chatJson($prompt, $model, 0.2);
+        return $this->normalizeAnalysis($parsed, (float) $context['order']['amount'], self::PROVIDER_GROQ, $parsed);
     }
 
     /**

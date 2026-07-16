@@ -167,6 +167,8 @@ define('CHAT_MODERATION_FLAG_THRESHOLD', getenv('CHAT_MODERATION_FLAG_THRESHOLD'
 define('GEMINI_API_KEY', getenv('GEMINI_API_KEY') ?: '');
 define('OPENROUTER_API_KEY', getenv('OPENROUTER_API_KEY') ?: '');
 define('OPENROUTER_MODEL', getenv('OPENROUTER_MODEL') ?: 'google/gemini-2.5-flash');
+define('GROQ_API_KEY', getenv('GROQ_API_KEY') ?: '');
+define('GROQ_MODEL', getenv('GROQ_MODEL') ?: 'llama-3.3-70b-versatile');
 define('CHAT_MODERATION_AI_ENABLED', getenv('CHAT_MODERATION_AI_ENABLED') !== '0');
 define('CHAT_MODERATION_AI_MIN_SCORE', getenv('CHAT_MODERATION_AI_MIN_SCORE') !== false && getenv('CHAT_MODERATION_AI_MIN_SCORE') !== ''
     ? (float)getenv('CHAT_MODERATION_AI_MIN_SCORE') : 25.0);
@@ -174,10 +176,12 @@ define('CHAT_MODERATION_AI_SKIP_ABOVE_SCORE', getenv('CHAT_MODERATION_AI_SKIP_AB
     ? (float)getenv('CHAT_MODERATION_AI_SKIP_ABOVE_SCORE') : 80.0);
 define('CHAT_MODERATION_GEMINI_MODEL', getenv('CHAT_MODERATION_GEMINI_MODEL') ?: 'gemini-2.0-flash');
 
-// AI Dispute Assistant — uses Gemini when configured, else heuristic rules
+// AI Dispute Assistant — Groq (preferred) → OpenRouter → Gemini → heuristic
 define('DISPUTE_AI_ENABLED', getenv('DISPUTE_AI_ENABLED') !== '0');
 define('DISPUTE_AI_GEMINI_MODEL', getenv('DISPUTE_AI_GEMINI_MODEL') ?: 'gemini-2.0-flash');
 define('DISPUTE_AI_MODEL', getenv('DISPUTE_AI_MODEL') ?: (getenv('OPENROUTER_MODEL') ?: 'google/gemini-2.5-flash'));
+define('DISPUTE_AI_GROQ_MODEL', getenv('DISPUTE_AI_GROQ_MODEL') ?: (getenv('GROQ_MODEL') ?: 'llama-3.3-70b-versatile'));
+define('CHAT_MODERATION_GROQ_MODEL', getenv('CHAT_MODERATION_GROQ_MODEL') ?: (getenv('GROQ_MODEL') ?: 'llama-3.3-70b-versatile'));
 define('DISPUTE_SELLER_RESPONSE_HOURS', getenv('DISPUTE_SELLER_RESPONSE_HOURS') !== false && getenv('DISPUTE_SELLER_RESPONSE_HOURS') !== ''
     ? (int)getenv('DISPUTE_SELLER_RESPONSE_HOURS') : 72);
 define('DISPUTE_EVIDENCE_HOURS', getenv('DISPUTE_EVIDENCE_HOURS') !== false && getenv('DISPUTE_EVIDENCE_HOURS') !== ''

@@ -3,12 +3,14 @@
 // Tier 1: Regex/heuristics (free) → Tier 2: AI via OpenRouter/Gemini (suspicious) → Vision OCR (images)
 
 require_once __DIR__ . '/OpenRouterService.php';
+require_once __DIR__ . '/GroqService.php';
 
 class ChatModerationService {
     public const PROVIDER_OFF = 'off';
     public const PROVIDER_REGEX = 'regex';
     public const PROVIDER_GEMINI = 'gemini';
     public const PROVIDER_OPENROUTER = 'openrouter';
+    public const PROVIDER_GROQ = 'groq';
     public const PROVIDER_CLOUD_VISION = 'cloud_vision';
     public const VERDICT_PASS = 'pass';
     public const VERDICT_FLAG = 'flag';
@@ -43,8 +45,12 @@ class ChatModerationService {
         return OpenRouterService::isConfigured();
     }
 
+    public static function isGroqConfigured(): bool {
+        return GroqService::isConfigured();
+    }
+
     public static function isAiConfigured(): bool {
-        return self::isOpenRouterConfigured() || self::isGeminiConfigured();
+        return self::isGroqConfigured() || self::isOpenRouterConfigured() || self::isGeminiConfigured();
     }
 
     public static function isAiTierEnabled(): bool {
@@ -104,9 +110,7 @@ class ChatModerationService {
         }
 
         try {
-            $aiResult = self::isOpenRouterConfigured()
-                ? $this->analyzeWithOpenRouter($text, $regexResult)
-                : $this->analyzeWithGemini($text, $regexResult);
+            $aiResult = $this->analyzeWithPreferredAi($text, $regexResult);
             return $this->mergeResults($regexResult, $aiResult);
         } catch (Throwable $e) {
             error_log('ChatModerationService AI: ' . $e->getMessage());
@@ -384,6 +388,46 @@ class ChatModerationService {
         return strlen($digits) >= 8 && !preg_match('/^0[689]\d{8}$/', $digits);
     }
 
+    private function analyzeWithPreferredAi(string $text, array $regexResult): array {
+        $errors = [];
+
+        if (self::isGroqConfigured()) {
+            try {
+                return $this->analyzeWithGroq($text, $regexResult);
+            } catch (Throwable $e) {
+                $errors[] = 'Groq: ' . $e->getMessage();
+                error_log('ChatModerationService Groq: ' . $e->getMessage());
+            }
+        }
+
+        if (self::isOpenRouterConfigured()) {
+            try {
+                return $this->analyzeWithOpenRouter($text, $regexResult);
+            } catch (Throwable $e) {
+                $errors[] = 'OpenRouter: ' . $e->getMessage();
+                error_log('ChatModerationService OpenRouter: ' . $e->getMessage());
+            }
+        }
+
+        if (self::isGeminiConfigured()) {
+            try {
+                return $this->analyzeWithGemini($text, $regexResult);
+            } catch (Throwable $e) {
+                $errors[] = 'Gemini: ' . $e->getMessage();
+                error_log('ChatModerationService Gemini: ' . $e->getMessage());
+            }
+        }
+
+        throw new RuntimeException('AI providers failed: ' . implode(' | ', $errors));
+    }
+
+    private function analyzeWithGroq(string $text, array $regexResult): array {
+        $model = defined('CHAT_MODERATION_GROQ_MODEL') ? CHAT_MODERATION_GROQ_MODEL : GroqService::defaultModel();
+        $prompt = $this->buildChatModerationPrompt($text, $regexResult);
+        $parsed = GroqService::chatJson($prompt, $model, 0.1);
+        return $this->normalizeChatAiResult($parsed, $model, self::PROVIDER_GROQ);
+    }
+
     private function analyzeWithOpenRouter(string $text, array $regexResult): array {
         $model = defined('OPENROUTER_MODEL') ? OPENROUTER_MODEL : OpenRouterService::defaultModel();
         $prompt = $this->buildChatModerationPrompt($text, $regexResult);
@@ -469,8 +513,11 @@ PROMPT;
         $verdict = $this->normalizeAiVerdict((string)($parsed['verdict'] ?? 'pass'), $riskScore);
         $reasons = $this->normalizeReasons($parsed['reasons'] ?? []);
         $categories = is_array($parsed['categories'] ?? null) ? $parsed['categories'] : [];
-        $rawKey = $provider === self::PROVIDER_OPENROUTER ? 'openrouter' : 'gemini';
-
+        $rawKey = match ($provider) {
+            self::PROVIDER_OPENROUTER => 'openrouter',
+            self::PROVIDER_GROQ => 'groq',
+            default => 'gemini',
+        };
         return [
             'provider' => $provider,
             'risk_score' => $riskScore,
