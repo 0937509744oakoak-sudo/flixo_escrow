@@ -15,3 +15,6 @@ RUN mkdir -p /var/www/html/uploads/products \
     && chown -R www-data:www-data /var/www/html/uploads
 
 EXPOSE 80
+
+# Railway can enable multiple Apache MPMs; keep only mpm_prefork for mod_php
+CMD ["bash", "-lc", "a2dismod mpm_event mpm_worker || true; rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.* || true; a2enmod mpm_prefork; exec apache2-foreground"]

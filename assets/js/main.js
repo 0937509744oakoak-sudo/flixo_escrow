@@ -4,6 +4,16 @@ document.addEventListener("DOMContentLoaded", function() {
     localStorage.removeItem('theme');
 
     (function initNavProgress() {
+        if (!document.getElementById('flixo-progress-styles')) {
+            const style = document.createElement('style');
+            style.id = 'flixo-progress-styles';
+            style.textContent =
+                '#flixo-progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:100000;pointer-events:none;opacity:0;transition:opacity .2s ease}' +
+                '#flixo-progress.is-active{opacity:1}' +
+                '#flixo-progress .flixo-progress-bar{height:100%;width:0;background:#0050cb;box-shadow:0 0 10px rgba(0,80,203,.4);transition:width .35s ease}';
+            document.head.appendChild(style);
+        }
+
         const bar = document.createElement('div');
         bar.id = 'flixo-progress';
         bar.setAttribute('aria-hidden', 'true');
