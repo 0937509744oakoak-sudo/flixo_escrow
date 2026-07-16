@@ -255,6 +255,54 @@ class User {
         return $stmt->get_result();
     }
 
+    /**
+     * Aggregated stats for the seller card on the product page.
+     * @return array{sold_count:int, joined_year:?int, avg_response_minutes:?float}
+     */
+    public function getSellerProfileStats(string $username): array {
+        $stats = ['sold_count' => 0, 'joined_year' => null, 'avg_response_minutes' => null];
+
+        $stmt = $this->prepareStatement("SELECT COUNT(*) AS c FROM orders WHERE seller_name = ? AND status = 'COMPLETED'");
+        if ($stmt) {
+            $stmt->bind_param('s', $username);
+            $stmt->execute();
+            $stats['sold_count'] = (int) ($stmt->get_result()->fetch_assoc()['c'] ?? 0);
+        }
+
+        $stmt = $this->prepareStatement("SELECT YEAR(created_at) AS y FROM users WHERE username = ? LIMIT 1");
+        if ($stmt) {
+            $stmt->bind_param('s', $username);
+            $stmt->execute();
+            $row = $stmt->get_result()->fetch_assoc();
+            if ($row && !empty($row['y'])) {
+                $stats['joined_year'] = (int) $row['y'];
+            }
+        }
+
+        // Average time (minutes) the seller takes to reply, sampled from recent incoming messages.
+        $sql = "SELECT AVG(t.diff_min) AS avg_min FROM (
+                    SELECT TIMESTAMPDIFF(MINUTE, m.created_at,
+                        (SELECT MIN(r.created_at) FROM messages r
+                         WHERE r.sender_name = ? AND r.receiver_name = m.sender_name AND r.created_at >= m.created_at)
+                    ) AS diff_min
+                    FROM messages m
+                    WHERE m.receiver_name = ? AND m.created_at > DATE_SUB(NOW(), INTERVAL 90 DAY)
+                    ORDER BY m.id DESC
+                    LIMIT 200
+                ) t WHERE t.diff_min IS NOT NULL";
+        $stmt = $this->prepareStatement($sql);
+        if ($stmt) {
+            $stmt->bind_param('ss', $username, $username);
+            $stmt->execute();
+            $row = $stmt->get_result()->fetch_assoc();
+            if ($row && $row['avg_min'] !== null) {
+                $stats['avg_response_minutes'] = (float) $row['avg_min'];
+            }
+        }
+
+        return $stats;
+    }
+
     public function getReviewStats($username) {
         $sql = "SELECT AVG(rating) as avg_score, COUNT(*) as total_reviews FROM reviews WHERE target_name = ?";
         $stmt = $this->prepareStatement($sql);

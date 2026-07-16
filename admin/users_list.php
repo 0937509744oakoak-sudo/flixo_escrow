@@ -1,15 +1,40 @@
 <?php
 require 'admin_check.php';
+adminRequirePermission('users.manage');
 $csrf_token = getCsrfToken();
+$canManageRoles = Rbac::can($_SESSION['role'] ?? 'user', 'roles.manage');
 
 // --- Admin Actions ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_POST['uid'])) {
     verifyCsrfToken($_POST['csrf_token'] ?? '');
     $uid = (int)$_POST['uid'];
     $action = $_POST['action'];
-    
+
+    // 🎖️ มอบบทบาท (Owner เท่านั้น)
+    if ($action == 'set_role') {
+        if (!$canManageRoles) {
+            http_response_code(403);
+            exit('Access Denied — เฉพาะ Owner เท่านั้นที่มอบบทบาทได้');
+        }
+        $newRole = strtolower(trim($_POST['new_role'] ?? ''));
+        $stmtSelf = $conn->prepare('SELECT id FROM users WHERE username = ? LIMIT 1');
+        $stmtSelf->bind_param('s', $_SESSION['user']);
+        $stmtSelf->execute();
+        $selfRow = $stmtSelf->get_result()->fetch_assoc();
+
+        if (!in_array($newRole, Rbac::assignableRoles(), true)) {
+            echo "<script>alert('บทบาทไม่ถูกต้อง'); window.location='users_list.php';</script>";
+        } elseif ($selfRow && (int)$selfRow['id'] === $uid) {
+            echo "<script>alert('เปลี่ยนบทบาทของตัวเองไม่ได้'); window.location='users_list.php';</script>";
+        } else {
+            $stmt = $conn->prepare('UPDATE users SET role = ? WHERE id = ?');
+            $stmt->bind_param('si', $newRole, $uid);
+            $stmt->execute();
+            echo "<script>alert('🎖️ เปลี่ยนบทบาทเรียบร้อย!'); window.location='users_list.php';</script>";
+        }
+
     // ✅ อนุมัติ KYC
-    if ($action == 'verify') {
+    } elseif ($action == 'verify') {
         $stmtUser = $conn->prepare('SELECT username FROM users WHERE id = ?');
         $stmtUser->bind_param('i', $uid);
         $stmtUser->execute();
@@ -99,6 +124,7 @@ include 'layout_head.php';
                         <tr>
                             <th>ID</th>
                             <th>ชื่อผู้ใช้</th>
+                            <th>บทบาท</th>
                             <th>สถานะ KYC</th>
                             <th>สถานะบัญชี</th>
                             <th>จัดการ</th>
@@ -106,7 +132,14 @@ include 'layout_head.php';
                     </thead>
                     <tbody>
                     <?php
-                    $stmt = $conn->prepare("SELECT id, username, is_verified, status, kyc_status, ekyc_provider, id_card_image, selfie_image FROM users WHERE role != 'admin' ORDER BY id DESC");
+                    if ($canManageRoles) {
+                        // Owner เห็นทุกบัญชี (ยกเว้นตัวเอง) เพื่อมอบบทบาทได้
+                        $stmt = $conn->prepare("SELECT id, username, role, is_verified, status, kyc_status, ekyc_provider, id_card_image, selfie_image FROM users WHERE username != ? ORDER BY id DESC");
+                        $stmt->bind_param('s', $_SESSION['user']);
+                    } else {
+                        // Moderator เห็นเฉพาะสมาชิกทั่วไป
+                        $stmt = $conn->prepare("SELECT id, username, role, is_verified, status, kyc_status, ekyc_provider, id_card_image, selfie_image FROM users WHERE role = 'user' ORDER BY id DESC");
+                    }
                     $stmt->execute();
                     $result = $stmt->get_result();
 
@@ -128,6 +161,24 @@ include 'layout_head.php';
                                     <div style='font-weight:600;'>{$safeUsername}</div>
                                     <div class='admin-text-muted'>KYC: {$safeKycStatus} | Provider: " . safeText($row['ekyc_provider'] ?? 'manual') . "</div>
                                    </td>";
+
+                            if ($canManageRoles) {
+                                echo "<td><form method='post' action='users_list.php' style='display:flex;gap:4px;align-items:center;'>
+                                        <input type='hidden' name='action' value='set_role'>
+                                        <input type='hidden' name='uid' value='{$safeId}'>
+                                        <input type='hidden' name='csrf_token' value='" . safeText($csrf_token) . "'>
+                                        <select name='new_role' class='admin-btn admin-btn-sm' style='padding:4px 6px;'>";
+                                foreach (Rbac::assignableRoles() as $r) {
+                                    $sel = strtolower($row['role']) === $r || ($r === 'owner' && strtolower($row['role']) === 'admin') ? ' selected' : '';
+                                    echo "<option value='{$r}'{$sel}>" . safeText(Rbac::roleLabel($r)) . "</option>";
+                                }
+                                echo "</select>
+                                        <button type='submit' class='admin-btn admin-btn-muted admin-btn-sm' onclick=\"return confirm('เปลี่ยนบทบาทผู้ใช้นี้?')\">บันทึก</button>
+                                    </form></td>";
+                            } else {
+                                echo "<td>" . safeText(Rbac::roleLabel($row['role'])) . "</td>";
+                            }
+
                             echo "<td>$verified_badge</td>";
                             echo "<td>$status_badge</td>";
                             echo "<td><div class='admin-action-group'>";
@@ -176,7 +227,7 @@ include 'layout_head.php';
                             echo "</div></td></tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='5' class='empty'>ไม่มีสมาชิก</td></tr>";
+                        echo "<tr><td colspan='6' class='empty'>ไม่มีสมาชิก</td></tr>";
                     }
                     ?>
                     </tbody>

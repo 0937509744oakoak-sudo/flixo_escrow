@@ -2082,6 +2082,99 @@ body.flixo-chat-active {
     margin-bottom: 20px;
 }
 
+.product-seller-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid rgba(194, 198, 216, 0.5);
+}
+
+.product-seller-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.product-seller-identity {
+    min-width: 0;
+}
+
+.product-seller-verified {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: 6px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(0, 102, 69, 0.1);
+    color: #006645;
+    font-size: 11px;
+    font-weight: 700;
+    vertical-align: middle;
+}
+
+.product-seller-verified .material-symbols-outlined {
+    font-size: 14px;
+    font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+
+.product-seller-stars {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+    font-size: 13px;
+}
+
+.product-seller-stars-icons {
+    color: #f5a623;
+    letter-spacing: 1px;
+}
+
+.product-seller-stars-meta,
+.product-seller-stars-empty {
+    color: var(--flixo-on-surface-variant);
+    font-size: 12px;
+}
+
+.product-seller-chat-btn {
+    margin-left: auto;
+    padding: 8px 14px;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    align-self: center;
+}
+
+.product-seller-stats {
+    list-style: none;
+    margin: 0;
+    padding: 12px 0 0;
+    border-top: 1px solid rgba(194, 198, 216, 0.4);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.product-seller-stats li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 2px;
+}
+
+.product-seller-stat-value {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--flixo-on-surface);
+}
+
+.product-seller-stat-label {
+    font-size: 11px;
+    color: var(--flixo-on-surface-variant);
+}
+
 .product-seller-avatar {
     width: 40px;
     height: 40px;

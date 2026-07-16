@@ -1,5 +1,6 @@
 <?php
 require 'admin_check.php';
+adminRequirePermission('audit.view');
 
 $q = trim($_GET['q'] ?? '');
 $where = '';

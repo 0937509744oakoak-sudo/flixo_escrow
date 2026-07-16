@@ -13,7 +13,8 @@ if (!isset($_SESSION['user'])) {
 }
 
 $role = $_SESSION['role'] ?? Rbac::roleOf($conn, $_SESSION['user']);
-if (!Rbac::can($role, 'pii.view')) {
+// เอกสาร KYC เปิดดูได้ทั้งผู้ตรวจ KYC (moderator) และผู้ที่เห็น PII ได้ (finance/owner)
+if (!Rbac::can($role, 'kyc.review') && !Rbac::can($role, 'pii.view')) {
     http_response_code(403);
     exit('Forbidden — insufficient permission to view PII');
 }

@@ -1,5 +1,6 @@
 <?php
 require 'admin_check.php';
+adminRequirePermission('notifications.view');
 
 $q = trim($_GET['q'] ?? '');
 $startDate = trim($_GET['start_date'] ?? '');

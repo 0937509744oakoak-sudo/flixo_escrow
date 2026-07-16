@@ -1,5 +1,6 @@
 <?php
 require 'admin_check.php';
+adminRequirePermission('moderation.queue');
 require_once __DIR__ . '/../models/Product.php';
 
 $productModel = new Product($conn);

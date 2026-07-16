@@ -178,12 +178,7 @@ include 'includes/navbar.php';
         require_once __DIR__ . '/includes/Rbac.php';
         if (isset($user['role']) && Rbac::isStaff($user['role'])):
             $staff_role = $user['role'];
-            $staff_role_labels = [
-                'admin' => 'ผู้ดูแลระบบ',
-                'finance' => 'ฝ่ายการเงิน',
-                'support' => 'ฝ่ายสนับสนุน',
-            ];
-            $staff_role_label = $staff_role_labels[$staff_role] ?? $staff_role;
+            $staff_role_label = Rbac::roleLabel($staff_role);
         ?>
         <div class="staff-admin-portal">
             <div class="staff-admin-portal__inner">
@@ -193,7 +188,7 @@ include 'includes/navbar.php';
                     <strong class="staff-admin-portal__title">ระบบจัดการหลังบ้าน (Admin Panel)</strong>
                     <p class="staff-admin-portal__desc">
                         บัญชีของคุณมีสิทธิ์ <strong><?php echo safeText($staff_role_label); ?></strong>
-                        — เข้าถึงได้เฉพาะ Admin, Finance และ Support เท่านั้น
+                        — เข้าถึงได้เฉพาะเจ้าหน้าที่ (Owner, Finance, Support, Moderator) เท่านั้น
                     </p>
                 </div>
                 <a href="admin/index.php" class="staff-admin-portal__btn">

@@ -44,6 +44,23 @@ $category = $product['category'] ?? '';
 $seller_review_stats = $userModel->getReviewStats($product['seller_name']);
 $seller_reviews = $reviewModel->getByTarget($product['seller_name'], 5);
 $seller_review_total = (int) ($seller_review_stats['total_reviews'] ?? 0);
+$seller_profile_stats = $userModel->getSellerProfileStats($product['seller_name']);
+$seller_avg_score = (float) ($seller_review_stats['avg_score'] ?? 0);
+$seller_star_count = (int) round(min(5, max(0, $seller_avg_score)));
+
+$seller_response_label = null;
+if ($seller_profile_stats['avg_response_minutes'] !== null) {
+    $mins = $seller_profile_stats['avg_response_minutes'];
+    if ($mins < 1) {
+        $seller_response_label = 'ไม่ถึง 1 นาที';
+    } elseif ($mins < 60) {
+        $seller_response_label = number_format($mins) . ' นาที';
+    } elseif ($mins < 60 * 24) {
+        $seller_response_label = number_format($mins / 60, 1) . ' ชม.';
+    } else {
+        $seller_response_label = number_format($mins / (60 * 24), 1) . ' วัน';
+    }
+}
 $back_href = $is_logged_in ? 'dashboard.php' : 'index.php#catalog';
 $login_redirect = 'login.php?redirect=' . urlencode('product.php?id=' . $productId);
 ?>
@@ -91,35 +108,57 @@ $login_redirect = 'login.php?redirect=' . urlencode('product.php?id=' . $product
                 <div class="product-detail-price">฿<?php echo number_format($product['price'], 2); ?></div>
 
                 <div class="product-trust-row">
-                    <?php if ($rating || $seller_review_total > 0): ?>
-                        <span class="product-trust-pill">
-                            ★ <?php echo $rating ?: number_format($seller_review_stats['avg_score'] ?? 0, 1); ?>
-                            · <?php echo number_format($seller_review_total); ?> รีวิว
-                        </span>
-                    <?php endif; ?>
-                    <?php if (!empty($product['seller_verified'])): ?>
-                        <span class="product-trust-pill">✓ ยืนยันตัวตนแล้ว</span>
-                    <?php endif; ?>
-                    <span class="product-trust-pill">เงินพักกลางจนกว่าของถึงมือ</span>
+                    <span class="product-trust-pill">
+                        <span class="material-symbols-outlined" aria-hidden="true" style="font-size:14px;">lock</span>
+                        เงินพักกลางจนกว่าของถึงมือ
+                    </span>
                 </div>
 
-                <div class="product-detail-seller">
-                    <div class="product-seller-avatar"><?php echo strtoupper(mb_substr($seller_display, 0, 1)); ?></div>
-                    <div>
-                        <div class="product-seller-name">
-                            <?php echo htmlspecialchars($seller_display); ?>
+                <div class="product-detail-seller product-seller-card">
+                    <div class="product-seller-head">
+                        <div class="product-seller-avatar"><?php echo strtoupper(mb_substr($seller_display, 0, 1)); ?></div>
+                        <div class="product-seller-identity">
+                            <div class="product-seller-name">
+                                <?php echo htmlspecialchars($seller_display); ?>
+                                <?php if (!empty($product['seller_verified'])): ?>
+                                    <span class="product-seller-verified" title="ยืนยันตัวตนแล้ว">
+                                        <span class="material-symbols-outlined" aria-hidden="true">verified</span> ยืนยันตัวตนแล้ว
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+                            <?php if ($seller_review_total > 0): ?>
+                                <div class="product-seller-stars" aria-label="คะแนนผู้ขาย <?php echo number_format($seller_avg_score, 1); ?> จาก 5">
+                                    <span class="product-seller-stars-icons"><?php
+                                        echo str_repeat('★', $seller_star_count) . str_repeat('☆', 5 - $seller_star_count);
+                                    ?></span>
+                                    <span class="product-seller-stars-meta"><?php echo number_format($seller_avg_score, 1); ?> (<?php echo number_format($seller_review_total); ?> รีวิว)</span>
+                                </div>
+                            <?php else: ?>
+                                <div class="product-seller-stars product-seller-stars-empty">ยังไม่มีรีวิว</div>
+                            <?php endif; ?>
                         </div>
-                        <?php if ($rating): ?>
-                            <div class="product-seller-rating">★ <?php echo $rating; ?></div>
+                        <?php if (!$isOwnProduct): ?>
+                            <?php if ($is_logged_in): ?>
+                                <a href="dashboard.php?tab=chat&amp;user=<?php echo urlencode($product['seller_name']); ?>" class="btn-flixo-outline product-seller-chat-btn">คุยกับผู้ขาย</a>
+                            <?php else: ?>
+                                <a href="<?php echo htmlspecialchars($login_redirect); ?>" class="btn-flixo-outline product-seller-chat-btn">เข้าสู่ระบบเพื่อคุย</a>
+                            <?php endif; ?>
                         <?php endif; ?>
                     </div>
-                    <?php if (!$isOwnProduct): ?>
-                        <?php if ($is_logged_in): ?>
-                            <a href="dashboard.php?tab=chat&amp;user=<?php echo urlencode($product['seller_name']); ?>" class="btn-flixo-outline" style="margin-left:auto;padding:8px 14px;flex:0;">คุยกับผู้ขาย</a>
-                        <?php else: ?>
-                            <a href="<?php echo htmlspecialchars($login_redirect); ?>" class="btn-flixo-outline" style="margin-left:auto;padding:8px 14px;flex:0;">เข้าสู่ระบบเพื่อคุย</a>
-                        <?php endif; ?>
-                    <?php endif; ?>
+                    <ul class="product-seller-stats">
+                        <li>
+                            <span class="product-seller-stat-value"><?php echo number_format($seller_profile_stats['sold_count']); ?></span>
+                            <span class="product-seller-stat-label">ขายสำเร็จ (รายการ)</span>
+                        </li>
+                        <li>
+                            <span class="product-seller-stat-value"><?php echo $seller_response_label !== null ? htmlspecialchars($seller_response_label) : '—'; ?></span>
+                            <span class="product-seller-stat-label">ตอบแชทเฉลี่ย</span>
+                        </li>
+                        <li>
+                            <span class="product-seller-stat-value"><?php echo $seller_profile_stats['joined_year'] ? 'ปี ' . $seller_profile_stats['joined_year'] : '—'; ?></span>
+                            <span class="product-seller-stat-label">เป็นสมาชิกตั้งแต่</span>
+                        </li>
+                    </ul>
                 </div>
 
                 <?php if (!empty($product['description'])): ?>

@@ -16,3 +16,14 @@ if (!Rbac::isStaff($role)) {
 }
 
 $_SESSION['role'] = $role;
+
+/**
+ * Guard รายหน้า — เรียกต่อจาก require 'admin_check.php' ที่หัวไฟล์
+ */
+function adminRequirePermission(string $permission): void {
+    $role = $_SESSION['role'] ?? 'user';
+    if (!Rbac::can($role, $permission)) {
+        http_response_code(403);
+        exit('Access Denied — บทบาท "' . htmlspecialchars(Rbac::roleLabel($role)) . '" ไม่มีสิทธิ์เข้าถึงหน้านี้');
+    }
+}

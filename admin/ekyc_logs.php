@@ -1,5 +1,6 @@
 <?php
 require 'admin_check.php';
+adminRequirePermission('kyc.review');
 
 $res = $conn->query("SELECT e.*, u.username FROM ekyc_sessions e JOIN users u ON u.id = e.user_id ORDER BY e.created_at DESC LIMIT 100");
 $page_title = 'eKYC Logs';

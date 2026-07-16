@@ -1,5 +1,6 @@
 <?php
 require 'admin_check.php';
+adminRequirePermission('support.inbox');
 require_once __DIR__ . '/../includes/support_chat.php';
 
 $csrf_token = getCsrfToken();

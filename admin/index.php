@@ -5,6 +5,9 @@ require_once 'admin_helpers.php';
 
 $page_title = 'แดชบอร์ดผู้ดูแลระบบ';
 
+$my_role = $_SESSION['role'] ?? 'user';
+$canSee = static fn(string $perm): bool => Rbac::can($GLOBALS['my_role'], $perm);
+
 // Auto cancel pending payments เกิน 24 ชม.
 $orderModel = new Order($conn);
 $orderModel->cancelExpiredPendingOrders(24);
@@ -15,12 +18,23 @@ $recentOrders = adminGetRecentOrders($conn, 8);
 $statusBreakdown = adminGetOrderStatusBreakdown($conn);
 $maxStatusCount = max(1, ...array_column($statusBreakdown, 'cnt'));
 
-$totalActionItems = $stats['waiting_verify']
-    + $stats['pending_withdrawals']
-    + $stats['open_disputes']
-    + $stats['fraud_queue']
-    + $stats['chat_moderation_queue']
-    + $stats['support_unread'];
+// นับเฉพาะงานที่ role นี้รับผิดชอบ
+$totalActionItems = 0;
+if ($canSee('escrow.manage')) {
+    $totalActionItems += $stats['waiting_verify'];
+}
+if ($canSee('withdrawal.manage')) {
+    $totalActionItems += $stats['pending_withdrawals'];
+}
+if ($canSee('dispute.resolve')) {
+    $totalActionItems += $stats['open_disputes'];
+}
+if ($canSee('moderation.queue')) {
+    $totalActionItems += $stats['fraud_queue'] + $stats['chat_moderation_queue'];
+}
+if ($canSee('support.inbox')) {
+    $totalActionItems += $stats['support_unread'];
+}
 
 include 'layout_head.php';
 ?>
@@ -48,6 +62,7 @@ include 'layout_head.php';
 
         <!-- KPI Cards -->
         <div class="admin-kpi-grid">
+            <?php if ($canSee('escrow.manage')): ?>
             <div class="admin-kpi kpi-escrow">
                 <div class="admin-kpi-label">เงินในถังพัก (Escrow)</div>
                 <div class="admin-kpi-value" style="color:var(--admin-warning);">
@@ -62,6 +77,7 @@ include 'layout_head.php';
                 </div>
                 <div class="admin-kpi-sub">ออเดอร์ COMPLETED ทั้งหมด</div>
             </div>
+            <?php endif; ?>
             <div class="admin-kpi kpi-users">
                 <div class="admin-kpi-label">สมาชิกทั้งหมด</div>
                 <div class="admin-kpi-value"><?php echo number_format($stats['total_users']); ?></div>
@@ -86,6 +102,7 @@ include 'layout_head.php';
 
         <!-- Action Queue -->
         <div class="admin-action-grid">
+            <?php if ($canSee('escrow.manage')): ?>
             <a href="escrow_list.php" class="admin-action-card<?php echo $stats['waiting_verify'] > 0 ? ' has-items' : ''; ?>">
                 <div class="admin-action-icon">💰</div>
                 <div class="admin-action-info">
@@ -93,6 +110,8 @@ include 'layout_head.php';
                     <span>รอตรวจสอบสลิป</span>
                 </div>
             </a>
+            <?php endif; ?>
+            <?php if ($canSee('withdrawal.manage')): ?>
             <a href="withdrawals_list.php" class="admin-action-card<?php echo $stats['pending_withdrawals'] > 0 ? ' has-items' : ''; ?>">
                 <div class="admin-action-icon">💸</div>
                 <div class="admin-action-info">
@@ -100,6 +119,8 @@ include 'layout_head.php';
                     <span>คำขอถอนเงิน</span>
                 </div>
             </a>
+            <?php endif; ?>
+            <?php if ($canSee('dispute.resolve')): ?>
             <a href="dispute_list.php" class="admin-action-card<?php echo $stats['open_disputes'] > 0 ? ' has-items' : ''; ?>">
                 <div class="admin-action-icon">⚠️</div>
                 <div class="admin-action-info">
@@ -107,6 +128,8 @@ include 'layout_head.php';
                     <span>ข้อพิพาทเปิดอยู่</span>
                 </div>
             </a>
+            <?php endif; ?>
+            <?php if ($canSee('moderation.queue')): ?>
             <a href="product_fraud_queue.php" class="admin-action-card<?php echo $stats['fraud_queue'] > 0 ? ' has-items' : ''; ?>">
                 <div class="admin-action-icon">🖼️</div>
                 <div class="admin-action-info">
@@ -121,6 +144,8 @@ include 'layout_head.php';
                     <span>แชทรอตรวจ</span>
                 </div>
             </a>
+            <?php endif; ?>
+            <?php if ($canSee('support.inbox')): ?>
             <a href="support_inbox.php" class="admin-action-card<?php echo $stats['support_unread'] > 0 ? ' has-items' : ''; ?>">
                 <div class="admin-action-icon">💬</div>
                 <div class="admin-action-info">
@@ -128,10 +153,12 @@ include 'layout_head.php';
                     <span>ข้อความช่วยเหลือใหม่</span>
                 </div>
             </a>
+            <?php endif; ?>
         </div>
 
         <!-- Panels -->
         <div class="admin-panel-grid">
+            <?php if ($canSee('escrow.manage')): ?>
             <!-- Pending Escrow -->
             <div class="admin-panel">
                 <div class="admin-panel-header">
@@ -170,6 +197,7 @@ include 'layout_head.php';
                     </table>
                 </div>
             </div>
+            <?php endif; ?>
 
             <!-- Order Status Breakdown -->
             <div class="admin-panel">

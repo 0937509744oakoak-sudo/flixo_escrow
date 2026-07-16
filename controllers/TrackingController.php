@@ -25,7 +25,7 @@ if ($orderId <= 0) {
 
 $orderModel = new Order($conn);
 $order = $orderModel->findById($orderId);
-if (!$order || ($order['buyer_name'] !== $me && $order['seller_name'] !== $me && ($_SESSION['role'] ?? '') !== 'admin')) {
+if (!$order || ($order['buyer_name'] !== $me && $order['seller_name'] !== $me && !in_array($_SESSION['role'] ?? '', ['admin', 'owner'], true))) {
     http_response_code(403);
     echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
     exit;

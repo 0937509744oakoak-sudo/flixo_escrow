@@ -59,7 +59,7 @@ function renderOfferCard(array $ord, string $viewerUsername) {
                 $html .= '<div style="font-size:12px;color:#c0392b;margin-bottom:8px;">ยังไม่พบไฟล์สลิปในระบบ</div>';
             }
             $sessionRole = strtolower((string) ($_SESSION['role'] ?? 'user'));
-            if (in_array($sessionRole, ['admin', 'finance', 'support'], true)) {
+            if (in_array($sessionRole, ['admin', 'owner', 'finance'], true)) {
                 $html .= '<a href="admin/escrow_list.php" class="btn-action btn-orange">🛡️ ไปหน้าตรวจ Escrow (Admin)</a>';
             } elseif ($is_buyer) {
                 $html .= '<span class="status-wait">ระบบ/แอดมินกำลังตรวจสอบสลิปของคุณ</span>';
@@ -443,7 +443,7 @@ if ($action == 'save_tracking') {
     $currentUser = ['username' => $me, 'role' => 'user'];
     if ($me === $order['seller_name']) {
         $currentUser['role'] = 'seller';
-    } elseif ($sessionRole === 'admin') {
+    } elseif ($sessionRole === 'admin' || $sessionRole === 'owner') {
         $currentUser['role'] = 'admin';
     }
 

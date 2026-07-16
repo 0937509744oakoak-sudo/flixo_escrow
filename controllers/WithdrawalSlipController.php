@@ -29,7 +29,7 @@ if (!$req) {
 }
 
 $isOwner = ($me === ($req['username'] ?? ''));
-$isStaff = Rbac::can($role, 'withdrawal.manage') || Rbac::isStaff($role);
+$isStaff = Rbac::can($role, 'withdrawal.manage');
 if (!$isOwner && !$isStaff) {
     http_response_code(403);
     exit('ไม่มีสิทธิ์ดูสลิปนี้');

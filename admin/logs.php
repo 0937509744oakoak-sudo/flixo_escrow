@@ -1,5 +1,6 @@
 <?php
 require 'admin_check.php';
+adminRequirePermission('logs.view');
 require_once '../includes/OrderStateMachine.php';
 
 $q = trim($_GET['q'] ?? '');

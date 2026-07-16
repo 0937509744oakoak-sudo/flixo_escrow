@@ -1,5 +1,6 @@
 <?php
 require 'admin_check.php';
+adminRequirePermission('escrow.manage');
 require_once '../includes/order_helper.php';
 require_once '../includes/OrderStateMachine.php';
 require_once '../models/Order.php';
