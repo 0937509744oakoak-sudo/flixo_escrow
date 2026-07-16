@@ -2,7 +2,6 @@
 
 /** Orders tab — simplified UX */
 require_once __DIR__ . '/../order_helper.php';
-require_once __DIR__ . '/../CourierService.php';
 
 $res_buy = $orderModel->getOrdersByRole($me, 'buyer');
 
@@ -320,20 +319,8 @@ foreach ($all_orders as $item) {
 
                     <?php elseif ($role === 'buy' && $st === OrderStateMachine::SHIPPED): ?>
 
-                        <?php
-                            $ordersTrackUrl = '';
-                            if (!empty($row['tracking_number'])) {
-                                $ordersTrackUrl = (new CourierService($conn))->buildTrackingUrl(
-                                    (string) ($row['courier'] ?? ''),
-                                    (string) $row['tracking_number']
-                                );
-                            }
-                            if ($ordersTrackUrl === '') {
-                                $ordersTrackUrl = trim((string) ($row['tracking_url'] ?? ''));
-                            }
-                        ?>
                         <?php if (!empty($row['tracking_number'])): ?>
-                            <button type="button" class="btn-flixo-outline order-tab-btn" onclick="showTrackingTimeline(<?php echo $order_id; ?>, <?php echo htmlspecialchars(json_encode($ordersTrackUrl, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8'); ?>)">ติดตามพัสดุ</button>
+                            <button type="button" class="btn-flixo-outline order-tab-btn" onclick="showTrackingTimeline(<?php echo $order_id; ?>)">ติดตามพัสดุ</button>
                         <?php endif; ?>
                         <button type="button" class="btn-flixo-primary order-tab-btn" onclick="ordersConfirmReceive(<?php echo $order_id; ?>)">ยืนยันรับของ</button>
                         <button type="button" class="btn-flixo-outline order-tab-btn order-tab-btn-dispute" onclick="ordersOpenDispute(<?php echo $order_id; ?>)">เปิดข้อพิพาท</button>
@@ -370,20 +357,8 @@ foreach ($all_orders as $item) {
 
                     <?php elseif ($role === 'sell' && $st === OrderStateMachine::SHIPPED): ?>
 
-                        <?php
-                            $ordersTrackUrlSell = '';
-                            if (!empty($row['tracking_number'])) {
-                                $ordersTrackUrlSell = (new CourierService($conn))->buildTrackingUrl(
-                                    (string) ($row['courier'] ?? ''),
-                                    (string) $row['tracking_number']
-                                );
-                            }
-                            if ($ordersTrackUrlSell === '') {
-                                $ordersTrackUrlSell = trim((string) ($row['tracking_url'] ?? ''));
-                            }
-                        ?>
                         <?php if (!empty($row['tracking_number'])): ?>
-                            <button type="button" class="btn-flixo-outline order-tab-btn" onclick="showTrackingTimeline(<?php echo $order_id; ?>, <?php echo htmlspecialchars(json_encode($ordersTrackUrlSell, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8'); ?>)">ติดตามพัสดุ</button>
+                            <button type="button" class="btn-flixo-outline order-tab-btn" onclick="showTrackingTimeline(<?php echo $order_id; ?>)">ติดตามพัสดุ</button>
                         <?php endif; ?>
                         <span class="order-tab-wait tx-meta">รอผู้ซื้อยืนยัน<?php if (!empty($row['tracking_number'])) echo ' • ' . htmlspecialchars($row['tracking_number']); ?></span>
 

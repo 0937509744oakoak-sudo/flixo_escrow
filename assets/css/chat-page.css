@@ -748,6 +748,208 @@ body.chat-page-body #widget-tracking-timeline-modal {
     z-index: 10001;
 }
 
+.flixo-chat-modals #widget-tracking-timeline-modal.track-modal,
+body.chat-page-body #widget-tracking-timeline-modal.track-modal {
+    position: fixed;
+    width: min(380px, calc(100vw - 28px));
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid rgba(11, 28, 48, 0.06);
+}
+
+.track-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    z-index: 2;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.85);
+    color: #5b6b7c;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.track-modal-close:hover {
+    background: #fff;
+    color: #0b1c30;
+}
+
+.track-modal-hero {
+    text-align: center;
+    padding: 28px 24px 18px;
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(37, 99, 235, 0.12), transparent 70%),
+        linear-gradient(180deg, #f4f8ff 0%, #fff 100%);
+}
+
+.track-modal-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);
+}
+
+.track-modal-title {
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0b1c30;
+}
+
+.track-modal-sub {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #6b7c8f;
+    padding: 0 8px;
+}
+
+.track-modal-courier {
+    display: block;
+    width: fit-content;
+    max-width: calc(100% - 48px);
+    margin: 0 auto 14px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #eef4ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.track-modal-number-card {
+    margin: 0 20px 16px;
+    padding: 14px;
+    border-radius: 14px;
+    background: #f7f9fc;
+    border: 1px solid #e8eef5;
+}
+
+.track-modal-number-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #8a9aab;
+    margin-bottom: 8px;
+}
+
+.track-modal-number-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.track-modal-number-input {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    padding: 11px 12px;
+    border: 1px solid #d9e2ec;
+    border-radius: 10px;
+    background: #fff;
+    color: #0b1c30;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 14px;
+    letter-spacing: 0.03em;
+}
+
+.track-modal-copy-btn {
+    flex-shrink: 0;
+    min-width: 84px;
+    border: none;
+    border-radius: 10px;
+    padding: 0 14px;
+    background: #0b1c30;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.track-modal-copy-btn:hover {
+    background: #16324f;
+}
+
+.track-modal-copy-btn.is-copied {
+    background: #059669;
+}
+
+.track-modal-events {
+    list-style: none;
+    margin: 0 20px 12px;
+    padding: 0;
+    max-height: 120px;
+    overflow: auto;
+}
+
+.track-modal-event {
+    padding: 8px 0;
+    border-bottom: 1px solid #eef2f6;
+    font-size: 13px;
+    color: #0b1c30;
+}
+
+.track-modal-event span {
+    display: block;
+    margin-top: 2px;
+    color: #8a9aab;
+    font-size: 12px;
+}
+
+.track-modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 4px 20px 20px;
+}
+
+.track-modal-open-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    border-radius: 12px;
+    background: #2563eb;
+    color: #fff !important;
+    text-decoration: none !important;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.28);
+}
+
+.track-modal-open-btn:hover {
+    background: #1d4ed8;
+}
+
+.track-modal-dismiss-btn {
+    min-height: 40px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+    color: #5b6b7c;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.track-modal-dismiss-btn:hover {
+    background: #f8fafc;
+    color: #0b1c30;
+}
+
 .flixo-chat-modals #widget-share-product-modal,
 body.chat-page-body #widget-share-product-modal {
     position: fixed;

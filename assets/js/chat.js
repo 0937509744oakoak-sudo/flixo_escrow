@@ -469,58 +469,28 @@ function escapeHtml(str) {
         .replace(/"/g, '&quot;');
 }
 
-/**
- * เปิดแท็บว่างทันทีตอนกดปุ่ม (กัน popup blocker) แล้วพาไปหน้าเว็บขนส่งเมื่อได้ URL
- */
-function openCourierTrackingWindow(preferredUrl) {
-    let win = null;
-    try {
-        win = window.open('about:blank', '_blank');
-    } catch (e) {
-        win = null;
-    }
-    if (win) {
-        try {
-            win.document.write(
-                '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>กำลังเปิด...</title></head>' +
-                '<body style="font-family:sans-serif;padding:32px;color:#444;">กำลังเปิดหน้าเช็คพัสดุของขนส่ง...</body></html>'
-            );
-        } catch (e) { /* ignore */ }
-    }
-    if (preferredUrl) {
-        navigateCourierWindow(win, preferredUrl);
-        return null;
-    }
-    return win;
-}
-
-function navigateCourierWindow(win, url) {
-    if (!url) return;
-    if (win && !win.closed) {
-        try {
-            win.location.href = url;
-            return;
-        } catch (e) { /* fall through */ }
-    }
-    window.open(url, '_blank', 'noopener,noreferrer');
-}
-
-function showTrackingTimeline(oid, preferredUrl) {
+function showTrackingTimeline(oid) {
     trackingTimelineOrderId = oid;
     closeAllModals();
     const modal = document.getElementById('widget-tracking-timeline-modal');
     if (!modal) return;
 
-    let pendingWin = null;
-    if (preferredUrl) {
-        openCourierTrackingWindow(preferredUrl);
-    } else {
-        pendingWin = openCourierTrackingWindow('');
+    trackingNumberClipboard = '';
+    const numInput = document.getElementById('tracking-number-display');
+    const copyBtn = document.getElementById('tracking-copy-btn');
+    const meta = document.getElementById('tracking-timeline-meta');
+    const link = document.getElementById('tracking-external-link');
+    if (numInput) numInput.value = '';
+    if (copyBtn) {
+        copyBtn.textContent = 'คัดลอก';
+        copyBtn.classList.remove('is-copied');
     }
+    if (meta) meta.textContent = 'กำลังโหลด...';
+    if (link) link.style.display = 'none';
 
     modal.style.display = 'block';
     syncModalBackdrop();
-    loadTrackingTimeline(oid, pendingWin, preferredUrl || '');
+    loadTrackingTimeline(oid);
 }
 
 function closeTrackingTimelineModal() {
@@ -538,11 +508,13 @@ function fillTrackingModal(data) {
 
     trackingNumberClipboard = data.tracking_number || '';
     if (numInput) numInput.value = trackingNumberClipboard;
-    if (copyBtn) copyBtn.textContent = 'คัดลอก';
+    if (copyBtn) {
+        copyBtn.textContent = 'คัดลอก';
+        copyBtn.classList.remove('is-copied');
+    }
 
     if (meta) {
-        const courier = escapeHtml(data.courier || 'ขนส่ง');
-        meta.innerHTML = `<strong>${courier}</strong>`;
+        meta.textContent = data.courier || 'ขนส่ง';
     }
 
     const events = data.events || [];
@@ -550,7 +522,7 @@ function fillTrackingModal(data) {
         if (events.length > 0) {
             list.style.display = 'block';
             list.innerHTML = events.map(ev =>
-                `<li style="padding:8px 0;border-bottom:1px solid #eee;font-size:13px;"><strong>${escapeHtml(ev.status_label)}</strong><br><span style="color:#888;">${escapeHtml(ev.event_at)}${ev.location ? ' · ' + escapeHtml(ev.location) : ''}</span></li>`
+                `<li class="track-modal-event"><strong>${escapeHtml(ev.status_label)}</strong><span>${escapeHtml(ev.event_at)}${ev.location ? ' · ' + escapeHtml(ev.location) : ''}</span></li>`
             ).join('');
         } else {
             list.style.display = 'none';
@@ -561,9 +533,9 @@ function fillTrackingModal(data) {
     if (link) {
         if (data.tracking_url) {
             link.href = data.tracking_url;
-            link.style.display = 'inline-block';
+            link.style.display = 'flex';
             link.textContent = data.courier
-                ? 'เปิดเว็บเช็คพัสดุ (' + data.courier + ')'
+                ? 'เปิดเว็บ ' + data.courier
                 : 'เปิดเว็บเช็คพัสดุ';
         } else {
             link.removeAttribute('href');
@@ -572,7 +544,7 @@ function fillTrackingModal(data) {
     }
 }
 
-function loadTrackingTimeline(oid, pendingWin, alreadyOpenedUrl) {
+function loadTrackingTimeline(oid) {
     const base = (typeof FLIXO_BASE_URL !== 'undefined' && FLIXO_BASE_URL)
         ? String(FLIXO_BASE_URL).replace(/\/$/, '')
         : '';
@@ -582,22 +554,15 @@ function loadTrackingTimeline(oid, pendingWin, alreadyOpenedUrl) {
         .then(r => r.json())
         .then(data => {
             if (data.status !== 'success') {
-                if (pendingWin && !pendingWin.closed) pendingWin.close();
+                const meta = document.getElementById('tracking-timeline-meta');
+                if (meta) meta.textContent = 'โหลดไม่สำเร็จ';
                 return;
             }
             fillTrackingModal(data);
-
-            const trackUrl = data.tracking_url || '';
-            if (pendingWin && trackUrl && trackUrl !== alreadyOpenedUrl) {
-                navigateCourierWindow(pendingWin, trackUrl);
-            } else if (pendingWin && !trackUrl) {
-                pendingWin.close();
-            } else if (!alreadyOpenedUrl && trackUrl && !pendingWin) {
-                // popup ถูกบล็อกตอนกด — ผู้ใช้ยังกดปุ่มในโมดัลได้
-            }
         })
         .catch(() => {
-            if (pendingWin && !pendingWin.closed) pendingWin.close();
+            const meta = document.getElementById('tracking-timeline-meta');
+            if (meta) meta.textContent = 'โหลดไม่สำเร็จ';
         });
 }
 
@@ -611,7 +576,11 @@ function copyTrackingNumber() {
     const done = () => {
         if (btn) {
             btn.textContent = 'คัดลอกแล้ว';
-            setTimeout(() => { btn.textContent = 'คัดลอก'; }, 1600);
+            btn.classList.add('is-copied');
+            setTimeout(() => {
+                btn.textContent = 'คัดลอก';
+                btn.classList.remove('is-copied');
+            }, 1600);
         }
     };
 
