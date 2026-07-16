@@ -36,9 +36,12 @@ $courier = new CourierService($conn);
 if ($action === 'timeline') {
     $trackingNumber = (string) ($order['tracking_number'] ?? '');
     $courierLabel = (string) ($order['courier'] ?? '');
-    $trackingUrl = trim((string) ($order['tracking_url'] ?? ''));
-    if ($trackingUrl === '' && $trackingNumber !== '') {
+    $trackingUrl = '';
+    if ($trackingNumber !== '') {
         $trackingUrl = $courier->buildTrackingUrl($courierLabel, $trackingNumber);
+    }
+    if ($trackingUrl === '') {
+        $trackingUrl = trim((string) ($order['tracking_url'] ?? ''));
     }
 
     echo json_encode([

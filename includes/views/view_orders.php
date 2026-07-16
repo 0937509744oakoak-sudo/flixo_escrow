@@ -321,12 +321,15 @@ foreach ($all_orders as $item) {
                     <?php elseif ($role === 'buy' && $st === OrderStateMachine::SHIPPED): ?>
 
                         <?php
-                            $ordersTrackUrl = trim((string) ($row['tracking_url'] ?? ''));
-                            if ($ordersTrackUrl === '' && !empty($row['tracking_number'])) {
+                            $ordersTrackUrl = '';
+                            if (!empty($row['tracking_number'])) {
                                 $ordersTrackUrl = (new CourierService($conn))->buildTrackingUrl(
                                     (string) ($row['courier'] ?? ''),
                                     (string) $row['tracking_number']
                                 );
+                            }
+                            if ($ordersTrackUrl === '') {
+                                $ordersTrackUrl = trim((string) ($row['tracking_url'] ?? ''));
                             }
                         ?>
                         <?php if (!empty($row['tracking_number'])): ?>
@@ -368,12 +371,15 @@ foreach ($all_orders as $item) {
                     <?php elseif ($role === 'sell' && $st === OrderStateMachine::SHIPPED): ?>
 
                         <?php
-                            $ordersTrackUrlSell = trim((string) ($row['tracking_url'] ?? ''));
-                            if ($ordersTrackUrlSell === '' && !empty($row['tracking_number'])) {
+                            $ordersTrackUrlSell = '';
+                            if (!empty($row['tracking_number'])) {
                                 $ordersTrackUrlSell = (new CourierService($conn))->buildTrackingUrl(
                                     (string) ($row['courier'] ?? ''),
                                     (string) $row['tracking_number']
                                 );
+                            }
+                            if ($ordersTrackUrlSell === '') {
+                                $ordersTrackUrlSell = trim((string) ($row['tracking_url'] ?? ''));
                             }
                         ?>
                         <?php if (!empty($row['tracking_number'])): ?>

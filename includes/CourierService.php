@@ -6,11 +6,11 @@ class CourierService {
 
     private const COURIERS = [
         'Thailand Post' => ['code' => 'thaipost', 'url' => 'https://track.thailandpost.co.th/?trackNumber=%s', 'aliases' => ['ไปรษณีย์ไทย', 'thailand post']],
-        'Kerry Express' => ['code' => 'kerry', 'url' => 'https://th.kerryexpress.com/en/track/?track=%s', 'aliases' => ['kerry']],
-        'Flash Express' => ['code' => 'flash', 'url' => 'https://www.flashexpress.co.th/tracking/?se=%s', 'aliases' => ['flash']],
-        'J&T Express' => ['code' => 'jnt', 'url' => 'https://www.jtexpress.co.th/index/query/gzquery.html?billCodes=%s', 'aliases' => ['j&t', 'j&t express', 'jnt']],
-        'Ninja Van' => ['code' => 'ninja', 'url' => 'https://www.ninjavan.co/en-th/tracking?id=%s', 'aliases' => ['ninja']],
-        'DHL' => ['code' => 'dhl', 'url' => 'https://www.dhl.com/th-en/home/tracking.html?tracking-id=%s', 'aliases' => ['dhl']],
+        'Kerry Express' => ['code' => 'kerry', 'url' => 'https://th.kex-express.com/th/track/', 'aliases' => ['kerry', 'kex']],
+        'Flash Express' => ['code' => 'flash', 'url' => 'https://www.flashexpress.co.th/fle/tracking', 'aliases' => ['flash']],
+        'J&T Express' => ['code' => 'jnt', 'url' => 'https://www.jtexpress.co.th/service/track', 'aliases' => ['j&t', 'j&t express', 'jnt']],
+        'Ninja Van' => ['code' => 'ninja', 'url' => 'https://www.ninjavan.co/th-th/tracking', 'aliases' => ['ninja']],
+        'DHL' => ['code' => 'dhl', 'url' => 'https://www.dhl.com/th-th/home/tracking.html', 'aliases' => ['dhl']],
         'Other' => ['code' => 'other', 'url' => '', 'aliases' => ['อื่นๆ', 'other']],
     ];
 
