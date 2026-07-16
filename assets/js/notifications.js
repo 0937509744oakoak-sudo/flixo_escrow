@@ -133,6 +133,7 @@ function notifHandleItemClick(e) {
     notifFetch('mark_read', { id }).then(() => {
         notifPollUnreadCount();
         if (url) {
+            if (window.FlixoProgress) window.FlixoProgress.start();
             window.location.href = url;
         } else {
             item.classList.remove('notif-item--unread');
