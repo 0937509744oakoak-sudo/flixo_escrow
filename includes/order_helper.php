@@ -1,9 +1,24 @@
 <?php
 // includes/order_helper.php
 
-require_once 'db.php';
-require_once 'OrderStateMachine.php';
-require_once 'EmailService.php';
+require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/OrderStateMachine.php';
+require_once __DIR__ . '/EmailService.php';
+
+/**
+ * Public URL for an order payment slip image.
+ */
+function orderSlipUrl(?string $slipImage): string {
+    $slipImage = trim((string) $slipImage);
+    if ($slipImage === '') {
+        return '';
+    }
+    $filename = basename($slipImage);
+    $base = defined('UPLOADS_URL')
+        ? rtrim(UPLOADS_URL, '/')
+        : (defined('BASE_URL') ? rtrim(BASE_URL, '/') . '/uploads' : 'uploads');
+    return $base . '/slips/' . rawurlencode($filename);
+}
 
 /**
  * EasySlip returns amount as either a number or { amount: number, local: {...} }.

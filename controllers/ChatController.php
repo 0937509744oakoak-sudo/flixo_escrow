@@ -44,7 +44,28 @@ function renderOfferCard(array $ord, string $viewerUsername) {
             
 
         case OrderStateMachine::WAITING_VERIFY:
-            $html .= '<div style="color:#f39c12; font-size:12px; margin-bottom:5px; font-weight:bold;">⏳ ระบบกำลังตรวจสอบยอดเงิน...</div>';
+            $html .= '<div style="color:#f39c12; font-size:12px; margin-bottom:8px; font-weight:bold;">⏳ รอตรวจสอบสลิปโอนเงิน</div>';
+            $slipUrl = orderSlipUrl($ord['slip_image'] ?? '');
+            if ($slipUrl !== '') {
+                $safeSlip = htmlspecialchars($slipUrl, ENT_QUOTES, 'UTF-8');
+                $html .= '<div style="margin:8px 0 10px;padding:8px;background:#fff8e6;border-radius:8px;border:1px solid #f0e0b2;">';
+                $html .= '<div style="font-size:11px;color:#666;margin-bottom:6px;">หลักฐานสลิปที่ผู้ซื้ออัปโหลด</div>';
+                $html .= '<a href="' . $safeSlip . '" target="_blank" rel="noopener">';
+                $html .= '<img src="' . $safeSlip . '" alt="สลิปโอนเงิน" style="max-width:min(220px,100%);border-radius:8px;display:block;border:1px solid #eee;">';
+                $html .= '</a>';
+                $html .= '<a href="' . $safeSlip . '" target="_blank" rel="noopener" class="btn-action btn-blue" style="margin-top:8px;display:inline-block;">🔍 เปิดดูสลิปเต็ม</a>';
+                $html .= '</div>';
+            } else {
+                $html .= '<div style="font-size:12px;color:#c0392b;margin-bottom:8px;">ยังไม่พบไฟล์สลิปในระบบ</div>';
+            }
+            $sessionRole = strtolower((string) ($_SESSION['role'] ?? 'user'));
+            if (in_array($sessionRole, ['admin', 'finance', 'support'], true)) {
+                $html .= '<a href="admin/escrow_list.php" class="btn-action btn-orange">🛡️ ไปหน้าตรวจ Escrow (Admin)</a>';
+            } elseif ($is_buyer) {
+                $html .= '<span class="status-wait">ระบบ/แอดมินกำลังตรวจสอบสลิปของคุณ</span>';
+            } elseif ($is_seller) {
+                $html .= '<span class="status-wait">รอแอดมินยืนยันยอดเงิน</span>';
+            }
             break;
             
         

@@ -1,6 +1,7 @@
 <?php
 
 /** Orders tab — simplified UX */
+require_once __DIR__ . '/../order_helper.php';
 
 $res_buy = $orderModel->getOrdersByRole($me, 'buyer');
 
@@ -333,9 +334,23 @@ foreach ($all_orders as $item) {
 
                         <a href="my_disputes.php" class="btn-flixo-outline order-tab-btn">ดูข้อพิพาท</a>
 
-                    <?php elseif ($role === 'buy' && in_array($st, [OrderStateMachine::WAITING_VERIFY, OrderStateMachine::PAID], true)): ?>
+                    <?php elseif ($role === 'buy' && $st === OrderStateMachine::WAITING_VERIFY): ?>
+                        <?php $slipUrl = orderSlipUrl($row['slip_image'] ?? ''); ?>
+                        <?php if ($slipUrl !== ''): ?>
+                            <a href="<?php echo htmlspecialchars($slipUrl); ?>" target="_blank" rel="noopener" class="btn-flixo-outline order-tab-btn">ดูสลิปที่ส่ง</a>
+                        <?php endif; ?>
+                        <span class="order-tab-wait tx-meta">รอตรวจสอบสลิป</span>
+
+                    <?php elseif ($role === 'buy' && $st === OrderStateMachine::PAID): ?>
 
                         <span class="order-tab-wait tx-meta">รอดำเนินการจากอีกฝ่าย</span>
+
+                    <?php elseif ($role === 'sell' && $st === OrderStateMachine::WAITING_VERIFY): ?>
+                        <?php $slipUrl = orderSlipUrl($row['slip_image'] ?? ''); ?>
+                        <?php if ($slipUrl !== ''): ?>
+                            <a href="<?php echo htmlspecialchars($slipUrl); ?>" target="_blank" rel="noopener" class="btn-flixo-outline order-tab-btn">ดูสลิปผู้ซื้อ</a>
+                        <?php endif; ?>
+                        <span class="order-tab-wait tx-meta">รอแอดมินยืนยันยอด</span>
 
                     <?php elseif ($role === 'sell' && $st === OrderStateMachine::SHIPPED): ?>
 
