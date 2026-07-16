@@ -508,18 +508,13 @@ class Product {
         }
 
         $filename = basename($relative);
-        $localPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relative);
-        if (function_exists('flixoUploadsSubdir')) {
-            $volPath = flixoUploadsSubdir('products') . $filename;
-            if (is_file($volPath)) {
-                $localPath = $volPath;
-            }
-        }
-        if (!is_file($localPath)) {
+        if ($filename === '' || preg_match('/[^a-zA-Z0-9._-]/', $filename)) {
             return self::placeholderUrl();
         }
 
-        return rtrim(BASE_URL, '/') . '/' . $relative;
+        // Serve via PHP so Railway Volume paths resolve reliably
+        $base = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
+        return $base . '/controllers/ProductImageController.php?f=' . rawurlencode($filename);
     }
 
     public static function primaryImageUrl(array $product) {

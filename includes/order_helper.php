@@ -319,9 +319,18 @@ function deleteProductImageFile($filename) {
     if (empty($filename) || str_starts_with($filename, 'http')) {
         return;
     }
-    $path = __DIR__ . '/../uploads/products/' . ltrim($filename, '/');
-    if (is_file($path)) {
-        @unlink($path);
+    $name = basename(str_replace(['\\', "\0"], '', (string) $filename));
+    if ($name === '') {
+        return;
+    }
+    $candidates = [
+        flixoUploadsSubdir('products') . $name,
+        __DIR__ . '/../uploads/products/' . $name,
+    ];
+    foreach ($candidates as $path) {
+        if (is_file($path)) {
+            @unlink($path);
+        }
     }
 }
 ?>

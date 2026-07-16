@@ -62,7 +62,7 @@ include 'layout_head.php';
                                 $reasons = $decoded;
                             }
                         }
-                        $imgUrl = '../' . Product::UPLOAD_SUBDIR . rawurlencode($row['image_path']);
+                        $imgUrl = Product::imageUrl($row['image_path'] ?? '');
                     ?>
                         <tr>
                             <td>
