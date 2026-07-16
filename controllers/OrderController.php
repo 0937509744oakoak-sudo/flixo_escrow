@@ -162,6 +162,7 @@ try {
             if (!$alreadyWaiting) {
                 OrderStateMachine::validate($order, OrderStateMachine::WAITING_VERIFY, $currentUser);
                 $orderModel->changeStatus($order_id, $order['status'], OrderStateMachine::WAITING_VERIFY, $currentUser['username'], 'ข้ามการตรวจ API (ไม่มี API key) - รอแอดมินตรวจแบบ Manual');
+                createNotification($conn, $order['seller_name'], "💳 ผู้ซื้อส่งสลิปชำระเงินออเดอร์ #$order_id แล้ว — รอตรวจสอบยอดเงิน", "dashboard.php?tab=orders");
             }
             echo json_encode(['status' => 'success', 'message' => 'ส่งสลิปเรียบร้อย (รอแอดมินตรวจสอบเนื่องจาก API ยังไม่ได้ตั้งค่า)']);
             exit();
@@ -195,6 +196,7 @@ try {
             if (!$alreadyWaiting) {
                 OrderStateMachine::validate($order, OrderStateMachine::WAITING_VERIFY, $currentUser);
                 $orderModel->changeStatus($order_id, $order['status'], OrderStateMachine::WAITING_VERIFY, $currentUser['username'], 'API ไม่ตอบสนอง: เปลี่ยนเป็นรอแอดมินตรวจ (Manual)');
+                createNotification($conn, $order['seller_name'], "💳 ผู้ซื้อส่งสลิปชำระเงินออเดอร์ #$order_id แล้ว — รอตรวจสอบยอดเงิน", "dashboard.php?tab=orders");
             }
             echo json_encode(['status' => 'success', 'message' => 'ส่งสลิปแล้ว (รอแอดมินตรวจสอบเนื่องจากเชื่อมต่อ AI ไม่ได้)']);
             exit();
@@ -210,6 +212,7 @@ try {
             if (!$alreadyWaiting) {
                 OrderStateMachine::validate($order, OrderStateMachine::WAITING_VERIFY, $currentUser);
                 $orderModel->changeStatus($order_id, $order['status'], OrderStateMachine::WAITING_VERIFY, $currentUser['username'], 'API ไม่สามารถอ่าน QR code ได้ - เปลี่ยนเป็นรอแอดมินตรวจแบบ Manual');
+                createNotification($conn, $order['seller_name'], "💳 ผู้ซื้อส่งสลิปชำระเงินออเดอร์ #$order_id แล้ว — รอตรวจสอบยอดเงิน", "dashboard.php?tab=orders");
             }
             echo json_encode(['status' => 'success', 'message' => 'ส่งสลิปแล้ว (ระบบไม่สามารถอ่าน QR code ได้ รอแอดมินตรวจสอบแบบ Manual)']);
             exit();
@@ -254,6 +257,7 @@ try {
                 $tx->close();
 
                 createNotification($conn, $order['seller_name'], "💰 ยอดเงินออเดอร์ #$order_id ได้รับการยืนยันอัตโนมัติแล้ว กรุณาจัดส่งสินค้า", "dashboard.php?tab=orders");
+                createNotification($conn, $order['buyer_name'], "✅ ยืนยันการชำระเงินออเดอร์ #$order_id แล้ว — เงินพักใน Escrow อย่างปลอดภัย รอผู้ขายจัดส่ง", "buy_product.php?order_id=$order_id");
 
                 echo json_encode(['status' => 'success', 'message' => 'ตรวจสอบสลิปสำเร็จ! ยอดเงินถูกต้อง']);
             } else {

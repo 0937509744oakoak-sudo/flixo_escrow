@@ -48,6 +48,7 @@ function markOrderPaidFromOmise(mysqli $conn, int $orderId, array $chargeData, s
     $tx->execute();
 
     createNotification($conn, $order['seller_name'], "💰 ออเดอร์ #{$orderId} ชำระเงินผ่าน Omise แล้ว กรุณาจัดส่งสินค้า", "dashboard.php?tab=orders");
+    createNotification($conn, $order['buyer_name'], "✅ ชำระเงินออเดอร์ #{$orderId} สำเร็จ — เงินพักใน Escrow อย่างปลอดภัย รอผู้ขายจัดส่ง", "buy_product.php?order_id={$orderId}");
 
     return true;
 }

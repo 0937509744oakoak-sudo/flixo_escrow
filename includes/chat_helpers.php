@@ -70,3 +70,65 @@ function flixo_finalize_chat_sidebar(mysqli $conn, string $me, array $sidebarPar
     require_once __DIR__ . '/support_chat.php';
     return flixo_pin_support_in_sidebar($conn, $me, $sidebarPartners);
 }
+
+/**
+ * แจ้งเตือนผู้รับเมื่อมีข้อความแชทใหม่ (in-app + email + push ตาม preference)
+ *
+ * กันสแปม: ถ้าผู้รับยังมีแจ้งเตือนแชทจากคู่สนทนาคนเดิมที่ยังไม่อ่านค้างอยู่
+ * จะไม่สร้างแจ้งเตือนซ้ำ — จะแจ้งอีกครั้งเมื่อผู้รับเปิดอ่านห้องแชทนั้นแล้ว
+ */
+function flixo_notify_chat_message(mysqli $conn, string $sender, string $receiver, string $preview): void
+{
+    require_once __DIR__ . '/support_chat.php';
+    // แชทกับทีมงาน FLIXO มี flow ของ support inbox อยู่แล้ว
+    if (isSupportUsername($sender) || isSupportUsername($receiver)) {
+        return;
+    }
+
+    $chatUrl = 'dashboard.php?tab=chat&user=' . rawurlencode($sender);
+
+    $stmt = $conn->prepare(
+        "SELECT id FROM notifications
+         WHERE user_name = ? AND type = 'chat' AND is_read = 0 AND link_url LIKE CONCAT('%', ?)
+         LIMIT 1"
+    );
+    if ($stmt) {
+        $stmt->bind_param('ss', $receiver, $chatUrl);
+        $stmt->execute();
+        if ($stmt->get_result()->num_rows > 0) {
+            return; // มีแจ้งเตือนค้างอ่านจากคนนี้อยู่แล้ว ไม่ต้องยิงซ้ำ
+        }
+    }
+
+    $preview = trim($preview);
+    if (mb_strlen($preview) > 80) {
+        $preview = mb_substr($preview, 0, 80) . '…';
+    }
+    $senderDisplay = function_exists('userDisplayName') ? userDisplayName($conn, $sender) : $sender;
+
+    require_once __DIR__ . '/NotificationService.php';
+    NotificationService::notifyUser($conn, $receiver, [
+        'type' => 'chat',
+        'title' => 'ข้อความใหม่',
+        'icon' => '💬',
+        'message' => "💬 {$senderDisplay}: {$preview}",
+        'url' => $chatUrl,
+    ]);
+}
+
+/**
+ * ผู้ใช้เปิดอ่านห้องแชทแล้ว → เคลียร์แจ้งเตือนแชทของคู่สนทนานั้น
+ * (ทำให้กระดิ่งหายและข้อความใหม่ครั้งถัดไปแจ้งเตือนได้อีก)
+ */
+function flixo_mark_chat_notifications_read(mysqli $conn, string $viewer, string $partner): void
+{
+    $chatUrl = 'dashboard.php?tab=chat&user=' . rawurlencode($partner);
+    $stmt = $conn->prepare(
+        "UPDATE notifications SET is_read = 1, read_at = NOW()
+         WHERE user_name = ? AND type = 'chat' AND is_read = 0 AND link_url LIKE CONCAT('%', ?)"
+    );
+    if ($stmt) {
+        $stmt->bind_param('ss', $viewer, $chatUrl);
+        $stmt->execute();
+    }
+}

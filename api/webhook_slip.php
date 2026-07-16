@@ -41,6 +41,10 @@ if ($payload['status'] === 'success') {
                 $chat_stmt->bind_param("ss", $order['seller_name'], $msg);
                 $chat_stmt->execute();
 
+                require_once __DIR__ . '/../includes/order_helper.php';
+                createNotification($conn, $order['seller_name'], "💰 ยอดเงินออเดอร์ #{$order_id} เข้าสู่ Escrow แล้ว กรุณาจัดส่งสินค้าและแจ้งเลขพัสดุ", "dashboard.php?tab=orders");
+                createNotification($conn, $order['buyer_name'], "✅ ยืนยันการชำระเงินออเดอร์ #{$order_id} แล้ว — เงินพักใน Escrow อย่างปลอดภัย รอผู้ขายจัดส่ง", "buy_product.php?order_id={$order_id}");
+
                 http_response_code(200);
                 echo json_encode(['status' => 'success', 'message' => 'Order automatically verified']);
                 exit();

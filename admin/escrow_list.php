@@ -21,6 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['approve_id'])) {
             $orderModel->changeStatus($oid, $order['status'], OrderStateMachine::PAID, $currentUser['username'], 'แอดมินยืนยันยอดเงินเข้าบัญชีจริง');
             $msg = "💰 ยอดเงินได้รับการอนุมัติแล้ว! กรุณาจัดส่งสินค้าและแจ้งเลขพัสดุ";
             createNotification($conn, $order['seller_name'], $msg, "dashboard.php?tab=orders");
+            createNotification($conn, $order['buyer_name'], "✅ ยืนยันการชำระเงินออเดอร์ #{$oid} แล้ว — เงินพักใน Escrow อย่างปลอดภัย รอผู้ขายจัดส่ง", "buy_product.php?order_id={$oid}");
             echo "<script>alert('✅ อนุมัติยอดเงินเรียบร้อย!'); window.location='escrow_list.php';</script>";
         } catch (Exception $e) {
             echo "<script>alert('❌ ไม่สามารถอนุมัติได้: " . addslashes($e->getMessage()) . "'); window.location='escrow_list.php';</script>";

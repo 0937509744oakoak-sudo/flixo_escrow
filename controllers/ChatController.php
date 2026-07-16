@@ -6,6 +6,7 @@ require_once __DIR__ . '/../models/Order.php';
 require_once __DIR__ . '/../models/Product.php';
 require_once __DIR__ . '/../includes/order_helper.php';
 require_once __DIR__ . '/../includes/ChatModerationService.php';
+require_once __DIR__ . '/../includes/chat_helpers.php';
 verifyCsrfToken($_POST['csrf_token'] ?? ''); 
 
 header('Content-Type: text/html; charset=utf-8');
@@ -182,6 +183,9 @@ if ($action == 'fetch') {
 
     require_once __DIR__ . '/../includes/support_chat.php';
     markSupportMessagesRead($conn, $me, $partner);
+
+    // เปิดห้องแชทแล้ว = อ่านแล้ว → เคลียร์แจ้งเตือนแชทจากคู่สนทนานี้
+    flixo_mark_chat_notifications_read($conn, $me, $partner);
 }
 
 
@@ -219,6 +223,12 @@ if ($action == 'send') {
         $messageId = (int)$conn->insert_id;
         $moderation->updateMessageModeration($messageId, $modResult);
         $moderation->logScan($messageId, $me, $partner, 'text', $msg, $modResult);
+    }
+
+    try {
+        flixo_notify_chat_message($conn, $me, $partner, $msg);
+    } catch (Throwable $notifyError) {
+        error_log('ChatController send: notify failed — ' . $notifyError->getMessage());
     }
 
     header('Content-Type: application/json; charset=utf-8');
@@ -288,6 +298,12 @@ if ($action == 'share_product') {
     $stmt->bind_param('sss', $me, $partner, $code);
     $stmt->execute();
 
+    try {
+        flixo_notify_chat_message($conn, $me, $partner, '📢 ส่งประกาศ "' . $product['product_name'] . '" ให้คุณ');
+    } catch (Throwable $notifyError) {
+        error_log('ChatController share_product: notify failed — ' . $notifyError->getMessage());
+    }
+
     echo 'success';
     exit();
 }
@@ -313,6 +329,19 @@ if ($action == 'create_offer') {
         $msg_stmt = $conn->prepare("INSERT INTO messages (sender_name, receiver_name, message) VALUES (?, ?, ?)");
         $msg_stmt->bind_param("sss", $me, $partner, $code);
         $msg_stmt->execute();
+
+        // มี Offer ใหม่ → แจ้งผู้ซื้อทันที (แยกจากแจ้งเตือนแชทปกติ ไม่ถูก throttle)
+        try {
+            createNotification(
+                $conn,
+                $partner,
+                "🤝 " . userDisplayName($conn, $me) . " ส่งข้อเสนอ \"{$item}\" ราคา ฿" . number_format((float)$price, 2) . " (ออเดอร์ #$oid)",
+                "buy_product.php?order_id=$oid"
+            );
+        } catch (Throwable $notifyError) {
+            error_log('ChatController create_offer: notify failed — ' . $notifyError->getMessage());
+        }
+
         echo "success";
     } else {
         echo "error";
@@ -355,6 +384,12 @@ if ($action == 'send_image') {
                 $messageId = (int)$conn->insert_id;
                 $moderation->updateMessageModeration($messageId, $modResult);
                 $moderation->logScan($messageId, $me, $partner, 'image', '[รูปภาพ]', $modResult);
+            }
+
+            try {
+                flixo_notify_chat_message($conn, $me, $partner, '📷 ส่งรูปภาพให้คุณ');
+            } catch (Throwable $notifyError) {
+                error_log('ChatController send_image: notify failed — ' . $notifyError->getMessage());
             }
 
             echo "success";
@@ -400,6 +435,16 @@ if ($action == 'update_status') {
         
 
         $orderModel->changeStatus($oid, $order['status'], $new_status, $me, $reason);
+
+        try {
+            if ($type == 'confirm_offer') {
+                createNotification($conn, $order['seller_name'], "🤝 ผู้ซื้อตอบรับข้อเสนอออเดอร์ #$oid แล้ว — รอการชำระเงิน", "dashboard.php?tab=orders");
+            } else {
+                createNotification($conn, $order['seller_name'], "🎉 ออเดอร์ #$oid สำเร็จ! ผู้ซื้อได้รับของแล้ว เงินเข้าสู่ Wallet ของคุณเรียบร้อย", "earnings.php");
+            }
+        } catch (Throwable $notifyError) {
+            error_log('ChatController update_status: notify failed — ' . $notifyError->getMessage());
+        }
 
         $response = ['status' => 'success'];
         if ($type == 'confirm_offer') {
