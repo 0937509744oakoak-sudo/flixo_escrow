@@ -91,6 +91,16 @@ try {
             $productId = $productModel->createProduct($me, $p_name, $category, $price, $desc, $savedImages, $fraudResult);
             $fraudService->logScans($productId, $fraudResult['per_image'] ?? []);
 
+            // ประกาศแสดงต่อสาธารณะทันที → แจ้ง feed ผู้ติดตามร้าน
+            if (in_array($fraudResult['status'] ?? 'skipped', ['passed', 'skipped'], true)) {
+                try {
+                    require_once __DIR__ . '/../includes/FollowerFeedService.php';
+                    FollowerFeedService::notifyNewListing($conn, $me, $productId, $p_name, (float) $price);
+                } catch (Throwable $feedError) {
+                    error_log('ProductController: follower feed failed — ' . $feedError->getMessage());
+                }
+            }
+
             $response = [
                 'status' => 'success',
                 'product_id' => $productId,

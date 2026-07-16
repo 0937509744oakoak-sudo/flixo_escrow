@@ -12,7 +12,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['pro
     $action = $_POST['action'];
 
     if ($action === 'approve') {
+        $productBefore = $productModel->getById($productId);
+        $wasHidden = $productBefore && !$productModel->isPubliclyVisible($productBefore);
+
         $productModel->updateFraudStatus($productId, 'passed', 0, ['อนุมัติโดยแอดมิน']);
+
+        // เพิ่งเปลี่ยนจากซ่อน → แสดงต่อสาธารณะ = ผู้ติดตามยังไม่เคยถูกแจ้ง
+        if ($wasHidden) {
+            try {
+                require_once __DIR__ . '/../includes/FollowerFeedService.php';
+                FollowerFeedService::notifyNewListing(
+                    $conn,
+                    $productBefore['seller_name'],
+                    $productId,
+                    $productBefore['product_name'],
+                    (float) $productBefore['price']
+                );
+            } catch (Throwable $feedError) {
+                error_log('product_fraud_queue: follower feed failed — ' . $feedError->getMessage());
+            }
+        }
+
         echo "<script>alert('✅ อนุมัติประกาศแล้ว — แสดงต่อสาธารณะได้'); window.location='product_fraud_queue.php';</script>";
         exit;
     }
