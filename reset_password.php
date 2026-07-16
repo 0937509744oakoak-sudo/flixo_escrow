@@ -49,7 +49,7 @@ if (!$parsed) {
 }
 
 if ($parsed && isPostRequest()) {
-    verifyCsrfToken($_POST['csrf_token'] ?? '');
+    verifyCsrfToken($_POST['csrf_token'] ?? '', 'html');
     $password = $_POST['password'] ?? '';
     $confirm = $_POST['password_confirm'] ?? '';
     if (mb_strlen($password) < 6) {

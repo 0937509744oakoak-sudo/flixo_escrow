@@ -16,7 +16,7 @@ if (isset($_SESSION['user'])) {
 
 // รับค่าจากฟอร์ม
 if (isPostRequest()) {
-    verifyCsrfToken($_POST['csrf_token'] ?? '');
+    verifyCsrfToken($_POST['csrf_token'] ?? '', 'html');
 
     $login = trim(getPostValue('username'));
     $password = $_POST['password'];

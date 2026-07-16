@@ -29,7 +29,7 @@ function flixoMakeResetToken(int $userId): string {
 }
 
 if (isPostRequest()) {
-    verifyCsrfToken($_POST['csrf_token'] ?? '');
+    verifyCsrfToken($_POST['csrf_token'] ?? '', 'html');
     $email = filter_var(trim($_POST['email'] ?? ''), FILTER_VALIDATE_EMAIL) ?: '';
     $sent = true;
 

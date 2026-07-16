@@ -12,8 +12,6 @@ RUN mkdir -p /var/www/html/uploads/products \
              /var/www/html/uploads/kyc \
              /var/www/html/uploads/slips \
              /var/www/html/uploads/disputes \
-             /tmp/flixo_sessions \
-    && chown -R www-data:www-data /var/www/html/uploads /tmp/flixo_sessions \
-    && chmod 700 /tmp/flixo_sessions
+    && chown -R www-data:www-data /var/www/html/uploads
 
 EXPOSE 80

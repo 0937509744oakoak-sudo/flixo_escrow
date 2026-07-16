@@ -40,6 +40,9 @@ function flixoParseIniSize(string $value): int {
     };
 }
 
+/**
+ * @param string $onFail json|html|redirect
+ */
 function verifyCsrfToken($token, $onFail = 'json') {
     if (session_status() === PHP_SESSION_NONE) {
         require_once __DIR__ . '/session.php';
@@ -58,16 +61,23 @@ function verifyCsrfToken($token, $onFail = 'json') {
     $contentType = (string) ($_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '');
     $contentLength = (int) ($_SERVER['CONTENT_LENGTH'] ?? 0);
     $postMax = flixoParseIniSize((string) ini_get('post_max_size'));
-    if (
-        $contentLength > 0
+    $isOversizedUpload = $contentLength > 0
         && empty($_POST)
         && stripos($contentType, 'multipart/form-data') !== false
-        && ($postMax <= 0 || $contentLength > $postMax)
-    ) {
+        && ($postMax <= 0 || $contentLength > $postMax);
+
+    if ($isOversizedUpload) {
         $message = 'ไฟล์ใหญ่เกินไป กรุณาลดขนาดรูปหรือจำนวนรูปแล้วลองใหม่';
         if ($onFail === 'redirect') {
             require_once __DIR__ . '/functions.php';
             redirectTo('dashboard.php?tab=sell');
+        }
+        if ($onFail === 'html') {
+            http_response_code(413);
+            echo '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>อัปโหลดไม่สำเร็จ</title></head>';
+            echo '<body style="font-family:sans-serif;text-align:center;padding:48px;"><p>' . htmlspecialchars($message, ENT_QUOTES, 'UTF-8') . '</p>';
+            echo '<p><a href="javascript:history.back()">ย้อนกลับ</a></p></body></html>';
+            exit();
         }
         header('Content-Type: application/json; charset=utf-8');
         http_response_code(413);
@@ -78,6 +88,19 @@ function verifyCsrfToken($token, $onFail = 'json') {
     if ($onFail === 'redirect') {
         require_once __DIR__ . '/functions.php';
         redirectTo('dashboard.php?tab=profile&logout_error=csrf');
+    }
+
+    if ($onFail === 'html') {
+        http_response_code(403);
+        $back = htmlspecialchars($_SERVER['REQUEST_URI'] ?? 'login.php', ENT_QUOTES, 'UTF-8');
+        echo '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>เซสชันหมดอายุ</title></head>';
+        echo '<body style="font-family:sans-serif;text-align:center;padding:48px;background:#f4f6f8;">';
+        echo '<div style="background:#fff;padding:32px;border-radius:12px;display:inline-block;max-width:420px;box-shadow:0 4px 16px rgba(0,0,0,.08);">';
+        echo '<h1 style="margin:0 0 12px;font-size:20px;">เซสชันหมดอายุ</h1>';
+        echo '<p style="color:#555;margin:0 0 20px;">กรุณารีเฟรชหน้าแล้วลองใหม่อีกครั้ง</p>';
+        echo '<a href="' . $back . '" style="display:inline-block;padding:12px 20px;background:#2563eb;color:#fff;border-radius:8px;text-decoration:none;">รีเฟรชหน้า</a>';
+        echo '</div></body></html>';
+        exit();
     }
 
     header('Content-Type: application/json; charset=utf-8');

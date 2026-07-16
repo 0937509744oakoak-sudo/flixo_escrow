@@ -15,7 +15,7 @@ if (!empty($_SESSION['user'])) {
 }
 
 if (isPostRequest()) {
-    verifyCsrfToken($_POST['csrf_token'] ?? '');
+    verifyCsrfToken($_POST['csrf_token'] ?? '', 'html');
 
     $username = sanitizeUsername(getPostValue('username'));
     $password = $_POST['password'] ?? '';
