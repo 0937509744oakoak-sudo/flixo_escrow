@@ -2,6 +2,7 @@
 // includes/WalletService.php — ledger operations for escrow wallet
 
 require_once __DIR__ . '/OrderStateMachine.php';
+require_once __DIR__ . '/order_helper.php';
 require_once __DIR__ . '/../models/Wallet.php';
 
 class WalletService {
@@ -142,7 +143,8 @@ class WalletService {
         }
     }
 
-    public function completeWithdrawal(int $requestId, string $adminUser): bool {
+    public function completeWithdrawal(int $requestId, string $adminUser, ?string $payoutSlip = null, string $adminNote = ''): bool {
+        $this->wallet->ensurePayoutSlipColumn();
         $stmt = $this->conn->prepare("SELECT * FROM withdrawal_requests WHERE id = ? AND status = 'pending' LIMIT 1");
         $stmt->bind_param('i', $requestId);
         $stmt->execute();
@@ -159,10 +161,16 @@ class WalletService {
 
         $this->conn->begin_transaction();
         try {
+            $slip = $payoutSlip !== null && $payoutSlip !== '' ? $payoutSlip : null;
+            $note = trim($adminNote);
             $upd = $this->conn->prepare(
-                "UPDATE withdrawal_requests SET status = 'completed', processed_by = ?, processed_at = NOW() WHERE id = ?"
+                "UPDATE withdrawal_requests
+                 SET status = 'completed', processed_by = ?, processed_at = NOW(),
+                     payout_slip = COALESCE(?, payout_slip),
+                     admin_note = IF(? = '', admin_note, ?)
+                 WHERE id = ?"
             );
-            $upd->bind_param('si', $adminUser, $requestId);
+            $upd->bind_param('ssssi', $adminUser, $slip, $note, $note, $requestId);
             $upd->execute();
 
             $key = "withdraw_complete:req:{$requestId}";
@@ -172,12 +180,20 @@ class WalletService {
             $wUpd->bind_param('di', $amount, $userId);
             $wUpd->execute();
 
-            $meta = json_encode(['withdrawal_id' => $requestId, 'username' => $username]);
+            $meta = json_encode(['withdrawal_id' => $requestId, 'username' => $username, 'payout_slip' => $slip]);
             $tx = $this->conn->prepare("INSERT INTO transaction_logs (order_id, type, amount, currency, meta) VALUES (NULL, 'withdrawal_payout', ?, 'THB', ?)");
             $tx->bind_param('ds', $amount, $meta);
             $tx->execute();
 
             $this->conn->commit();
+
+            if ($username !== '' && function_exists('createNotification')) {
+                $msg = '✅ ถอนเงิน ฿' . number_format($amount, 2) . ' สำเร็จแล้ว';
+                if ($slip) {
+                    $msg .= ' — ดูสลิปการโอนได้ที่กระเป๋าเงิน';
+                }
+                createNotification($this->conn, $username, $msg, 'earnings.php');
+            }
             return true;
         } catch (Throwable $e) {
             $this->conn->rollback();
@@ -206,6 +222,16 @@ class WalletService {
             $this->creditAvailable($req['username'], null, (float)$req['amount'], $adminUser, $key, 'withdrawal_reject', 'คืนเงินจากคำขอถอนที่ถูกปฏิเสธ');
 
             $this->conn->commit();
+
+            if (function_exists('createNotification')) {
+                $reason = trim($note) !== '' ? trim($note) : 'ปฏิเสธโดยแอดมิน';
+                createNotification(
+                    $this->conn,
+                    $req['username'],
+                    '❌ คำขอถอน ฿' . number_format((float)$req['amount'], 2) . ' ถูกปฏิเสธ — คืนเงินเข้ากระเป๋าแล้ว (' . $reason . ')',
+                    'earnings.php'
+                );
+            }
             return true;
         } catch (Throwable $e) {
             $this->conn->rollback();

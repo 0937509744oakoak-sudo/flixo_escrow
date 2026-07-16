@@ -4,7 +4,7 @@
 class Rbac {
     private const PERMISSIONS = [
         'admin' => ['admin.access', 'pii.view', 'dispute.resolve', 'escrow.manage', 'withdrawal.manage', 'users.manage', 'support.inbox', 'privacy.requests', 'products.manage'],
-        'finance' => ['admin.access', 'escrow.manage', 'withdrawal.manage'],
+        'finance' => ['admin.access', 'pii.view', 'escrow.manage', 'withdrawal.manage'],
         'support' => ['admin.access', 'dispute.resolve', 'support.inbox', 'privacy.requests', 'products.manage'],
         'user' => [],
     ];

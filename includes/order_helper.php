@@ -92,6 +92,38 @@ function orderSlipPath(?string $slipImage): ?string {
 }
 
 /**
+ * URL for viewing an admin payout slip on a withdrawal request.
+ */
+function withdrawalSlipUrl(int $requestId): string {
+    if ($requestId <= 0) {
+        return '';
+    }
+    $base = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
+    return $base . '/controllers/WithdrawalSlipController.php?request_id=' . $requestId;
+}
+
+/**
+ * Absolute filesystem path for a withdrawal payout slip, or null if missing.
+ */
+function withdrawalSlipPath(?string $slipImage): ?string {
+    $filename = basename(trim((string) $slipImage));
+    if ($filename === '') {
+        return null;
+    }
+    $dir = rtrim(flixoUploadsSubdir('withdrawal_slips'), "/\\");
+    $path = $dir . DIRECTORY_SEPARATOR . $filename;
+    if (!is_file($path)) {
+        return null;
+    }
+    $realDir = realpath($dir);
+    $realPath = realpath($path);
+    if ($realDir === false || $realPath === false || !str_starts_with($realPath, $realDir . DIRECTORY_SEPARATOR)) {
+        return null;
+    }
+    return $realPath;
+}
+
+/**
  * EasySlip returns amount as either a number or { amount: number, local: {...} }.
  * Casting an array to float in PHP yields 1.0 — never do (float)$data['amount'].
  */

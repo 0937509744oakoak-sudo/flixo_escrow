@@ -108,6 +108,18 @@ class Wallet {
         return str_repeat('*', $len - 4) . substr($num, -4);
     }
 
+    public function ensurePayoutSlipColumn(): void {
+        static $done = false;
+        if ($done) {
+            return;
+        }
+        $done = true;
+        $check = $this->conn->query("SHOW COLUMNS FROM withdrawal_requests LIKE 'payout_slip'");
+        if ($check && $check->num_rows === 0) {
+            $this->conn->query("ALTER TABLE withdrawal_requests ADD COLUMN payout_slip VARCHAR(255) NULL AFTER admin_note");
+        }
+    }
+
     public function getPendingWithdrawals(int $userId): array {
         $stmt = $this->conn->prepare(
             "SELECT * FROM withdrawal_requests WHERE user_id = ? AND status IN ('pending','processing') ORDER BY created_at DESC"
@@ -115,6 +127,36 @@ class Wallet {
         $stmt->bind_param('i', $userId);
         $stmt->execute();
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function getUserWithdrawals(int $userId, int $limit = 20): array {
+        $this->ensurePayoutSlipColumn();
+        $stmt = $this->conn->prepare(
+            "SELECT w.*, b.bank_name, b.account_name
+             FROM withdrawal_requests w
+             JOIN user_bank_accounts b ON b.id = w.bank_account_id
+             WHERE w.user_id = ?
+             ORDER BY w.created_at DESC
+             LIMIT ?"
+        );
+        $stmt->bind_param('ii', $userId, $limit);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function findWithdrawalById(int $requestId): ?array {
+        $this->ensurePayoutSlipColumn();
+        $stmt = $this->conn->prepare(
+            "SELECT w.*, u.username
+             FROM withdrawal_requests w
+             JOIN users u ON u.id = w.user_id
+             WHERE w.id = ?
+             LIMIT 1"
+        );
+        $stmt->bind_param('i', $requestId);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        return $row ?: null;
     }
 
     /**
@@ -152,8 +194,9 @@ class Wallet {
         ];
     }
 
-    public function getAllWithdrawals(int $limit = 50): array {
-        $sql = "SELECT w.*, u.username, b.bank_name, b.account_name, b.account_number_enc
+    public function getAllWithdrawals(int $limit = 50, bool $revealAccount = false): array {
+        $this->ensurePayoutSlipColumn();
+        $sql = "SELECT w.*, u.username, b.bank_name, b.bank_code, b.account_name, b.account_number_enc
                 FROM withdrawal_requests w
                 JOIN users u ON u.id = w.user_id
                 JOIN user_bank_accounts b ON b.id = w.bank_account_id
@@ -163,7 +206,12 @@ class Wallet {
         $stmt->execute();
         $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         foreach ($rows as &$row) {
-            $row['account_number_masked'] = $this->maskAccount(PiiEncryption::decrypt($row['account_number_enc']));
+            $plain = PiiEncryption::decrypt($row['account_number_enc']);
+            $row['account_number_masked'] = $this->maskAccount($plain);
+            if ($revealAccount) {
+                $row['account_number'] = $plain;
+            }
+            unset($row['account_number_enc']);
         }
         return $rows;
     }

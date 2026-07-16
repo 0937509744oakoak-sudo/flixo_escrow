@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/OrderStateMachine.php';
+require_once __DIR__ . '/includes/order_helper.php';
 require_once __DIR__ . '/models/Order.php';
 require_once __DIR__ . '/models/Wallet.php';
 require_once __DIR__ . '/models/User.php';
@@ -23,6 +24,7 @@ $balance_breakdown = $userId ? $walletModel->getAvailableBreakdown($userId) : ['
 $transactions = $userId ? $walletModel->getTransactions($userId, 40) : [];
 $bank_accounts = $userId ? $walletModel->getBankAccounts($userId) : [];
 $pending_withdrawals = $userId ? $walletModel->getPendingWithdrawals($userId) : [];
+$withdrawal_history = $userId ? $walletModel->getUserWithdrawals($userId, 20) : [];
 $res_history = $orderModel->getCompletedHistory($user);
 
 $is_verified = !empty($profile['is_verified']);
@@ -186,6 +188,54 @@ include 'includes/header.php';
             </div>
         </form>
     </div>
+
+    <?php if (!empty($withdrawal_history)): ?>
+    <div class="flixo-card" style="margin-bottom:20px;">
+        <div class="earnings-card-head">
+            <span class="material-symbols-outlined">account_balance_wallet</span>
+            <h2>ประวัติถอนเงิน</h2>
+        </div>
+        <div class="earnings-table-wrap">
+            <table class="earnings-table">
+                <thead>
+                    <tr><th>วันที่</th><th>จำนวน</th><th>บัญชี</th><th>สถานะ</th><th>สลิป</th></tr>
+                </thead>
+                <tbody>
+                <?php foreach ($withdrawal_history as $wh): ?>
+                    <?php
+                    $whStatus = match ($wh['status']) {
+                        'pending', 'processing' => 'รออนุมัติ',
+                        'completed' => 'สำเร็จ',
+                        'rejected' => 'ปฏิเสธ',
+                        default => $wh['status'],
+                    };
+                    ?>
+                    <tr>
+                        <td><?php echo date('d/m/Y H:i', strtotime($wh['created_at'])); ?></td>
+                        <td class="earnings-amount--debit">-฿<?php echo number_format((float)$wh['amount'], 2); ?></td>
+                        <td><?php echo safeText($wh['bank_name']); ?> — <?php echo safeText($wh['account_name']); ?></td>
+                        <td>
+                            <span class="earnings-type-badge"><?php echo safeText($whStatus); ?></span>
+                            <?php if ($wh['status'] === 'rejected' && !empty($wh['admin_note'])): ?>
+                                <div class="tx-meta" style="margin-top:4px;"><?php echo safeText($wh['admin_note']); ?></div>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if ($wh['status'] === 'completed' && !empty($wh['payout_slip'])): ?>
+                                <a href="<?php echo safeText(withdrawalSlipUrl((int)$wh['id'])); ?>" target="_blank" class="btn-flixo-primary" style="display:inline-block;padding:6px 12px;font-size:13px;">ดูสลิป</a>
+                            <?php elseif ($wh['status'] === 'completed'): ?>
+                                <span class="tx-meta">—</span>
+                            <?php else: ?>
+                                <span class="tx-meta">—</span>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <div class="flixo-card" style="margin-bottom:20px;">
         <div class="earnings-card-head">
