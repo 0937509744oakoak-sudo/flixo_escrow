@@ -385,8 +385,10 @@ function closeTrackingModal() {
 
 function submitTracking() {
     const oid = document.getElementById('tracking-oid').value;
-    const courier = document.getElementById('w-courier').value;
-    const track = document.getElementById('w-tracking-num').value.trim();
+    const courierEl = document.getElementById('w-courier');
+    const trackEl = document.getElementById('w-tracking-num');
+    const courier = courierEl ? courierEl.value : '';
+    const track = trackEl ? trackEl.value.trim() : '';
 
     if (!courier || !track) {
         Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบ', 'warning');
@@ -421,11 +423,19 @@ function submitTracking() {
                 ok = text.trim() === 'success';
                 message = ok ? 'แจ้งเลขพัสดุเรียบร้อย' : text;
             }
+
+            // Close form modal before Swal so they never stack.
+            closeTrackingModal();
+            if (trackEl) trackEl.value = '';
+            if (courierEl) courierEl.value = '';
+
             if (ok) {
-                Swal.fire('สำเร็จ!', message || 'แจ้งเลขพัสดุเรียบร้อย', 'success').then(() => {
-                    closeTrackingModal();
-                    document.getElementById('w-tracking-num').value = '';
-                    document.getElementById('w-courier').value = '';
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สำเร็จ!',
+                    text: message || 'แจ้งเลขพัสดุเรียบร้อย',
+                    confirmButtonText: 'ตกลง'
+                }).then(() => {
                     if (document.getElementById('chat-body')) {
                         fetchMessages();
                     } else {
@@ -437,6 +447,7 @@ function submitTracking() {
             }
         })
         .catch(() => {
+            closeTrackingModal();
             Swal.fire('ข้อผิดพลาด', 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้', 'error');
         })
         .finally(() => {
