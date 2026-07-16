@@ -295,7 +295,10 @@ $max_images = Product::MAX_IMAGES;
         }
 
         const formData = new FormData();
-        formData.append('csrf_token', form.querySelector('[name="csrf_token"]').value);
+        const csrfToken = (typeof window.CSRF_TOKEN !== 'undefined' && window.CSRF_TOKEN)
+            ? window.CSRF_TOKEN
+            : (form.querySelector('[name="csrf_token"]') || {}).value || '';
+        formData.set('csrf_token', csrfToken);
         formData.append('action', 'sell_product');
         formData.append('product_name', document.getElementById('sell-product-name').value);
         formData.append('product_category', document.getElementById('sell-product-category').value);
@@ -312,7 +315,12 @@ $max_images = Product::MAX_IMAGES;
         submitBtn.disabled = true;
         btnText.textContent = 'กำลังตรวจสอบรูปภาพ...';
 
-        fetch('<?php echo BASE_URL; ?>/controllers/ProductController.php', { method: 'POST', body: formData })
+        fetch('<?php echo BASE_URL; ?>/controllers/ProductController.php', {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin',
+            headers: { 'X-CSRF-Token': csrfToken }
+        })
             .then(function (res) { return res.json(); })
             .then(function (data) {
                 if (data.status === 'success') {

@@ -28,13 +28,27 @@
     ?>
     <script>
         const CSRF_TOKEN = "<?php echo $csrf_token; ?>";
+        window.CSRF_TOKEN = CSRF_TOKEN;
         const originalFetch = window.fetch;
 
         window.fetch = function(resource, config) {
-          
-            if (config && config.method && config.method.toUpperCase() === 'POST' && config.body instanceof FormData) {
-                config.body.append('csrf_token', CSRF_TOKEN); // แอบยัด Token อัตโนมัติ!
+            config = config || {};
+            const method = (config.method || 'GET').toUpperCase();
+
+            if (method === 'POST') {
+                if (config.body instanceof FormData) {
+                    config.body.set('csrf_token', CSRF_TOKEN);
+                }
+                const headers = new Headers(config.headers || {});
+                if (!headers.has('X-CSRF-Token') && CSRF_TOKEN) {
+                    headers.set('X-CSRF-Token', CSRF_TOKEN);
+                }
+                config.headers = headers;
+                if (config.credentials === undefined) {
+                    config.credentials = 'same-origin';
+                }
             }
+
             return originalFetch(resource, config);
         };
     </script>
