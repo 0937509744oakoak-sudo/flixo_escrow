@@ -34,14 +34,21 @@ if (!$order || ($order['buyer_name'] !== $me && $order['seller_name'] !== $me &&
 $courier = new CourierService($conn);
 
 if ($action === 'timeline') {
+    $trackingNumber = (string) ($order['tracking_number'] ?? '');
+    $courierLabel = (string) ($order['courier'] ?? '');
+    $trackingUrl = trim((string) ($order['tracking_url'] ?? ''));
+    if ($trackingUrl === '' && $trackingNumber !== '') {
+        $trackingUrl = $courier->buildTrackingUrl($courierLabel, $trackingNumber);
+    }
+
     echo json_encode([
         'status' => 'success',
-        'tracking_url' => $order['tracking_url'] ?? '',
+        'tracking_url' => $trackingUrl,
         'tracking_status' => $order['tracking_status'] ?? '',
-        'courier' => $order['courier'] ?? '',
-        'tracking_number' => $order['tracking_number'] ?? '',
+        'courier' => $courierLabel,
+        'tracking_number' => $trackingNumber,
         'events' => $courier->getTimeline($orderId),
-    ]);
+    ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 

@@ -67,11 +67,18 @@
 
 <div id="widget-tracking-timeline-modal" class="super-chat-modal" style="display:none; max-width:420px;">
     <h4 style="margin-top:0;">📍 ติดตามพัสดุ</h4>
-    <div id="tracking-timeline-meta" style="font-size:13px;color:#555;margin-bottom:12px;"></div>
-    <ul id="tracking-timeline-list" style="list-style:none;padding:0;margin:0 0 12px;max-height:240px;overflow:auto;"></ul>
+    <p style="font-size:13px;color:#666;margin:0 0 12px;line-height:1.5;">
+        ยังไม่มีสถานะเรียลไทม์ในแอป — คัดลอกเลขพัสดุแล้วเปิดเว็บเช็คของขนส่งได้เลย
+    </p>
+    <div id="tracking-timeline-meta" style="font-size:13px;color:#555;margin-bottom:10px;"></div>
+    <label style="font-size:12px;color:#666;display:block;margin-bottom:4px;">เลขพัสดุ</label>
+    <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <input type="text" id="tracking-number-display" readonly class="modal-input" style="margin:0;flex:1;font-family:ui-monospace,monospace;letter-spacing:0.02em;" value="">
+        <button type="button" id="tracking-copy-btn" onclick="copyTrackingNumber()" class="btn-confirm" style="white-space:nowrap;min-width:88px;">คัดลอก</button>
+    </div>
+    <ul id="tracking-timeline-list" style="list-style:none;padding:0;margin:0 0 12px;max-height:160px;overflow:auto;display:none;"></ul>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <a id="tracking-external-link" href="#" target="_blank" rel="noopener" class="btn-confirm" style="display:none;text-align:center;text-decoration:none;">เปิดหน้าขนส่ง</a>
-        <button type="button" onclick="syncTrackingStatus()" class="btn-confirm">อัปเดตสถานะ</button>
+        <a id="tracking-external-link" href="#" target="_blank" rel="noopener noreferrer" class="btn-confirm" style="display:none;text-align:center;text-decoration:none;flex:1;">เปิดเว็บเช็คพัสดุ</a>
         <button type="button" onclick="closeTrackingTimelineModal()" class="btn-cancel">ปิด</button>
     </div>
 </div>

@@ -459,15 +459,68 @@ function submitTracking() {
 }
 
 let trackingTimelineOrderId = 0;
+let trackingNumberClipboard = '';
 
-function showTrackingTimeline(oid) {
+function escapeHtml(str) {
+    return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+/**
+ * เปิดแท็บว่างทันทีตอนกดปุ่ม (กัน popup blocker) แล้วพาไปหน้าเว็บขนส่งเมื่อได้ URL
+ */
+function openCourierTrackingWindow(preferredUrl) {
+    let win = null;
+    try {
+        win = window.open('about:blank', '_blank');
+    } catch (e) {
+        win = null;
+    }
+    if (win) {
+        try {
+            win.document.write(
+                '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>กำลังเปิด...</title></head>' +
+                '<body style="font-family:sans-serif;padding:32px;color:#444;">กำลังเปิดหน้าเช็คพัสดุของขนส่ง...</body></html>'
+            );
+        } catch (e) { /* ignore */ }
+    }
+    if (preferredUrl) {
+        navigateCourierWindow(win, preferredUrl);
+        return null;
+    }
+    return win;
+}
+
+function navigateCourierWindow(win, url) {
+    if (!url) return;
+    if (win && !win.closed) {
+        try {
+            win.location.href = url;
+            return;
+        } catch (e) { /* fall through */ }
+    }
+    window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+function showTrackingTimeline(oid, preferredUrl) {
     trackingTimelineOrderId = oid;
     closeAllModals();
     const modal = document.getElementById('widget-tracking-timeline-modal');
     if (!modal) return;
+
+    let pendingWin = null;
+    if (preferredUrl) {
+        openCourierTrackingWindow(preferredUrl);
+    } else {
+        pendingWin = openCourierTrackingWindow('');
+    }
+
     modal.style.display = 'block';
     syncModalBackdrop();
-    loadTrackingTimeline(oid);
+    loadTrackingTimeline(oid, pendingWin, preferredUrl || '');
 }
 
 function closeTrackingTimelineModal() {
@@ -476,43 +529,116 @@ function closeTrackingTimelineModal() {
     syncModalBackdrop();
 }
 
-function loadTrackingTimeline(oid) {
-    fetch('controllers/TrackingController.php?action=timeline&order_id=' + encodeURIComponent(oid))
+function fillTrackingModal(data) {
+    const meta = document.getElementById('tracking-timeline-meta');
+    const list = document.getElementById('tracking-timeline-list');
+    const link = document.getElementById('tracking-external-link');
+    const numInput = document.getElementById('tracking-number-display');
+    const copyBtn = document.getElementById('tracking-copy-btn');
+
+    trackingNumberClipboard = data.tracking_number || '';
+    if (numInput) numInput.value = trackingNumberClipboard;
+    if (copyBtn) copyBtn.textContent = 'คัดลอก';
+
+    if (meta) {
+        const courier = escapeHtml(data.courier || 'ขนส่ง');
+        meta.innerHTML = `<strong>${courier}</strong>`;
+    }
+
+    const events = data.events || [];
+    if (list) {
+        if (events.length > 0) {
+            list.style.display = 'block';
+            list.innerHTML = events.map(ev =>
+                `<li style="padding:8px 0;border-bottom:1px solid #eee;font-size:13px;"><strong>${escapeHtml(ev.status_label)}</strong><br><span style="color:#888;">${escapeHtml(ev.event_at)}${ev.location ? ' · ' + escapeHtml(ev.location) : ''}</span></li>`
+            ).join('');
+        } else {
+            list.style.display = 'none';
+            list.innerHTML = '';
+        }
+    }
+
+    if (link) {
+        if (data.tracking_url) {
+            link.href = data.tracking_url;
+            link.style.display = 'inline-block';
+            link.textContent = data.courier
+                ? 'เปิดเว็บเช็คพัสดุ (' + data.courier + ')'
+                : 'เปิดเว็บเช็คพัสดุ';
+        } else {
+            link.removeAttribute('href');
+            link.style.display = 'none';
+        }
+    }
+}
+
+function loadTrackingTimeline(oid, pendingWin, alreadyOpenedUrl) {
+    const base = (typeof FLIXO_BASE_URL !== 'undefined' && FLIXO_BASE_URL)
+        ? String(FLIXO_BASE_URL).replace(/\/$/, '')
+        : '';
+    const url = (base ? base + '/' : '') + 'controllers/TrackingController.php?action=timeline&order_id=' + encodeURIComponent(oid);
+
+    fetch(url, { credentials: 'include' })
         .then(r => r.json())
         .then(data => {
-            if (data.status !== 'success') return;
-            const meta = document.getElementById('tracking-timeline-meta');
-            const list = document.getElementById('tracking-timeline-list');
-            const link = document.getElementById('tracking-external-link');
-            if (meta) {
-                meta.innerHTML = `<strong>${data.courier || '-'}</strong><br>เลขพัสดุ: ${data.tracking_number || '-'}<br>สถานะ: ${data.tracking_status || '—'}`;
+            if (data.status !== 'success') {
+                if (pendingWin && !pendingWin.closed) pendingWin.close();
+                return;
             }
-            if (list) {
-                list.innerHTML = (data.events || []).map(ev =>
-                    `<li style="padding:8px 0;border-bottom:1px solid #eee;font-size:13px;"><strong>${ev.status_label}</strong><br><span style="color:#888;">${ev.event_at}${ev.location ? ' · ' + ev.location : ''}</span></li>`
-                ).join('') || '<li style="color:#888;">ยังไม่มีเหตุการณ์เพิ่มเติม</li>';
+            fillTrackingModal(data);
+
+            const trackUrl = data.tracking_url || '';
+            if (pendingWin && trackUrl && trackUrl !== alreadyOpenedUrl) {
+                navigateCourierWindow(pendingWin, trackUrl);
+            } else if (pendingWin && !trackUrl) {
+                pendingWin.close();
+            } else if (!alreadyOpenedUrl && trackUrl && !pendingWin) {
+                // popup ถูกบล็อกตอนกด — ผู้ใช้ยังกดปุ่มในโมดัลได้
             }
-            if (link && data.tracking_url) {
-                link.href = data.tracking_url;
-                link.style.display = 'inline-block';
-            } else if (link) {
-                link.style.display = 'none';
-            }
+        })
+        .catch(() => {
+            if (pendingWin && !pendingWin.closed) pendingWin.close();
         });
 }
 
-function syncTrackingStatus() {
-    if (!trackingTimelineOrderId) return;
-    const fd = new FormData();
-    fd.append('action', 'sync');
-    fd.append('order_id', trackingTimelineOrderId);
-    appendCsrfToken(fd);
-    fetch('controllers/TrackingController.php', { method: 'POST', body: fd })
-        .then(r => r.json())
-        .then(() => loadTrackingTimeline(trackingTimelineOrderId));
+function copyTrackingNumber() {
+    const text = trackingNumberClipboard
+        || (document.getElementById('tracking-number-display') || {}).value
+        || '';
+    if (!text) return;
+
+    const btn = document.getElementById('tracking-copy-btn');
+    const done = () => {
+        if (btn) {
+            btn.textContent = 'คัดลอกแล้ว';
+            setTimeout(() => { btn.textContent = 'คัดลอก'; }, 1600);
+        }
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    } else {
+        fallbackCopy(text, done);
+    }
+}
+
+function fallbackCopy(text, done) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+        document.execCommand('copy');
+        if (typeof done === 'function') done();
+    } catch (e) { /* ignore */ }
+    document.body.removeChild(ta);
 }
 
 window.showTrackingTimeline = showTrackingTimeline;
+window.copyTrackingNumber = copyTrackingNumber;
 
 function isAppShellChat() {
     return !!document.getElementById('view-chat');

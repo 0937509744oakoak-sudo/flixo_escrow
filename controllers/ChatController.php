@@ -77,8 +77,15 @@ function renderOfferCard(array $ord, string $viewerUsername) {
 
         case OrderStateMachine::SHIPPED:
             $courier_show = !empty($courier) ? $courier : 'ขนส่งเอกชน';
+            $trackRaw = (string) ($ord['tracking_number'] ?? '');
+            $courierRaw = (string) ($ord['courier'] ?? '');
+            $trackUrl = trim((string) ($ord['tracking_url'] ?? ''));
+            if ($trackUrl === '' && $trackRaw !== '' && $courierRaw !== '') {
+                global $conn;
+                $trackUrl = (new CourierService($conn))->buildTrackingUrl($courierRaw, $trackRaw);
+            }
             $html .= '<div style="background:#e3f2fd; padding:8px; font-size:12px; margin-bottom:5px; border-radius:4px; border-left: 3px solid #007bff; color:#333;">🚚 <b>จัดส่งแล้ว</b><br>📦 ' . $courier_show . '<br>🔖 <b>'.$tracking.'</b></div>';
-            $html .= '<button type="button" onclick="showTrackingTimeline('.$oid.')" class="btn-action btn-blue" style="margin-bottom:5px;">📍 ติดตามพัสดุ</button>';
+            $html .= '<button type="button" onclick="showTrackingTimeline('.$oid.', '.htmlspecialchars(json_encode($trackUrl, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8').')" class="btn-action btn-blue" style="margin-bottom:5px;">📍 ติดตามพัสดุ</button>';
             if ($is_buyer) {
                 $html .= '<button onclick="updateOrderStatus('.$oid.', \'complete_order\')" class="btn-action btn-green">✅ ได้รับสินค้าแล้ว</button>';
                 $html .= '<button type="button" onclick="chatOpenDispute('.$oid.')" class="btn-action btn-red">⚠️ เปิดข้อพิพาท</button>';
