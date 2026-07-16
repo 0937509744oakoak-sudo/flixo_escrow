@@ -105,7 +105,7 @@ $filterUrl = static function (string $cat = '') use ($search_query, $catalog_sor
             ?>
             <a href="product.php?id=<?php echo (int)$p['id']; ?>" class="product-card">
                 <div class="product-card-img">
-                    <img src="<?php echo htmlspecialchars($img); ?>" alt="<?php echo htmlspecialchars($p['product_name']); ?>" loading="lazy">
+                    <img src="<?php echo htmlspecialchars($img); ?>" alt="<?php echo htmlspecialchars($p['product_name']); ?>" loading="lazy" onerror="this.onerror=null;this.src=<?php echo json_encode(Product::placeholderUrl()); ?>">
                 </div>
                 <div class="product-card-body">
                     <div class="product-card-name"><?php echo htmlspecialchars($p['product_name']); ?></div>

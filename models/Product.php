@@ -386,14 +386,35 @@ class Product {
         return $stmt->execute();
     }
 
+    public static function placeholderUrl(): string {
+        $base = defined('ASSETS_URL')
+            ? rtrim(ASSETS_URL, '/')
+            : (defined('BASE_URL') ? rtrim(BASE_URL, '/') . '/assets' : 'assets');
+        return $base . '/images/product-placeholder.svg';
+    }
+
     public static function imageUrl($imagePath) {
         if (empty($imagePath)) {
-            return 'https://via.placeholder.com/300x300?text=No+Image';
+            return self::placeholderUrl();
         }
-        if (str_starts_with($imagePath, 'http')) {
+        if (str_starts_with($imagePath, 'http://') || str_starts_with($imagePath, 'https://')) {
             return $imagePath;
         }
-        return BASE_URL . '/' . self::UPLOAD_SUBDIR . ltrim($imagePath, '/');
+
+        $relative = ltrim((string) $imagePath, '/');
+        if (
+            !str_starts_with($relative, self::UPLOAD_SUBDIR)
+            && !str_starts_with($relative, 'uploads/')
+        ) {
+            $relative = self::UPLOAD_SUBDIR . $relative;
+        }
+
+        $localPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relative);
+        if (!is_file($localPath)) {
+            return self::placeholderUrl();
+        }
+
+        return rtrim(BASE_URL, '/') . '/' . $relative;
     }
 
     public static function primaryImageUrl(array $product) {

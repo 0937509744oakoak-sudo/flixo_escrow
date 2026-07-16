@@ -16,7 +16,7 @@
     ?>
         <div class="glass-card product-item-mini" id="my-product-<?php echo $p['id']; ?>">
             <div style="display:flex; gap:12px; align-items:center;">
-                <img src="<?php echo Product::imageUrl($p['image_path']); ?>" alt="" style="width:60px; height:60px; border-radius:8px; object-fit:cover;">
+                <img src="<?php echo htmlspecialchars(Product::imageUrl($p['image_path'])); ?>" alt="" style="width:60px; height:60px; border-radius:8px; object-fit:cover;" onerror="this.onerror=null;this.src=<?php echo json_encode(Product::placeholderUrl()); ?>">
                 <div style="flex:1;">
                     <h4 style="margin:0; font-size:14px;"><?php echo htmlspecialchars($p['product_name']); ?></h4>
                     <p style="margin:4px 0 0; font-weight:bold; color:var(--flixo-primary);">฿<?php echo number_format($p['price'], 2); ?></p>
