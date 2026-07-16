@@ -18,6 +18,7 @@
     <?php endif; ?>
     
     <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/style.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/page-loader.css?v=<?php echo time(); ?>">
     
     <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/chat.css?v=<?php echo time(); ?>">
     
@@ -60,3 +61,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet" />
 </head>
 <body>
+<div id="page-loader" class="page-loader" aria-busy="true" aria-label="กำลังโหลด">
+    <div class="page-loader-stage">
+        <?php for ($x = 0; $x < 50; $x++): ?>
+        <div class="page-loader-dot"></div>
+        <?php endfor; ?>
+    </div>
+    <p class="page-loader-label">FLIXO</p>
+</div>
+<script src="<?php echo ASSETS_URL; ?>/js/page-loader.js?v=<?php echo time(); ?>"></script>

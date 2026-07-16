@@ -10,5 +10,7 @@ document.addEventListener("DOMContentLoaded", function() {
         return;
     }
 
-    document.body.classList.add('page-loaded');
+    if (!document.getElementById('page-loader')) {
+        document.body.classList.add('page-loaded');
+    }
 });
