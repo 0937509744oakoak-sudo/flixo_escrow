@@ -111,10 +111,38 @@ include 'includes/navbar.php';
             <a href="dashboard.php?tab=orders" class="btn-flixo-primary" style="display:inline-flex;margin-top:16px;padding:12px 20px;text-decoration:none;border-radius:12px;">ดูรายการของฉัน</a>
         </div>
     <?php elseif ($orderWaitingVerify): ?>
-        <div class="flixo-card" style="padding: 36px; text-align: center;">
-            <h2>กำลังตรวจสอบยอดเงิน</h2>
-            <p style="color: #7f8c8d;">ระบบกำลังตรวจสอบการชำระเงิน โดยปกติใช้เวลาไม่กี่นาที</p>
-            <a href="dashboard.php?tab=orders" class="btn-flixo-outline" style="display:inline-flex;margin-top:16px;padding:12px 20px;text-decoration:none;border-radius:12px;">กลับรายการของฉัน</a>
+        <?php
+            $slipUrl = !empty($order['slip_image']) ? orderSlipUrl($order['slip_image'], $order_id) : '';
+            $slipMissing = !empty($order['slip_image']) && orderSlipPath($order['slip_image']) === null;
+        ?>
+        <div class="flixo-card" style="padding: 28px;">
+            <h2 style="text-align:center;margin-top:0;">กำลังตรวจสอบยอดเงิน</h2>
+            <p style="color:#7f8c8d;text-align:center;">ออเดอร์ #<?php echo (int)$order_id; ?> — รอระบบ/แอดมินตรวจสลิป</p>
+
+            <?php if ($slipUrl !== '' && !$slipMissing): ?>
+                <div style="text-align:center;margin:16px 0;">
+                    <a href="<?php echo htmlspecialchars($slipUrl); ?>" target="_blank" rel="noopener">
+                        <img src="<?php echo htmlspecialchars($slipUrl); ?>" alt="สลิปที่ส่งแล้ว" style="max-width:min(280px,100%);border-radius:12px;border:1px solid #eee;">
+                    </a>
+                    <p style="font-size:13px;margin-top:8px;"><a href="<?php echo htmlspecialchars($slipUrl); ?>" target="_blank" rel="noopener">เปิดดูสลิปเต็ม</a></p>
+                </div>
+            <?php elseif ($slipMissing): ?>
+                <p style="color:#c0392b;text-align:center;font-size:14px;">ไฟล์สลิปไม่พบบนเซิร์ฟเวอร์ — กรุณาอัปโหลดใหม่ด้านล่าง</p>
+            <?php endif; ?>
+
+            <div style="margin-top:20px;padding-top:16px;border-top:1px solid #eee;">
+                <p style="font-weight:600;margin-bottom:8px;">อัปโหลดสลิปใหม่ (ถ้าต้องการ)</p>
+                <form id="slipForm">
+                    <input type="hidden" name="csrf_token" value="<?php echo safeText($csrf); ?>">
+                    <input type="hidden" name="action" value="upload_slip">
+                    <input type="hidden" name="order_id" value="<?php echo (int)$order['id']; ?>">
+                    <input type="file" name="slip_image" accept="image/jpeg,image/png" required class="form-control" style="margin:8px 0;">
+                    <button type="submit" class="btn-flixo-primary" style="width:100%;padding:14px;border:none;border-radius:12px;font-weight:600;cursor:pointer;">ส่งสลิปใหม่</button>
+                </form>
+            </div>
+            <p style="text-align:center;margin-top:16px;">
+                <a href="dashboard.php?tab=orders" class="btn-flixo-outline" style="display:inline-flex;padding:10px 16px;text-decoration:none;border-radius:12px;">กลับรายการของฉัน</a>
+            </p>
         </div>
     <?php else: ?>
         <div class="flixo-card" style="padding: 24px;">

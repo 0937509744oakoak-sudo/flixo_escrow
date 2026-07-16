@@ -6,9 +6,14 @@ require_once __DIR__ . '/OrderStateMachine.php';
 require_once __DIR__ . '/EmailService.php';
 
 /**
- * Public URL for an order payment slip image.
+ * URL for viewing an order payment slip (authorized PHP endpoint).
  */
-function orderSlipUrl(?string $slipImage): string {
+function orderSlipUrl(?string $slipImage, ?int $orderId = null): string {
+    if ($orderId !== null && $orderId > 0) {
+        $base = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
+        return $base . '/controllers/SlipController.php?order_id=' . (int) $orderId;
+    }
+
     $slipImage = trim((string) $slipImage);
     if ($slipImage === '') {
         return '';
@@ -18,6 +23,25 @@ function orderSlipUrl(?string $slipImage): string {
         ? rtrim(UPLOADS_URL, '/')
         : (defined('BASE_URL') ? rtrim(BASE_URL, '/') . '/uploads' : 'uploads');
     return $base . '/slips/' . rawurlencode($filename);
+}
+
+/**
+ * Absolute filesystem path for a slip filename, or null if missing.
+ */
+function orderSlipPath(?string $slipImage): ?string {
+    $filename = basename(trim((string) $slipImage));
+    if ($filename === '') {
+        return null;
+    }
+    $dir = realpath(__DIR__ . '/../uploads/slips');
+    if ($dir === false) {
+        return null;
+    }
+    $path = realpath($dir . DIRECTORY_SEPARATOR . $filename);
+    if ($path === false || !str_starts_with($path, $dir . DIRECTORY_SEPARATOR) || !is_file($path)) {
+        return null;
+    }
+    return $path;
 }
 
 /**
@@ -76,11 +100,8 @@ function guardOrderPaymentAction(array $order): ?array {
         ];
     }
     if ($order['status'] === OrderStateMachine::WAITING_VERIFY) {
-        return [
-            'status' => 'success',
-            'message' => 'ระบบได้รับสลิปแล้ว กำลังตรวจสอบอยู่',
-            'already_submitted' => true,
-        ];
+        // Allow replacing slip (file may be missing after redeploy / volume issues).
+        return null;
     }
     if ($order['status'] !== OrderStateMachine::PENDING_PAYMENT) {
         return [

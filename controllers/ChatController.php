@@ -45,7 +45,7 @@ function renderOfferCard(array $ord, string $viewerUsername) {
 
         case OrderStateMachine::WAITING_VERIFY:
             $html .= '<div style="color:#f39c12; font-size:12px; margin-bottom:8px; font-weight:bold;">⏳ รอตรวจสอบสลิปโอนเงิน</div>';
-            $slipUrl = orderSlipUrl($ord['slip_image'] ?? '');
+            $slipUrl = !empty($ord['slip_image']) ? orderSlipUrl($ord['slip_image'], $oid) : '';
             if ($slipUrl !== '') {
                 $safeSlip = htmlspecialchars($slipUrl, ENT_QUOTES, 'UTF-8');
                 $html .= '<div style="margin:8px 0 10px;padding:8px;background:#fff8e6;border-radius:8px;border:1px solid #f0e0b2;">';

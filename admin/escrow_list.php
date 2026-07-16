@@ -123,7 +123,7 @@ include 'layout_head.php';
 
                     if ($result && $result->num_rows > 0) {
                         while ($row = $result->fetch_assoc()) {
-                            $slipUrl = orderSlipUrl($row['slip_image'] ?? '');
+                            $slipUrl = !empty($row['slip_image']) ? orderSlipUrl($row['slip_image'], (int) $row['id']) : '';
                             $slipCell = '<span class="admin-text-muted">ไม่มีไฟล์สลิป</span>';
                             if ($slipUrl !== '') {
                                 $safeUrl = htmlspecialchars($slipUrl, ENT_QUOTES, 'UTF-8');

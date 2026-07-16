@@ -155,15 +155,14 @@ try {
 
         $api_key = SLIP_API_KEY;
         $api_url = SLIP_API_URL;
-        
+        $alreadyWaiting = ($order['status'] === OrderStateMachine::WAITING_VERIFY);
         
         if (empty($api_key)) {
             $orderModel->updatePaymentSlip($order_id, $new_filename);
-            
-            $newStatus = OrderStateMachine::WAITING_VERIFY;
-            OrderStateMachine::validate($order, $newStatus, $currentUser);
-            $orderModel->changeStatus($order_id, $order['status'], $newStatus, $currentUser['username'], 'ข้ามการตรวจ API (ไม่มี API key) - รอแอดมินตรวจแบบ Manual');
-            
+            if (!$alreadyWaiting) {
+                OrderStateMachine::validate($order, OrderStateMachine::WAITING_VERIFY, $currentUser);
+                $orderModel->changeStatus($order_id, $order['status'], OrderStateMachine::WAITING_VERIFY, $currentUser['username'], 'ข้ามการตรวจ API (ไม่มี API key) - รอแอดมินตรวจแบบ Manual');
+            }
             echo json_encode(['status' => 'success', 'message' => 'ส่งสลิปเรียบร้อย (รอแอดมินตรวจสอบเนื่องจาก API ยังไม่ได้ตั้งค่า)']);
             exit();
         }
@@ -193,9 +192,10 @@ try {
         $orderModel->updatePaymentSlip($order_id, $new_filename);
 
         if ($err) {
-            $newStatus = OrderStateMachine::WAITING_VERIFY;
-            OrderStateMachine::validate($order, $newStatus, $currentUser);
-            $orderModel->changeStatus($order_id, $order['status'], $newStatus, $currentUser['username'], 'API ไม่ตอบสนอง: เปลี่ยนเป็นรอแอดมินตรวจ (Manual)');
+            if (!$alreadyWaiting) {
+                OrderStateMachine::validate($order, OrderStateMachine::WAITING_VERIFY, $currentUser);
+                $orderModel->changeStatus($order_id, $order['status'], OrderStateMachine::WAITING_VERIFY, $currentUser['username'], 'API ไม่ตอบสนอง: เปลี่ยนเป็นรอแอดมินตรวจ (Manual)');
+            }
             echo json_encode(['status' => 'success', 'message' => 'ส่งสลิปแล้ว (รอแอดมินตรวจสอบเนื่องจากเชื่อมต่อ AI ไม่ได้)']);
             exit();
         }
@@ -207,9 +207,10 @@ try {
         $api_error = strtolower(isset($result['message']) ? $result['message'] : '');
         
         if (in_array($api_error, $qr_errors) || (isset($result['status']) && $result['status'] != 200 && strpos($api_error, 'qr') !== false)) {
-            $newStatus = OrderStateMachine::WAITING_VERIFY;
-            OrderStateMachine::validate($order, $newStatus, $currentUser);
-            $orderModel->changeStatus($order_id, $order['status'], $newStatus, $currentUser['username'], 'API ไม่สามารถอ่าน QR code ได้ - เปลี่ยนเป็นรอแอดมินตรวจแบบ Manual');
+            if (!$alreadyWaiting) {
+                OrderStateMachine::validate($order, OrderStateMachine::WAITING_VERIFY, $currentUser);
+                $orderModel->changeStatus($order_id, $order['status'], OrderStateMachine::WAITING_VERIFY, $currentUser['username'], 'API ไม่สามารถอ่าน QR code ได้ - เปลี่ยนเป็นรอแอดมินตรวจแบบ Manual');
+            }
             echo json_encode(['status' => 'success', 'message' => 'ส่งสลิปแล้ว (ระบบไม่สามารถอ่าน QR code ได้ รอแอดมินตรวจสอบแบบ Manual)']);
             exit();
         }
@@ -224,13 +225,13 @@ try {
             }
 
             if ($slip_amount + 0.009 >= $order_amount) {
-             
-                $step1_status = OrderStateMachine::WAITING_VERIFY;
-                OrderStateMachine::validate($order, $step1_status, $currentUser);
-                $orderModel->changeStatus($order_id, $order['status'], $step1_status, $currentUser['username'], 'อัปโหลดสลิปสำเร็จผ่าน API');
+                if (!$alreadyWaiting) {
+                    $step1_status = OrderStateMachine::WAITING_VERIFY;
+                    OrderStateMachine::validate($order, $step1_status, $currentUser);
+                    $orderModel->changeStatus($order_id, $order['status'], $step1_status, $currentUser['username'], 'อัปโหลดสลิปสำเร็จผ่าน API');
+                    $order['status'] = $step1_status;
+                }
 
-             
-                $order['status'] = $step1_status; 
                 $systemAdmin = ['username' => 'System_API', 'role' => 'admin'];
                 
                 $step2_status = OrderStateMachine::PAID; 

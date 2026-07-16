@@ -335,7 +335,7 @@ foreach ($all_orders as $item) {
                         <a href="my_disputes.php" class="btn-flixo-outline order-tab-btn">ดูข้อพิพาท</a>
 
                     <?php elseif ($role === 'buy' && $st === OrderStateMachine::WAITING_VERIFY): ?>
-                        <?php $slipUrl = orderSlipUrl($row['slip_image'] ?? ''); ?>
+                        <?php $slipUrl = !empty($row['slip_image']) ? orderSlipUrl($row['slip_image'], $order_id) : ''; ?>
                         <?php if ($slipUrl !== ''): ?>
                             <a href="<?php echo htmlspecialchars($slipUrl); ?>" target="_blank" rel="noopener" class="btn-flixo-outline order-tab-btn">ดูสลิปที่ส่ง</a>
                         <?php endif; ?>
@@ -346,7 +346,7 @@ foreach ($all_orders as $item) {
                         <span class="order-tab-wait tx-meta">รอดำเนินการจากอีกฝ่าย</span>
 
                     <?php elseif ($role === 'sell' && $st === OrderStateMachine::WAITING_VERIFY): ?>
-                        <?php $slipUrl = orderSlipUrl($row['slip_image'] ?? ''); ?>
+                        <?php $slipUrl = !empty($row['slip_image']) ? orderSlipUrl($row['slip_image'], $order_id) : ''; ?>
                         <?php if ($slipUrl !== ''): ?>
                             <a href="<?php echo htmlspecialchars($slipUrl); ?>" target="_blank" rel="noopener" class="btn-flixo-outline order-tab-btn">ดูสลิปผู้ซื้อ</a>
                         <?php endif; ?>
