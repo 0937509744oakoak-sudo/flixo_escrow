@@ -7,6 +7,7 @@ require_once __DIR__ . '/../models/Product.php';
 require_once __DIR__ . '/../includes/order_helper.php';
 require_once __DIR__ . '/../includes/ChatModerationService.php';
 require_once __DIR__ . '/../includes/chat_helpers.php';
+require_once __DIR__ . '/../includes/chat_realtime.php';
 verifyCsrfToken($_POST['csrf_token'] ?? ''); 
 
 header('Content-Type: text/html; charset=utf-8');
@@ -151,7 +152,8 @@ if ($action == 'fetch') {
 
         echo '<div class="msg-row ' . ($is_me ? 'msg-me' : 'msg-partner') . '">';
         if (!empty($row['image_path'])) {
-             echo '<div class="msg-bubble"><img src="uploads/'.htmlspecialchars($row['image_path'], ENT_QUOTES, 'UTF-8').'" style="max-width:200px; border-radius:8px;"></div>';
+             $chatImg = htmlspecialchars(chatImageUrl($row['image_path']), ENT_QUOTES, 'UTF-8');
+             echo '<div class="msg-bubble"><img src="'.$chatImg.'" style="max-width:200px; border-radius:8px;"></div>';
         } elseif (strpos($msg_text, '[PRODUCT:') !== false && preg_match('/\[PRODUCT:(\d+)\]/', $msg_text, $matches)) {
             $productModel = new Product($conn);
             $product = $productModel->getById((int) $matches[1]);
@@ -218,6 +220,10 @@ if ($action == 'send') {
     $stmt = $conn->prepare("INSERT INTO messages (sender_name, receiver_name, message) VALUES (?, ?, ?)");
     $stmt->bind_param("sss", $me, $partner, $msg);
     $stmt->execute();
+
+    // Real-time push: signal SSE subscribers that a new message exists.
+    // No-op if Redis is unavailable (SSE falls back to DB polling).
+    chatRealtimePublish($me, $partner);
 
     if ($modResult !== null && $modResult['verdict'] !== ChatModerationService::VERDICT_PASS) {
         $messageId = (int)$conn->insert_id;
@@ -298,6 +304,8 @@ if ($action == 'share_product') {
     $stmt->bind_param('sss', $me, $partner, $code);
     $stmt->execute();
 
+    chatRealtimePublish($me, $partner);
+
     try {
         flixo_notify_chat_message($conn, $me, $partner, '📢 ส่งประกาศ "' . $product['product_name'] . '" ให้คุณ');
     } catch (Throwable $notifyError) {
@@ -330,6 +338,8 @@ if ($action == 'create_offer') {
         $msg_stmt->bind_param("sss", $me, $partner, $code);
         $msg_stmt->execute();
 
+        chatRealtimePublish($me, $partner);
+
         // มี Offer ใหม่ → แจ้งผู้ซื้อทันที (แยกจากแจ้งเตือนแชทปกติ ไม่ถูก throttle)
         try {
             createNotification(
@@ -359,26 +369,33 @@ if ($action == 'send_image') {
 
     try {
         if (isset($_FILES['chat_image']) && $_FILES['chat_image']['error'] == 0) {
-            $image_name = secureUpload($_FILES['chat_image'], '../uploads/');
-            $absolutePath = realpath(__DIR__ . '/../uploads/' . $image_name) ?: (__DIR__ . '/../uploads/' . $image_name);
+            // ตรวจ moderation จากไฟล์ชั่วคราวก่อน (ยังไม่ต้องเก็บถาวร)
+            // → ถ้าโดน block จะได้ไม่เสีย quota อัปโหลดขึ้น cloud เปล่าๆ
+            $tmpPath = $_FILES['chat_image']['tmp_name'];
 
             $moderation = new ChatModerationService($conn);
-            $modResult = $moderation->scanImage($absolutePath);
+            $modResult = $moderation->scanImage($tmpPath);
             if (
                 $modResult['verdict'] === ChatModerationService::VERDICT_REJECT
                 && defined('CHAT_MODERATION_BLOCK')
                 && CHAT_MODERATION_BLOCK
             ) {
-                @unlink($absolutePath);
                 $moderation->logScan(null, $me, $partner, 'image', '[รูปภาพ]', $modResult);
                 http_response_code(400);
                 echo $moderation->formatUserMessage($modResult);
                 exit();
             }
 
+            // ผ่าน moderation → อัปขึ้น Cloud Object Storage (R2/S3) หรือ fallback local
+            // คืนค่าเป็น URL เต็ม (cloud) หรือชื่อไฟล์ (local) เก็บลง image_path ได้ทั้งคู่
+            $image_name = secureUploadCloud($_FILES['chat_image'], 'chat', __DIR__ . '/../uploads');
+
             $stmt = $conn->prepare("INSERT INTO messages (sender_name, receiver_name, message, image_path) VALUES (?, ?, '', ?)");
             $stmt->bind_param("sss", $me, $partner, $image_name);
             $stmt->execute();
+
+            // Real-time push (no-op if Redis unavailable → SSE DB-poll fallback)
+            chatRealtimePublish($me, $partner);
 
             if ($modResult['verdict'] !== ChatModerationService::VERDICT_PASS) {
                 $messageId = (int)$conn->insert_id;

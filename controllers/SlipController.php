@@ -35,7 +35,8 @@ if (!$isParty && !$isStaff) {
     exit('ไม่มีสิทธิ์ดูสลิปนี้');
 }
 
-$filename = basename((string) ($order['slip_image'] ?? ''));
+$rawStored = (string) ($order['slip_image'] ?? '');
+$filename = basename($rawStored);
 if ($filename === '' || preg_match('/[^a-zA-Z0-9._-]/', $filename)) {
     http_response_code(404);
     header('Content-Type: text/html; charset=UTF-8');
@@ -45,11 +46,49 @@ if ($filename === '' || preg_match('/[^a-zA-Z0-9._-]/', $filename)) {
     exit;
 }
 
+$mimeFromExt = static function (string $name): string {
+    $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+    return match ($ext) {
+        'jpg', 'jpeg' => 'image/jpeg',
+        'png' => 'image/png',
+        'webp' => 'image/webp',
+        'gif' => 'image/gif',
+        default => 'application/octet-stream',
+    };
+};
+
+// 1) Prefer local disk (legacy files / local dev).
 $filepath = orderSlipPath($filename);
-if ($filepath === null) {
-    http_response_code(404);
-    header('Content-Type: text/html; charset=UTF-8');
-    $uploadsRoot = htmlspecialchars(flixoUploadsRoot(), ENT_QUOTES, 'UTF-8');
+if ($filepath !== null) {
+    header('Content-Type: ' . $mimeFromExt($filepath));
+    header('Content-Length: ' . filesize($filepath));
+    header('Cache-Control: private, no-store');
+    header('X-Content-Type-Options: nosniff');
+    readfile($filepath);
+    exit;
+}
+
+// 2) Not on disk → stream privately from Cloud Object Storage (R2/S3).
+//    Auth was already enforced above, so we act as a trusted proxy.
+require_once __DIR__ . '/../includes/ObjectStorage.php';
+$storage = new ObjectStorage();
+if ($storage->isConfigured()) {
+    $key = $storage->keyFromStored($rawStored, 'slips');
+    $bytes = $storage->get($key);
+    if ($bytes !== null) {
+        header('Content-Type: ' . $mimeFromExt($filename));
+        header('Content-Length: ' . strlen($bytes));
+        header('Cache-Control: private, no-store');
+        header('X-Content-Type-Options: nosniff');
+        echo $bytes;
+        exit;
+    }
+}
+
+// 3) Neither local nor cloud → show the "file missing" help page.
+http_response_code(404);
+header('Content-Type: text/html; charset=UTF-8');
+$uploadsRoot = htmlspecialchars(flixoUploadsRoot(), ENT_QUOTES, 'UTF-8');
     $vol = htmlspecialchars((string) (getenv('RAILWAY_VOLUME_MOUNT_PATH') ?: '(ไม่ได้ตั้งค่า)'), ENT_QUOTES, 'UTF-8');
     echo '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>ไม่พบสลิป</title></head>';
     echo '<body style="font-family:sans-serif;text-align:center;padding:48px;background:#f4f6f8;">';
@@ -68,21 +107,4 @@ if ($filepath === null) {
     }
     echo '<p style="text-align:center;margin-top:12px;"><a href="javascript:history.back()">ย้อนกลับ</a></p>';
     echo '</div></body></html>';
-    exit;
-}
-
-$ext = strtolower(pathinfo($filepath, PATHINFO_EXTENSION));
-$mime = match ($ext) {
-    'jpg', 'jpeg' => 'image/jpeg',
-    'png' => 'image/png',
-    'webp' => 'image/webp',
-    'gif' => 'image/gif',
-    default => 'application/octet-stream',
-};
-
-header('Content-Type: ' . $mime);
-header('Content-Length: ' . filesize($filepath));
-header('Cache-Control: private, no-store');
-header('X-Content-Type-Options: nosniff');
-readfile($filepath);
 exit;

@@ -65,13 +65,13 @@ try {
         $savedImages = [];
 
         try {
-            $savedImages = secureUploadMany($uploadFiles, $upload_dir);
-
+            // Scan the uploaded TEMP files BEFORE storing them, so a rejected
+            // upload never touches cloud/disk (and we need no cleanup on reject).
             $fraudService = new ProductImageFraudService($conn);
-            $absolutePaths = array_map(static function ($filename) use ($upload_dir) {
-                return $upload_dir . $filename;
-            }, $savedImages);
-            $fraudResult = $fraudService->scanImages($absolutePaths, [
+            $tmpPaths = array_map(static function ($f) {
+                return $f['tmp_name'];
+            }, $uploadFiles);
+            $fraudResult = $fraudService->scanImages($tmpPaths, [
                 'product_name' => $p_name,
                 'category' => $category,
                 'description' => $desc,
@@ -82,11 +82,12 @@ try {
                 && defined('IMAGE_FRAUD_BLOCK')
                 && IMAGE_FRAUD_BLOCK
             ) {
-                foreach ($savedImages as $filename) {
-                    deleteProductImageFile($filename);
-                }
                 throw new Exception($fraudService->formatUserMessage($fraudResult));
             }
+
+            // Passed → upload to Cloud Object Storage (public URL) or local disk.
+            // Product::imageUrl() renders both URLs and local filenames.
+            $savedImages = secureUploadCloudMany($uploadFiles, 'products', $upload_dir);
 
             $productId = $productModel->createProduct($me, $p_name, $category, $price, $desc, $savedImages, $fraudResult);
             $fraudService->logScans($productId, $fraudResult['per_image'] ?? []);

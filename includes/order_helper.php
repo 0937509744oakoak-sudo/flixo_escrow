@@ -300,6 +300,114 @@ function secureUpload($fileArray, $targetDir, $maxSize = 5242880) {
 }
 
 /**
+ * อัปโหลดรูปแบบปลอดภัย → Cloud Object Storage (Cloudflare R2 / S3) เมื่อมีการตั้งค่า
+ * ถ้ายังไม่ได้ตั้งค่า cloud → fallback ไปเก็บ local ผ่าน secureUpload() เหมือนเดิม
+ *
+ * ค่าที่คืน:
+ *   - cloud พร้อมใช้งาน → คืน URL เต็ม (https://...) สำหรับบันทึกลง DB โดยตรง
+ *   - fallback local     → คืน "ชื่อไฟล์" เหมือน secureUpload() เดิม
+ * ทั้งสองแบบใช้กับ chatImageUrl() / Product::imageUrl() ได้ (รองรับทั้ง URL และชื่อไฟล์)
+ *
+ * @param array  $fileArray      อาเรย์จาก $_FILES[...]
+ * @param string $subdir         โฟลเดอร์/prefix บน object storage เช่น "chat", "products", "slips"
+ * @param string $localTargetDir โฟลเดอร์ปลายทางกรณี fallback local (มี/ไม่มี / ต่อท้ายก็ได้)
+ * @param int    $maxSize        ขนาดไฟล์สูงสุด (ไบต์)
+ * @param bool   $public         true = คืน public URL (รูปสาธารณะ เช่น products/chat)
+ *                               false = คืน object key เช่น "slips/xxx.jpg" (ไฟล์ส่วนตัว
+ *                                        ที่ต้องสตรีมผ่าน authorized endpoint — ไม่เปิด public URL)
+ * @return string public URL หรือ object key (cloud) — หรือ ชื่อไฟล์ (local fallback)
+ * @throws Exception เมื่อ validation ไม่ผ่าน หรืออัปโหลดไม่สำเร็จ
+ */
+function secureUploadCloud(array $fileArray, string $subdir, string $localTargetDir, int $maxSize = 5242880, bool $public = true): string
+{
+    // 1) Validation — ตรรกะเดียวกับ secureUpload() เพื่อพฤติกรรมที่สอดคล้องกัน
+    if (!isset($fileArray['error']) || $fileArray['error'] !== UPLOAD_ERR_OK) {
+        throw new Exception('เกิดข้อผิดพลาดในการอัปโหลดไฟล์');
+    }
+    if (($fileArray['size'] ?? 0) > $maxSize) {
+        throw new Exception('ขนาดไฟล์ใหญ่เกินไป');
+    }
+    if (empty($fileArray['tmp_name']) || !is_uploaded_file($fileArray['tmp_name'])) {
+        throw new Exception('ไฟล์อัปโหลดไม่ถูกต้อง');
+    }
+
+    // ตรวจ MIME จากเนื้อไฟล์จริง ไม่เชื่อ extension/Content-Type ที่ client ส่งมา
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mime  = $finfo->file($fileArray['tmp_name']);
+    $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+    if (!array_key_exists($mime, $allowed)) {
+        throw new Exception('รูปแบบไฟล์ไม่ถูกต้อง');
+    }
+
+    $filename  = bin2hex(random_bytes(16)) . '.' . $allowed[$mime];
+    $subdir    = trim(str_replace(['\\', '..'], ['/', ''], $subdir), '/');
+    $objectKey = ($subdir !== '' ? $subdir . '/' : '') . $filename;
+
+    // 2) มี cloud storage → อัปขึ้น cloud
+    require_once __DIR__ . '/ObjectStorage.php';
+    $storage = new ObjectStorage();
+    if ($storage->isConfigured()) {
+        $url = $storage->put($fileArray['tmp_name'], $objectKey, $mime);
+        // ไฟล์ส่วนตัว (slips) → เก็บ object key เพื่อสตรีมผ่าน endpoint ที่ตรวจสิทธิ์
+        // ไฟล์สาธารณะ (products/chat) → เก็บ public URL ใช้แสดงได้ตรงๆ
+        return $public ? $url : $objectKey;
+    }
+
+    // 3) Fallback: เก็บ local ผ่าน secureUpload() เดิม (คืนชื่อไฟล์)
+    $dir = rtrim($localTargetDir, "/\\") . DIRECTORY_SEPARATOR;
+    return secureUpload($fileArray, $dir, $maxSize);
+}
+
+/**
+ * อัปโหลดหลายไฟล์ขึ้น cloud (หรือ fallback local) — คืน array ของ URL/ชื่อไฟล์
+ * เวอร์ชัน cloud ของ secureUploadMany()
+ *
+ * @param array<int,array> $fileArrays
+ * @return array<int,string>
+ */
+function secureUploadCloudMany(array $fileArrays, string $subdir, string $localTargetDir, int $maxSize = 5242880, bool $public = true): array
+{
+    $saved = [];
+    foreach ($fileArrays as $file) {
+        $saved[] = secureUploadCloud($file, $subdir, $localTargetDir, $maxSize, $public);
+    }
+    return $saved;
+}
+
+/**
+ * แปลงค่าที่เก็บใน DB เป็น URL สำหรับแสดงผล — ใช้ร่วมกันได้ทั้งระบบ
+ * (chat, products และรูปสาธารณะอื่นๆ)
+ * รองรับ: (1) URL เต็มจาก R2/S3 → คืนตรงๆ  (2) ชื่อไฟล์ local → ต่อ base URL
+ *
+ * @param string      $ref           ค่าใน DB (URL หรือ ชื่อไฟล์)
+ * @param string|null $localBaseUrl  base URL สำหรับไฟล์ local (ดีฟอลต์ = UPLOADS_URL)
+ */
+function resolveImageUrl(string $ref, ?string $localBaseUrl = null): string
+{
+    $ref = trim($ref);
+    if ($ref === '') {
+        return '';
+    }
+    if (str_starts_with($ref, 'http://') || str_starts_with($ref, 'https://')) {
+        return $ref; // cloud object storage URL
+    }
+    $base = $localBaseUrl !== null
+        ? rtrim($localBaseUrl, '/')
+        : (defined('UPLOADS_URL')
+            ? rtrim(UPLOADS_URL, '/')
+            : (defined('BASE_URL') ? rtrim(BASE_URL, '/') . '/uploads' : 'uploads'));
+    return $base . '/' . rawurlencode(basename($ref));
+}
+
+/**
+ * @deprecated ใช้ resolveImageUrl() แทน — คงไว้เพื่อ backward compatibility
+ */
+function chatImageUrl(string $ref): string
+{
+    return resolveImageUrl($ref);
+}
+
+/**
  * แปลง $_FILES[key] เป็น array ของไฟล์ (รองรับ single และ multiple)
  */
 function normalizeFileUploads($fieldName) {

@@ -133,31 +133,47 @@ try {
         $ins->close();
 
         $target_dir = flixoUploadsSubdir('slips');
-        $new_filename = secureUpload($_FILES["slip_image"], $target_dir);
-        $full_file_path = realpath($target_dir . $new_filename);
+        $tmp_path = $_FILES["slip_image"]['tmp_name'] ?? '';
 
-        if ($full_file_path && is_file($full_file_path)) {
-            $slipHash = hash_file('sha256', $full_file_path);
+        // Dedup + integrity check from the TEMP file, BEFORE storing anywhere,
+        // so a duplicate is rejected without uploading (cloud or disk).
+        $slipHash = (is_string($tmp_path) && is_uploaded_file($tmp_path)) ? hash_file('sha256', $tmp_path) : null;
+        $slipHashExists = false;
+        if ($slipHash !== null) {
             $dupStmt = $conn->prepare("SELECT id, order_id FROM slip_hashes WHERE slip_hash = ? LIMIT 1");
             $dupStmt->bind_param('s', $slipHash);
             $dupStmt->execute();
             $dup = $dupStmt->get_result()->fetch_assoc();
             if ($dup && (int)$dup['order_id'] !== $order_id) {
-                @unlink($full_file_path);
                 throw new Exception('สลิปนี้เคยถูกใช้ในระบบแล้ว ไม่สามารถใช้ซ้ำได้');
             }
-            if (!$dup) {
-                $insHash = $conn->prepare("INSERT INTO slip_hashes (slip_hash, order_id, username) VALUES (?, ?, ?)");
-                $insHash->bind_param('sis', $slipHash, $order_id, $currentUser['username']);
-                $insHash->execute();
-            }
+            $slipHashExists = (bool) $dup;
         }
+
+        // Store slip → Cloud Object Storage (PRIVATE: returns an object key, not a
+        // public URL) or local disk fallback. SlipController streams it to
+        // authorized users only.
+        $new_filename = secureUploadCloud($_FILES["slip_image"], 'slips', $target_dir, 5242880, false);
+
+        if ($slipHash !== null && !$slipHashExists) {
+            $insHash = $conn->prepare("INSERT INTO slip_hashes (slip_hash, order_id, username) VALUES (?, ?, ?)");
+            $insHash->bind_param('sis', $slipHash, $order_id, $currentUser['username']);
+            $insHash->execute();
+        }
+
+        // Local file path to hand to the EasySlip API (it POSTs the file via
+        // CURLFILE). Cloud path: the temp upload is still present (not moved).
+        // Local path: the temp file was moved into uploads/slips.
+        $full_file_path = (is_string($tmp_path) && is_file($tmp_path))
+            ? $tmp_path
+            : orderSlipPath($new_filename);
 
         $api_key = SLIP_API_KEY;
         $api_url = SLIP_API_URL;
         $alreadyWaiting = ($order['status'] === OrderStateMachine::WAITING_VERIFY);
         
-        if (empty($api_key)) {
+        // No API key, or no readable local file to send → manual admin review.
+        if (empty($api_key) || empty($full_file_path) || !is_file($full_file_path)) {
             $orderModel->updatePaymentSlip($order_id, $new_filename);
             if (!$alreadyWaiting) {
                 OrderStateMachine::validate($order, OrderStateMachine::WAITING_VERIFY, $currentUser);

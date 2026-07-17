@@ -4,17 +4,21 @@
 
 let currentPartner = '';
 let chatInterval;
+let chatSource = null;
 
-const CHAT_CONTROLLER_URL = (() => {
+const CHAT_BASE_URL = (() => {
     if (window.FLIXO_BASE_URL) {
-        return String(window.FLIXO_BASE_URL).replace(/\/$/, '') + '/controllers/ChatController.php';
+        return String(window.FLIXO_BASE_URL).replace(/\/$/, '');
     }
     const script = document.currentScript || document.querySelector('script[src*="chat.js"]');
     if (script && script.src) {
-        return script.src.replace(/\/assets\/js\/chat\.js(?:\?.*)?$/, '') + '/controllers/ChatController.php';
+        return script.src.replace(/\/assets\/js\/chat\.js(?:\?.*)?$/, '');
     }
-    return window.location.origin + '/controllers/ChatController.php';
+    return window.location.origin;
 })();
+
+const CHAT_CONTROLLER_URL = CHAT_BASE_URL + '/controllers/ChatController.php';
+const CHAT_STREAM_URL = CHAT_BASE_URL + '/controllers/ChatStream.php';
 
 function appendCsrfToken(formData) {
     if (!formData) return;
@@ -92,10 +96,74 @@ function openChat(partner) {
 
     fetchMessages();
 
-    if (chatInterval) clearInterval(chatInterval);
-    chatInterval = setInterval(fetchMessages, 3000);
+    // Real-time updates via SSE (replaces the old 3s setInterval polling).
+    startChatStream(partner);
 
     syncSupportChatUI();
+}
+
+/**
+ * Open an SSE connection for the given partner. The server pushes a lightweight
+ * 'message' event whenever a new message lands; we then reuse fetchMessages()
+ * to re-render (keeps offer/product/support cards working exactly as before).
+ * Falls back to interval polling on older browsers or a broken connection.
+ */
+function startChatStream(partner) {
+    stopChatStream();
+
+    if (typeof window.EventSource === 'undefined') {
+        return pollingFallback(partner); // browser has no SSE support
+    }
+
+    const url = CHAT_STREAM_URL + '?partner=' + encodeURIComponent(partner);
+
+    let source;
+    try {
+        source = new EventSource(url, { withCredentials: true });
+    } catch (e) {
+        return pollingFallback(partner);
+    }
+    chatSource = source;
+    let stopped = false; // set when we intentionally close (don't fall back)
+
+    source.addEventListener('message', function (ev) {
+        if (partner !== currentPartner) return; // stale stream, ignore
+        // A new message exists on the server → re-render once, on demand.
+        fetchMessages();
+    });
+
+    source.addEventListener('unauthorized', function () {
+        stopped = true;
+        stopChatStream(); // session expired — stop retrying, don't poll
+    });
+
+    source.onerror = function () {
+        if (stopped) return;
+        // EventSource auto-reconnects while readyState === CONNECTING.
+        // Only fall back to polling if the browser gave up (CLOSED).
+        if (source.readyState === EventSource.CLOSED) {
+            if (partner === currentPartner) pollingFallback(partner);
+        }
+    };
+}
+
+function stopChatStream() {
+    if (chatSource) {
+        chatSource.close();
+        chatSource = null;
+    }
+    if (chatInterval) {
+        clearInterval(chatInterval);
+        chatInterval = null;
+    }
+}
+
+/** Legacy safety net: interval polling when SSE is unavailable. */
+function pollingFallback(partner) {
+    if (chatInterval) clearInterval(chatInterval);
+    chatInterval = setInterval(function () {
+        if (partner === currentPartner) fetchMessages();
+    }, 3000);
 }
 
 function fetchMessages() {
@@ -684,7 +752,7 @@ function openChatPartner(partner, updateUrl) {
 function closeChatPartner(updateUrl) {
     showChatRoomPanel(false);
     currentPartner = '';
-    clearInterval(chatInterval);
+    stopChatStream();
     closeAllModals();
 
     document.querySelectorAll('.chat-sidebar-item[data-partner]').forEach(function (el) {
@@ -697,7 +765,7 @@ function closeChatPartner(updateUrl) {
 }
 
 function pauseChatPolling() {
-    clearInterval(chatInterval);
+    stopChatStream();
 }
 
 window.openChatPartner = openChatPartner;

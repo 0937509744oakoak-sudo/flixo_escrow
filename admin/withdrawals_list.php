@@ -27,11 +27,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             try {
                 $targetDir = flixoUploadsSubdir('withdrawal_slips');
-                $slipName = secureUpload($_FILES['payout_slip'], $targetDir);
+                // PRIVATE object key (public=false) or local filename fallback.
+                $slipName = secureUploadCloud($_FILES['payout_slip'], 'withdrawal_slips', $targetDir, 5242880, false);
                 if ($walletService->completeWithdrawal($requestId, $admin, $slipName, $note)) {
                     $flash = 'ok|อนุมัติถอนเงินและแนบสลิปให้ผู้ใช้แล้ว';
                 } else {
-                    @unlink($targetDir . $slipName);
+                    // Roll back the just-stored slip (local file or cloud object).
+                    if (is_file($targetDir . $slipName)) {
+                        @unlink($targetDir . $slipName);
+                    } else {
+                        require_once __DIR__ . '/../includes/ObjectStorage.php';
+                        (new ObjectStorage())->delete($slipName);
+                    }
                     $flash = 'error|อนุมัติไม่สำเร็จ (อาจถูกจัดการไปแล้ว)';
                 }
             } catch (Throwable $e) {

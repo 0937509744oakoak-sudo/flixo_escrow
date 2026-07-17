@@ -1,0 +1,42 @@
+# ==========================================================================
+# SSE endpoint tuning — ChatStream.php must NOT be gzip-compressed or buffered,
+# otherwise Server-Sent Events are held back until the connection closes and
+# real-time chat appears "frozen".
+#
+# This file is scoped to /controllers only, so it does not affect app routing.
+# ==========================================================================
+
+# 1) Disable gzip / mod_deflate for the streaming endpoint
+<IfModule mod_setenvif.c>
+    SetEnvIfNoCase Request_URI "ChatStream\.php$" no-gzip dont-vary
+</IfModule>
+
+# 2) mod_php (XAMPP): turn off PHP output buffering & zlib compression so
+#    flush() reaches the browser immediately. Wrapped in <IfModule> so it is
+#    silently ignored under PHP-FPM/FastCGI (where php_flag is not available).
+<IfModule php_module>
+    <FilesMatch "ChatStream\.php$">
+        php_flag zlib.output_compression Off
+        php_flag output_buffering Off
+    </FilesMatch>
+</IfModule>
+<IfModule php8_module>
+    <FilesMatch "ChatStream\.php$">
+        php_flag zlib.output_compression Off
+        php_flag output_buffering Off
+    </FilesMatch>
+</IfModule>
+<IfModule mod_php.c>
+    <FilesMatch "ChatStream\.php$">
+        php_flag zlib.output_compression Off
+        php_flag output_buffering Off
+    </FilesMatch>
+</IfModule>
+
+# 3) Tell any upstream proxy (Nginx/Cloudflare) not to buffer this response
+<IfModule mod_headers.c>
+    <FilesMatch "ChatStream\.php$">
+        Header set X-Accel-Buffering "no"
+        Header set Cache-Control "no-cache, no-transform"
+    </FilesMatch>
+</IfModule>
