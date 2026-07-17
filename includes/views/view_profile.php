@@ -73,7 +73,7 @@ $display_name = User::resolveDisplayName($user['real_name'] ?? '', $me);
 
 </div>
 
-
+<div class="profile-grid">
 
 <div class="flixo-card">
 
@@ -258,6 +258,8 @@ $display_name = User::resolveDisplayName($user['real_name'] ?? '', $me);
         </a>
 
     </div>
+
+</div>
 
 </div>
 

@@ -1,10 +1,12 @@
 <?php
 /** Mobile bottom navigation for app shell — includes Sell CTA */
-$has_chat_unread = isset($chat_count) && $chat_count > 0;
 $mobile_support_unread = 0;
+$mobile_chat_unread = 0;
 if (isset($conn) && isset($_SESSION['user'])) {
     require_once __DIR__ . '/support_chat.php';
+    require_once __DIR__ . '/NotificationService.php';
     $mobile_support_unread = getSupportUnreadCount($conn, $_SESSION['user']);
+    $mobile_chat_unread = NotificationService::getUnreadChatCount($conn, $_SESSION['user']);
 }
 ?>
 <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/landing.css?v=<?php echo time(); ?>">
@@ -28,9 +30,8 @@ if (isset($conn) && isset($_SESSION['user'])) {
         <span>แชท</span>
         <?php if ($mobile_support_unread > 0): ?>
             <span class="mobile-nav-badge"><?php echo (int) $mobile_support_unread; ?></span>
-        <?php elseif ($has_chat_unread): ?>
-            <span class="nav-dot" style="position:absolute;top:4px;right:8px;width:8px;height:8px;background:var(--flixo-error);border-radius:50%;"></span>
         <?php endif; ?>
+        <span class="nav-dot nav-chat-dot" data-chat-dot aria-hidden="true" style="position:absolute;top:4px;right:8px;width:8px;height:8px;background:var(--flixo-error);border-radius:50%;<?php echo $mobile_chat_unread > 0 ? '' : 'display:none;'; ?>"></span>
     </button>
     <button type="button" class="mobile-nav-btn" data-app-tab="profile">
         <span class="material-symbols-outlined">person</span>

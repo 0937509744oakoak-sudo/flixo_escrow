@@ -180,6 +180,23 @@ class NotificationService
         return (int) ($stmt->get_result()->fetch_assoc()['unread'] ?? 0);
     }
 
+    /**
+     * จำนวนแจ้งเตือน "แชท" ที่ยังไม่อ่าน (peer-to-peer) — ใช้กับจุดแดงบนปุ่มห้องคุยคู่สัญญา
+     */
+    public static function getUnreadChatCount(mysqli $conn, string $username): int
+    {
+        if ($username === '') {
+            return 0;
+        }
+        $stmt = $conn->prepare("SELECT COUNT(*) AS unread FROM notifications WHERE user_name = ? AND type = 'chat' AND is_read = 0");
+        if (!$stmt) {
+            return 0;
+        }
+        $stmt->bind_param('s', $username);
+        $stmt->execute();
+        return (int) ($stmt->get_result()->fetch_assoc()['unread'] ?? 0);
+    }
+
     public static function getRecent(mysqli $conn, string $username, int $limit = 20): array
     {
         if ($username === '') {

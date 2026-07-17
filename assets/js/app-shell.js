@@ -99,6 +99,13 @@
         }
     }
 
+    function syncNavHeightVar() {
+        const nav = document.querySelector('.navbar');
+        if (nav) {
+            document.documentElement.style.setProperty('--flixo-nav-h', nav.offsetHeight + 'px');
+        }
+    }
+
     function syncMainLayout(tab) {
         const flixoMain = document.getElementById('flixo-main');
         if (!flixoMain) return;
@@ -107,6 +114,7 @@
         flixoMain.classList.toggle('flixo-main--tab', tab !== 'home' && tab !== 'chat');
         flixoMain.classList.toggle('flixo-main--chat', tab === 'chat');
         document.body.classList.toggle('flixo-chat-active', tab === 'chat');
+        document.documentElement.classList.toggle('flixo-chat-active', tab === 'chat');
     }
 
     function syncNavActive(tab) {
@@ -311,6 +319,9 @@
         if (!app) return;
 
         const initialTab = getTabFromUrl();
+
+        syncNavHeightVar();
+        window.addEventListener('resize', syncNavHeightVar);
 
         document.querySelectorAll('.app-view').forEach(function (view) {
             hideViewElement(view);

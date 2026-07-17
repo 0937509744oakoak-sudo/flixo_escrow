@@ -44,15 +44,24 @@ function notifUpdateBadges(count) {
     });
 }
 
+function notifUpdateChatDots(count) {
+    document.querySelectorAll('[data-chat-dot]').forEach((el) => {
+        el.style.display = count > 0 ? '' : 'none';
+    });
+}
+
 function notifPollUnreadCount() {
     notifFetch('unread_count')
         .then((data) => {
             if (data && data.status === 'success') {
                 notifUpdateBadges(data.count || 0);
+                notifUpdateChatDots(data.chat_count || 0);
             }
         })
         .catch(() => {});
 }
+
+window.flixoRefreshNotifCounts = notifPollUnreadCount;
 
 function notifIconFor(type) {
     const icons = { order: '📦', dispute: '⚠️', payout: '💰', ekyc: '🪪', system: '🔔' };

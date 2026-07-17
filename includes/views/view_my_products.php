@@ -43,9 +43,16 @@
 
 <style>
 .my-products-grid {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
     gap: 12px;
+    max-width: 880px;
+    margin: 0 auto;
+}
+@media (min-width: 768px) {
+    .my-products-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 .product-item-mini {
     padding: 12px;

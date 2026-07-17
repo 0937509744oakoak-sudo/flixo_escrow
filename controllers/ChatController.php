@@ -29,67 +29,108 @@ function renderOfferCard(array $ord, string $viewerUsername) {
     $courier = htmlspecialchars($ord['courier'] ?? '');
     $is_buyer = ($viewerUsername === $ord['buyer_name']);
     $is_seller = ($viewerUsername === $ord['seller_name']);
-    
-    $html = '<div class="offer-card"><div class="offer-header">🤝 ดีลตกลงกัน #'.$oid.'</div><div class="offer-body">';
-    $html .= '<div><strong>'.$item_name.'</strong></div><div class="offer-price">฿'.number_format($amount).'</div><div style="margin-top:10px; padding-top:10px; border-top:1px dashed #ddd;">';
-    
 
- switch ($status) {
+    $stepMap = [
+        OrderStateMachine::CREATED         => 0,
+        OrderStateMachine::PENDING_PAYMENT => 1,
+        OrderStateMachine::WAITING_VERIFY  => 1,
+        OrderStateMachine::PAID            => 2,
+        OrderStateMachine::SHIPPED         => 2,
+        OrderStateMachine::COMPLETED       => 3,
+    ];
+    $steps = ['ตกลงดีล', 'ชำระเงิน', 'จัดส่ง', 'สำเร็จ'];
+
+    $html = '<div class="offer-card">';
+    $html .= '<div class="offer-card-top">';
+    $html .= '<span class="offer-card-tag"><span class="material-symbols-outlined">verified_user</span>ดีลผ่าน Escrow</span>';
+    $html .= '<span class="offer-card-id">#' . $oid . '</span>';
+    $html .= '</div>';
+    $html .= '<div class="offer-body">';
+    $html .= '<div class="offer-card-name">' . $item_name . '</div>';
+    $html .= '<div class="offer-price">฿' . number_format($amount, 2) . '</div>';
+
+    if (isset($stepMap[$status])) {
+        $cur = $stepMap[$status];
+        $done_all = ($status === OrderStateMachine::COMPLETED);
+        $html .= '<div class="offer-steps">';
+        foreach ($steps as $i => $label) {
+            if ($done_all || $i < $cur) {
+                $cls = ' is-done';
+            } elseif ($i === $cur) {
+                $cls = ' is-current';
+            } else {
+                $cls = '';
+            }
+            $html .= '<div class="offer-step' . $cls . '"><span class="offer-step-dot"></span><span class="offer-step-label">' . $label . '</span></div>';
+        }
+        $html .= '</div>';
+    }
+
+    $html .= '<div class="offer-card-actions">';
+
+    switch ($status) {
         case OrderStateMachine::CREATED:
-            if ($is_buyer) $html .= '<button onclick="updateOrderStatus('.$oid.', \'confirm_offer\')" class="btn-action btn-blue">✅ ยืนยันรับดีล</button>';
-            elseif ($is_seller) $html .= '<span class="status-wait">⏳ รอผู้ซื้อยืนยัน...</span>';
+            if ($is_buyer) {
+                $html .= '<button onclick="updateOrderStatus(' . $oid . ', \'confirm_offer\')" class="btn-action btn-blue">ยืนยันรับดีล</button>';
+            } elseif ($is_seller) {
+                $html .= '<div class="offer-note offer-note--wait">รอผู้ซื้อยืนยันดีล</div>';
+            }
             break;
+
         case OrderStateMachine::PENDING_PAYMENT:
-            if ($is_buyer) $html .= '<a href="buy_product.php?order_id='.$oid.'" class="btn-action btn-green">💳 ชำระเงิน (Escrow)</a>';
-            elseif ($is_seller) $html .= '<span class="status-wait">⏳ รอผู้ซื้อชำระเงิน...</span>';
+            if ($is_buyer) {
+                $html .= '<a href="buy_product.php?order_id=' . $oid . '" class="btn-action btn-green">ชำระเงินผ่าน Escrow</a>';
+            } elseif ($is_seller) {
+                $html .= '<div class="offer-note offer-note--wait">รอผู้ซื้อชำระเงิน</div>';
+            }
             break;
-            
 
         case OrderStateMachine::WAITING_VERIFY:
-            $html .= '<div style="color:#f39c12; font-size:12px; margin-bottom:8px; font-weight:bold;">⏳ รอตรวจสอบสลิปโอนเงิน</div>';
+            $html .= '<div class="offer-note offer-note--info">กำลังตรวจสอบสลิปโอนเงิน</div>';
             $slipUrl = !empty($ord['slip_image']) ? orderSlipUrl($ord['slip_image'], $oid) : '';
             if ($slipUrl !== '') {
                 $safeSlip = htmlspecialchars($slipUrl, ENT_QUOTES, 'UTF-8');
-                $html .= '<div style="margin:8px 0 10px;padding:8px;background:#fff8e6;border-radius:8px;border:1px solid #f0e0b2;">';
-                $html .= '<div style="font-size:11px;color:#666;margin-bottom:6px;">หลักฐานสลิปที่ผู้ซื้ออัปโหลด</div>';
-                $html .= '<a href="' . $safeSlip . '" target="_blank" rel="noopener">';
-                $html .= '<img src="' . $safeSlip . '" alt="สลิปโอนเงิน" style="max-width:min(220px,100%);border-radius:8px;display:block;border:1px solid #eee;">';
-                $html .= '</a>';
-                $html .= '<a href="' . $safeSlip . '" target="_blank" rel="noopener" class="btn-action btn-blue" style="margin-top:8px;display:inline-block;">🔍 เปิดดูสลิปเต็ม</a>';
+                $html .= '<div class="offer-slip-box">';
+                $html .= '<div class="offer-slip-label">หลักฐานสลิปที่ผู้ซื้ออัปโหลด</div>';
+                $html .= '<a href="' . $safeSlip . '" target="_blank" rel="noopener"><img src="' . $safeSlip . '" alt="สลิปโอนเงิน"></a>';
                 $html .= '</div>';
-            } else {
-                $html .= '<div style="font-size:12px;color:#c0392b;margin-bottom:8px;">ยังไม่พบไฟล์สลิปในระบบ</div>';
             }
             $sessionRole = strtolower((string) ($_SESSION['role'] ?? 'user'));
             if (in_array($sessionRole, ['admin', 'owner', 'finance'], true)) {
-                $html .= '<a href="admin/escrow_list.php" class="btn-action btn-orange">🛡️ ไปหน้าตรวจ Escrow (Admin)</a>';
+                $html .= '<a href="admin/escrow_list.php" class="btn-action btn-orange">ไปหน้าตรวจ Escrow (Admin)</a>';
             } elseif ($is_buyer) {
-                $html .= '<span class="status-wait">ระบบ/แอดมินกำลังตรวจสอบสลิปของคุณ</span>';
+                $html .= '<div class="offer-note offer-note--wait">ระบบกำลังตรวจสอบสลิปของคุณ</div>';
             } elseif ($is_seller) {
-                $html .= '<span class="status-wait">รอแอดมินยืนยันยอดเงิน</span>';
+                $html .= '<div class="offer-note offer-note--wait">รอแอดมินยืนยันยอดเงิน</div>';
             }
             break;
-            
-        
+
         case OrderStateMachine::PAID:
-            $html .= '<div style="color:#28a745; font-size:12px; margin-bottom:5px; font-weight:bold;">💰 ชำระเงินแล้ว (รอจัดส่ง)</div>';
-            if ($is_seller) $html .= '<button onclick="openTrackingModal('.$oid.')" class="btn-action btn-orange">📦 แจ้งเลขพัสดุ</button>';
-            elseif ($is_buyer) $html .= '<span class="status-wait">⏳ ผู้ขายกำลังจัดส่ง...</span>';
+            $html .= '<div class="offer-note offer-note--success">ชำระเงินแล้ว — เงินพักใน Escrow</div>';
+            if ($is_seller) {
+                $html .= '<button onclick="openTrackingModal(' . $oid . ')" class="btn-action btn-blue">แจ้งเลขพัสดุ</button>';
+            } elseif ($is_buyer) {
+                $html .= '<div class="offer-note offer-note--wait">ผู้ขายกำลังจัดส่ง</div>';
+            }
             break;
 
         case OrderStateMachine::SHIPPED:
             $courier_show = !empty($courier) ? $courier : 'ขนส่งเอกชน';
-            $html .= '<div style="background:#e3f2fd; padding:8px; font-size:12px; margin-bottom:5px; border-radius:4px; border-left: 3px solid #007bff; color:#333;">🚚 <b>จัดส่งแล้ว</b><br>📦 ' . $courier_show . '<br>🔖 <b>'.$tracking.'</b></div>';
-            $html .= '<button type="button" onclick="showTrackingTimeline('.$oid.')" class="btn-action btn-blue" style="margin-bottom:5px;">📍 ติดตามพัสดุ</button>';
+            $html .= '<div class="offer-ship-info">';
+            $html .= '<span class="material-symbols-outlined">local_shipping</span>';
+            $html .= '<div><strong>' . $courier_show . '</strong><span>' . $tracking . '</span></div>';
+            $html .= '</div>';
+            $html .= '<button type="button" onclick="showTrackingTimeline(' . $oid . ')" class="btn-action btn-ghost">ติดตามพัสดุ</button>';
             if ($is_buyer) {
-                $html .= '<button onclick="updateOrderStatus('.$oid.', \'complete_order\')" class="btn-action btn-green">✅ ได้รับสินค้าแล้ว</button>';
-                $html .= '<button type="button" onclick="chatOpenDispute('.$oid.')" class="btn-action btn-red">⚠️ เปิดข้อพิพาท</button>';
+                $html .= '<button onclick="updateOrderStatus(' . $oid . ', \'complete_order\')" class="btn-action btn-green">ได้รับสินค้าแล้ว</button>';
+                $html .= '<button type="button" onclick="chatOpenDispute(' . $oid . ')" class="btn-action btn-danger-ghost">เปิดข้อพิพาท</button>';
             } elseif ($is_seller) {
-                $html .= '<span class="status-wait">⏳ รอผู้ซื้อตรวจสอบ...</span>';
+                $html .= '<div class="offer-note offer-note--wait">รอผู้ซื้อตรวจสอบสินค้า</div>';
             }
             break;
+
         case OrderStateMachine::DISPUTE:
-            $html .= '<div style="color:#dc3545; font-size:12px; margin-bottom:8px; font-weight:bold;">⚠️ อยู่ระหว่างข้อพิพาท — เงินถูกระงับชั่วคราว</div>';
+            $html .= '<div class="offer-note offer-note--danger">อยู่ระหว่างข้อพิพาท — เงินถูกระงับชั่วคราว</div>';
             $disputeLink = 'my_disputes.php';
             global $conn;
             $disStmt = $conn->prepare("SELECT id FROM disputes WHERE order_id = ? LIMIT 1");
@@ -101,15 +142,18 @@ function renderOfferCard(array $ord, string $viewerUsername) {
                     $disputeLink = 'dispute_detail.php?dispute_id=' . (int)$disRow['id'];
                 }
             }
-            $html .= '<a href="' . $disputeLink . '" class="btn-action btn-blue">📋 ดูข้อพิพาท</a>';
+            $html .= '<a href="' . $disputeLink . '" class="btn-action btn-ghost">ดูข้อพิพาท</a>';
             break;
+
         case OrderStateMachine::COMPLETED:
-            $html .= '<div style="color:#28a745; font-weight:bold;">🎉 การซื้อขายสำเร็จ</div>';
+            $html .= '<div class="offer-note offer-note--success">การซื้อขายสำเร็จ — โอนเงินให้ผู้ขายแล้ว</div>';
             break;
+
         case OrderStateMachine::CANCELLED:
-            $html .= '<div style="color:red; font-weight:bold;">❌ ยกเลิกแล้ว</div>';
+            $html .= '<div class="offer-note offer-note--muted">ดีลนี้ถูกยกเลิกแล้ว</div>';
             break;
     }
+
     $html .= '</div></div></div>';
     return $html;
 }
@@ -144,16 +188,67 @@ if ($action == 'fetch') {
     $stmt->execute();
     $result = $stmt->get_result();
 
-    if ($result->num_rows == 0) echo '<div style="text-align:center; padding:20px; color:#ccc; margin-top:50px;">- เริ่มต้นบทสนทนา -</div>';
+    $rows = [];
+    while ($r = $result->fetch_assoc()) {
+        $rows[] = $r;
+    }
 
-    while ($row = $result->fetch_assoc()) {
+    if (count($rows) === 0) {
+        echo '<div class="chat-start-state">';
+        echo '<span class="material-symbols-outlined">waving_hand</span>';
+        echo '<p>เริ่มต้นบทสนทนา — ทักทายอีกฝ่ายได้เลย</p>';
+        echo '</div>';
+    }
+
+    $thaiMonths = ['', 'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+    $todayKey = date('Y-m-d');
+    $yesterdayKey = date('Y-m-d', strtotime('-1 day'));
+    $currentDateKey = '';
+    $groupWindow = 300; // seconds — same sender within 5 min = one visual group
+
+    foreach ($rows as $i => $row) {
         $is_me = ($row['sender_name'] == $me);
         $msg_text = $row['message'];
+        $ts = !empty($row['created_at']) ? (strtotime($row['created_at']) ?: 0) : 0;
+        $dateKey = $ts ? date('Y-m-d', $ts) : '';
 
-        echo '<div class="msg-row ' . ($is_me ? 'msg-me' : 'msg-partner') . '">';
+        if ($dateKey !== '' && $dateKey !== $currentDateKey) {
+            if ($dateKey === $todayKey) {
+                $dateLabel = 'วันนี้';
+            } elseif ($dateKey === $yesterdayKey) {
+                $dateLabel = 'เมื่อวาน';
+            } else {
+                $dateLabel = date('j', $ts) . ' ' . $thaiMonths[(int) date('n', $ts)] . ' ' . date('Y', $ts);
+            }
+            echo '<div class="chat-date-sep"><span>' . $dateLabel . '</span></div>';
+            $currentDateKey = $dateKey;
+        }
+
+        $prev = $rows[$i - 1] ?? null;
+        $prevTs = ($prev && !empty($prev['created_at'])) ? (strtotime($prev['created_at']) ?: 0) : 0;
+        $groupedWithPrev = $prev
+            && $prev['sender_name'] === $row['sender_name']
+            && $ts && $prevTs
+            && ($ts - $prevTs) < $groupWindow
+            && date('Y-m-d', $prevTs) === $dateKey;
+
+        $next = $rows[$i + 1] ?? null;
+        $nextTs = ($next && !empty($next['created_at'])) ? (strtotime($next['created_at']) ?: 0) : 0;
+        $groupedWithNext = $next
+            && $next['sender_name'] === $row['sender_name']
+            && $ts && $nextTs
+            && ($nextTs - $ts) < $groupWindow
+            && date('Y-m-d', $nextTs) === $dateKey;
+
+        $timeHtml = ($ts && !$groupedWithNext)
+            ? '<div class="msg-time">' . date('H:i', $ts) . '</div>'
+            : '';
+
+        echo '<div class="msg-row ' . ($is_me ? 'msg-me' : 'msg-partner') . ($groupedWithPrev ? ' msg-row--grouped' : '') . '">';
+        echo '<div class="msg-stack">';
         if (!empty($row['image_path'])) {
              $chatImg = htmlspecialchars(chatImageUrl($row['image_path']), ENT_QUOTES, 'UTF-8');
-             echo '<div class="msg-bubble"><img src="'.$chatImg.'" style="max-width:200px; border-radius:8px;"></div>';
+             echo '<div class="msg-bubble msg-bubble--image"><a href="'.$chatImg.'" target="_blank" rel="noopener"><img src="'.$chatImg.'" alt="รูปภาพในแชท" loading="lazy"></a></div>';
         } elseif (strpos($msg_text, '[PRODUCT:') !== false && preg_match('/\[PRODUCT:(\d+)\]/', $msg_text, $matches)) {
             $productModel = new Product($conn);
             $product = $productModel->getById((int) $matches[1]);
@@ -180,6 +275,8 @@ if ($action == 'fetch') {
                 }
             }
         }
+        echo $timeHtml;
+        echo '</div>';
         echo '</div>';
     }
 

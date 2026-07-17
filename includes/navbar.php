@@ -9,12 +9,15 @@ $is_app_shell = !empty($use_app_shell);
 
 
 $support_unread = 0;
+$chat_unread = 0;
 
 if ($is_logged_in && isset($conn) && isset($_SESSION['user'])) {
 
     require_once __DIR__ . '/support_chat.php';
+    require_once __DIR__ . '/NotificationService.php';
 
     $support_unread = getSupportUnreadCount($conn, $_SESSION['user']);
+    $chat_unread = NotificationService::getUnreadChatCount($conn, $_SESSION['user']);
 
 }
 
@@ -64,11 +67,9 @@ if ($is_logged_in && isset($conn) && isset($_SESSION['user'])) {
 
                     <span class="nav-tab-badge"><?php echo (int) $support_unread; ?></span>
 
-                <?php elseif (isset($chat_count) && $chat_count > 0): ?>
-
-                    <span class="nav-dot"></span>
-
                 <?php endif; ?>
+
+                <span class="nav-dot nav-chat-dot" data-chat-dot aria-hidden="true"<?php echo $chat_unread > 0 ? '' : ' style="display:none;"'; ?>></span>
 
             </button>
 

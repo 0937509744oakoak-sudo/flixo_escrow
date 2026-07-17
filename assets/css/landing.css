@@ -93,7 +93,7 @@
     font-size: 17px;
     font-weight: 700;
     padding: 0 32px;
-    box-shadow: 0 10px 28px rgba(0, 80, 203, 0.3);
+    box-shadow: 0 8px 20px -8px rgba(0, 80, 203, 0.45);
 }
 
 .landing-cta-secondary {
@@ -148,9 +148,9 @@
     flex-direction: column;
     gap: 6px;
     padding: 18px 16px;
-    background: #fff;
-    border: 1px solid rgba(194, 198, 216, 0.45);
-    border-radius: 16px;
+    background: var(--flixo-card-bg, #fff);
+    border: 1px solid var(--flixo-hairline);
+    border-radius: var(--flixo-radius);
 }
 
 .landing-step-num {
@@ -201,9 +201,9 @@
     flex-direction: column;
     gap: 6px;
     padding: 18px 16px;
-    background: #fff;
-    border: 1px solid rgba(194, 198, 216, 0.45);
-    border-radius: 16px;
+    background: var(--flixo-card-bg, #fff);
+    border: 1px solid var(--flixo-hairline);
+    border-radius: var(--flixo-radius);
     border-left: 3px solid var(--flixo-primary, #0050cb);
 }
 
@@ -248,9 +248,9 @@
     flex-direction: column;
     gap: 6px;
     padding: 18px 16px;
-    background: #fff;
+    background: var(--flixo-card-bg, #fff);
     border: 1px solid rgba(183, 28, 28, 0.12);
-    border-radius: 16px;
+    border-radius: var(--flixo-radius);
     border-left: 3px solid #c62828;
 }
 

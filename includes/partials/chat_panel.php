@@ -17,6 +17,13 @@ $support_username = $support_username ?? (defined('SUPPORT_USERNAME') ? SUPPORT_
      id="chat-page-root"
      data-support-user="<?php echo htmlspecialchars($support_username, ENT_QUOTES, 'UTF-8'); ?>">
     <aside class="chat-sidebar" aria-label="รายการแชท">
+        <div class="chat-sidebar-head">
+            <h2>ข้อความ</h2>
+            <span class="chat-sidebar-shield" title="ทุกดีลคุ้มครองด้วย Escrow">
+                <span class="material-symbols-outlined">verified_user</span>
+                Escrow
+            </span>
+        </div>
         <div class="chat-sidebar-search">
             <div class="chat-sidebar-search-wrap">
                 <span class="material-symbols-outlined">search</span>
@@ -76,7 +83,12 @@ $support_username = $support_username ?? (defined('SUPPORT_USERNAME') ? SUPPORT_
                     </div>
                     <div class="chat-partner-meta">
                         <h2 id="chat-title"><?php echo $has_partner ? (strcasecmp($chat_partner, $support_username) === 0 ? 'ทีมงาน FLIXO' : htmlspecialchars($partner_display)) : ''; ?></h2>
-                        <p><?php echo ($has_partner && strcasecmp($chat_partner, $support_username) === 0) ? 'ช่วยเหลือบัญชี • eKYC • ข่าวสาร' : 'คู่สัญญา • พร้อมสนทนา'; ?></p>
+                        <p>
+                            <span class="chat-partner-badge">
+                                <span class="material-symbols-outlined">verified_user</span>
+                                <?php echo ($has_partner && strcasecmp($chat_partner, $support_username) === 0) ? 'ทีมงานอย่างเป็นทางการ' : 'คุ้มครองด้วย Escrow'; ?>
+                            </span>
+                        </p>
                     </div>
                 </div>
                 <div class="chat-header-actions">
@@ -116,7 +128,10 @@ $support_username = $support_username ?? (defined('SUPPORT_USERNAME') ? SUPPORT_
                         <span class="material-symbols-outlined">send</span>
                     </button>
                 </div>
-                <p class="chat-compose-note">เงินถูกเก็บใน Escrow จนกว่าจะได้รับของ — ไม่ต้องโอนให้คนแปลกหน้าโดยตรง</p>
+                <p class="chat-compose-note">
+                    <span class="material-symbols-outlined">lock</span>
+                    เงินถูกเก็บใน Escrow จนกว่าจะได้รับของ — ไม่ต้องโอนให้คนแปลกหน้าโดยตรง
+                </p>
             </footer>
         </div>
     </main>

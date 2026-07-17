@@ -11,7 +11,32 @@
     --flixo-inverse-on: #eaf1ff;
     --flixo-tertiary: #006645;
     --flixo-error: #ba1a1a;
-    --flixo-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+
+    /* Surfaces & borders — calmer, hairline look */
+    --flixo-card-bg: #ffffff;
+    --flixo-hairline: rgba(15, 28, 48, 0.08);
+    --flixo-muted-bg: #f4f6fb;
+
+    /* Elevation scale (kept subtle to reduce visual noise) */
+    --flixo-shadow: 0 1px 2px rgba(15, 28, 48, 0.04);
+    --flixo-shadow-sm: 0 1px 2px rgba(15, 28, 48, 0.04);
+    --flixo-shadow-md: 0 4px 16px -6px rgba(15, 28, 48, 0.12);
+    --flixo-shadow-lg: 0 12px 32px -12px rgba(15, 28, 48, 0.18);
+
+    /* Radius scale */
+    --flixo-radius-sm: 10px;
+    --flixo-radius: 14px;
+    --flixo-radius-lg: 18px;
+    --flixo-radius-pill: 999px;
+
+    /* Spacing scale (4px base) */
+    --flixo-space-1: 4px;
+    --flixo-space-2: 8px;
+    --flixo-space-3: 12px;
+    --flixo-space-4: 16px;
+    --flixo-space-5: 20px;
+    --flixo-space-6: 24px;
+    --flixo-space-8: 32px;
 }
 
 .flixo-app {
@@ -391,22 +416,22 @@
 }
 
 .glass-card {
-    border-radius: 20px;
+    border-radius: var(--flixo-radius);
     padding: 24px;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--flixo-shadow-sm);
 }
 
 .glass-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+    box-shadow: var(--flixo-shadow-md);
 }
 
 .glass-card {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(194, 198, 216, 0.35);
-    border-radius: 16px;
+    border: 1px solid var(--flixo-hairline);
+    border-radius: var(--flixo-radius);
     padding: 20px;
     text-align: center;
     cursor: pointer;
@@ -604,7 +629,7 @@
 }
 
 .app-view > * + * {
-    margin-top: 20px;
+    margin-top: 16px;
 }
 
 .app-view--chat > * + * {
@@ -617,16 +642,40 @@
     margin-top: 0;
 }
 
+/* แท็บแชท = layout สูงเต็มจอ ห้ามมี padding/แถบอื่นดันจนทับซ้อน */
+html.flixo-chat-active,
 body.flixo-chat-active {
+    overflow: hidden;
+    height: 100%;
+    padding-bottom: 0 !important;
+    margin: 0;
+}
+
+body.flixo-chat-active .flixo-app {
+    padding-bottom: 0;
+    min-height: 0;
+    height: calc(100vh - var(--flixo-nav-h, 67px));
+    height: calc(100dvh - var(--flixo-nav-h, 67px));
     overflow: hidden;
 }
 
+body.flixo-chat-active .flixo-main--chat,
+body.flixo-chat-active #app-views,
+body.flixo-chat-active #view-chat {
+    height: 100%;
+    overflow: hidden;
+}
+
+body.flixo-chat-active .staff-admin-portal {
+    display: none;
+}
+
 .flixo-card {
-    background: #fff;
-    border: 1px solid rgba(194, 198, 216, 0.35);
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: var(--flixo-shadow);
+    background: var(--flixo-card-bg);
+    border: 1px solid var(--flixo-hairline);
+    border-radius: var(--flixo-radius);
+    padding: 20px;
+    box-shadow: var(--flixo-shadow-sm);
     transition: background 0.3s, border-color 0.3s;
 }
 
@@ -918,6 +967,21 @@ body.flixo-chat-active {
 .profile-hero-card {
     text-align: center;
     padding: 32px 24px;
+}
+
+/* Profile: lay secondary cards in a responsive grid so wide screens
+   don't produce one endless single column. */
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    align-items: start;
+}
+
+@media (min-width: 900px) {
+    .profile-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 .profile-avatar-lg {
@@ -1735,6 +1799,9 @@ body.flixo-chat-active {
 /* Orders tab — simplified */
 .orders-tab-card {
     padding-bottom: 8px;
+    max-width: 880px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .orders-tab-header {
@@ -1789,117 +1856,209 @@ body.flixo-chat-active {
     color: var(--flixo-primary);
 }
 
-.order-tab-item {
-    padding: 14px 16px;
-    border-radius: 14px;
-    background: #f8f9fc;
-    border: 1px solid rgba(194, 198, 216, 0.35);
+.order-row {
+    border-radius: var(--flixo-radius);
+    background: var(--flixo-muted-bg);
+    border: 1px solid var(--flixo-hairline);
     margin-bottom: 10px;
+    overflow: hidden;
 }
 
-.order-tab-item.is-action {
+.order-row.is-action {
     background: #fff;
-    border-color: rgba(0, 80, 203, 0.25);
-    box-shadow: 0 2px 12px rgba(0, 80, 203, 0.06);
+    border-color: rgba(0, 80, 203, 0.3);
+    box-shadow: 0 2px 12px rgba(0, 80, 203, 0.07);
 }
 
-.order-tab-item-top {
+.order-row.is-done {
+    opacity: 0.75;
+}
+
+.order-row-main {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px 12px;
+}
+
+.order-row-thumb {
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    object-fit: cover;
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid var(--flixo-hairline);
+}
+
+.order-row-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.order-row-topline {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 3px;
 }
 
-.order-tab-role {
-    font-size: 11px;
+.order-row-role {
+    font-size: 10px;
     font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 6px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    flex-shrink: 0;
 }
 
-.order-tab-role--buy {
+.order-row-role--buy {
     background: rgba(0, 80, 203, 0.1);
     color: var(--flixo-primary);
 }
 
-.order-tab-role--sell {
+.order-row-role--sell {
     background: rgba(0, 100, 69, 0.1);
     color: var(--flixo-tertiary);
 }
 
-.order-tab-item-main {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
+.order-row-sub {
+    font-size: 11px;
+    color: var(--flixo-on-surface-variant);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.order-tab-title {
+.order-row-title {
     font-weight: 700;
     font-size: 15px;
     line-height: 1.35;
-    margin-bottom: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.order-tab-meta {
+.order-row-meta {
     font-size: 12px;
     color: var(--flixo-on-surface-variant);
+    margin-top: 2px;
 }
 
-.order-tab-hint {
-    font-size: 12px;
-    color: var(--flixo-primary);
-    margin-top: 6px;
-    font-weight: 500;
+.order-row-side {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
 }
 
-.order-tab-amount {
+.order-row-amount {
     font-family: 'Hanken Grotesk', sans-serif;
     font-weight: 700;
-    font-size: 16px;
+    font-size: 15px;
     color: var(--flixo-primary);
     white-space: nowrap;
 }
 
-.order-tab-actions {
-    margin-top: 12px;
+.order-row-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 8px 16px;
+    border-top: 1px dashed var(--flixo-hairline);
+}
+
+.order-row-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--flixo-on-surface-variant);
+    min-width: 0;
+}
+
+.order-row-hint .material-symbols-outlined {
+    font-size: 16px;
+}
+
+.order-row-hint--action {
+    color: var(--flixo-primary);
+    font-weight: 600;
+}
+
+.order-row-btns {
     display: flex;
     align-items: center;
     gap: 8px;
     flex-wrap: wrap;
+    margin-left: auto;
 }
 
-.order-tab-btn {
-    padding: 8px 16px !important;
+.order-row-btn {
+    padding: 7px 14px !important;
     font-size: 13px !important;
     min-height: auto !important;
+    text-decoration: none;
 }
 
-.order-tab-btn-dispute {
+.order-row-btn-dispute {
     color: #dc2626 !important;
     border-color: #fecaca !important;
 }
 
-.order-tab-btn-dispute:hover {
+.order-row-btn-dispute:hover {
     background: #fef2f2 !important;
     border-color: #f87171 !important;
 }
 
-.order-tab-chat {
-    display: inline-flex !important;
+.order-row-chat {
+    display: inline-flex;
     align-items: center;
-    gap: 4px;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--flixo-hairline);
+    background: transparent;
+    color: var(--flixo-on-surface-variant);
     text-decoration: none;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
 
-.order-tab-chat .material-symbols-outlined {
-    font-size: 16px;
+.order-row-chat:hover {
+    border-color: var(--flixo-primary);
+    color: var(--flixo-primary);
+    background: rgba(0, 80, 203, 0.06);
 }
 
-.order-tab-wait,
-.order-tab-done {
-    font-size: 12px;
+.order-row-chat .material-symbols-outlined {
+    font-size: 18px;
+}
+
+@media (max-width: 560px) {
+    .order-row-main {
+        padding: 12px 12px 10px;
+    }
+
+    .order-row-thumb {
+        width: 44px;
+        height: 44px;
+    }
+
+    .order-row-foot {
+        padding: 10px 12px;
+    }
+
+    .order-row-side .pill-success,
+    .order-row-side .pill-progress,
+    .order-row-side .pill-muted,
+    .order-row-side .pill-warning,
+    .order-row-side .pill-alert {
+        font-size: 9px;
+        padding: 2px 8px;
+    }
 }
 
 .orders-empty-cta {
@@ -1945,14 +2104,31 @@ body.flixo-chat-active {
     border-color: rgba(255, 255, 255, 0.12);
 }
 
-[data-theme="dark"] .order-tab-item {
+[data-theme="dark"] .order-row {
     background: rgba(255, 255, 255, 0.04);
     border-color: rgba(255, 255, 255, 0.08);
 }
 
-[data-theme="dark"] .order-tab-item.is-action {
+[data-theme="dark"] .order-row.is-action {
     background: rgba(255, 255, 255, 0.06);
     border-color: rgba(179, 197, 255, 0.25);
+}
+
+[data-theme="dark"] .order-row-thumb {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .order-row-hint--action {
+    color: #b3c5ff;
+}
+
+[data-theme="dark"] .order-row-amount {
+    color: #b3c5ff;
+}
+
+[data-theme="dark"] .order-row-chat {
+    border-color: rgba(255, 255, 255, 0.15);
 }
 
 /* Product detail page */
@@ -1994,8 +2170,8 @@ body.flixo-chat-active {
 }
 
 .product-detail-gallery {
-    background: #f3f4f8;
-    border-radius: 16px;
+    background: var(--flixo-muted-bg);
+    border-radius: var(--flixo-radius);
     overflow: hidden;
     aspect-ratio: 1;
 }
@@ -2077,8 +2253,8 @@ body.flixo-chat-active {
     align-items: center;
     gap: 12px;
     padding: 14px;
-    background: #f3f4f8;
-    border-radius: 12px;
+    background: var(--flixo-muted-bg);
+    border-radius: var(--flixo-radius);
     margin-bottom: 20px;
 }
 
@@ -2086,8 +2262,8 @@ body.flixo-chat-active {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
-    background: #fff;
-    border: 1px solid rgba(194, 198, 216, 0.5);
+    background: var(--flixo-card-bg);
+    border: 1px solid var(--flixo-hairline);
 }
 
 .product-seller-head {
@@ -2391,11 +2567,11 @@ body.flixo-chat-active {
 }
 
 .sell-form-card {
-    background: #fff;
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    border-radius: 24px;
+    background: var(--flixo-card-bg);
+    border: 1px solid var(--flixo-hairline);
+    border-radius: var(--flixo-radius-lg);
     padding: 24px;
-    box-shadow: 0 4px 20px -2px rgba(0, 80, 203, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    box-shadow: var(--flixo-shadow-sm);
 }
 
 [data-theme="dark"] .sell-form-card {

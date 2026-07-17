@@ -42,6 +42,7 @@ switch ($action) {
         echo json_encode([
             'status' => 'success',
             'count' => NotificationService::getUnreadCount($conn, $me),
+            'chat_count' => NotificationService::getUnreadChatCount($conn, $me),
         ], JSON_UNESCAPED_UNICODE);
         break;
 

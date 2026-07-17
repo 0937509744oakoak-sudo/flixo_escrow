@@ -94,7 +94,13 @@ function openChat(partner) {
         chatBody.innerHTML = '<div class="chat-loading"><div class="chat-loading-spinner"></div><p>กำลังโหลดข้อความ...</p></div>';
     }
 
-    fetchMessages();
+    // Opening a room marks its chat notifications read server-side; refresh the
+    // nav unread dot once the fetch round-trip completes.
+    fetchMessages().then(function () {
+        if (typeof window.flixoRefreshNotifCounts === 'function') {
+            window.flixoRefreshNotifCounts();
+        }
+    });
 
     // Real-time updates via SSE (replaces the old 3s setInterval polling).
     startChatStream(partner);
@@ -167,14 +173,14 @@ function pollingFallback(partner) {
 }
 
 function fetchMessages() {
-    if (!currentPartner) return;
+    if (!currentPartner) return Promise.resolve();
 
     const formData = new FormData();
     formData.append('action', 'fetch');
     formData.append('partner', currentPartner);
     appendCsrfToken(formData);
 
-    chatFetch(formData)
+    return chatFetch(formData)
         .then(response => response.text())
         .then(data => {
             const body = document.getElementById('chat-body');
@@ -706,9 +712,16 @@ function syncSupportChatUI() {
 
     const note = document.querySelector('.chat-compose-note');
     if (note) {
-        note.textContent = isSupport
+        const noteText = isSupport
             ? 'แชทกับทีมงาน FLIXO — ถามเรื่องบัญชี eKYC หรือปัญหาการใช้งานได้เลย'
             : 'เงินถูกเก็บใน Escrow จนกว่าจะได้รับของ — ไม่ต้องโอนให้คนแปลกหน้าโดยตรง';
+        note.innerHTML = '<span class="material-symbols-outlined">lock</span>' + noteText;
+    }
+
+    const partnerBadge = document.querySelector('.chat-partner-badge');
+    if (partnerBadge) {
+        const badgeText = isSupport ? 'ทีมงานอย่างเป็นทางการ' : 'คุ้มครองด้วย Escrow';
+        partnerBadge.innerHTML = '<span class="material-symbols-outlined">verified_user</span>' + badgeText;
     }
 
     const chatTitle = document.getElementById('chat-title');
@@ -845,6 +858,6 @@ document.addEventListener('click', function (e) {
     if (!(t instanceof Element)) return;
     if (t.closest('.super-chat-modal') || t.closest('#flixo-dispute-overlay')) return;
     // คลิกที่ปุ่มในแชท (เช่น ติดตามพัสดุ) ไม่ให้ปิดทันทีก่อนเปิด
-    if (t.closest('.btn-action') || t.closest('.order-tab-btn')) return;
+    if (t.closest('.btn-action') || t.closest('.order-row-btn')) return;
     closeAllModals();
 });
