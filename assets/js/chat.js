@@ -857,7 +857,11 @@ document.addEventListener('click', function (e) {
     const t = e.target;
     if (!(t instanceof Element)) return;
     if (t.closest('.super-chat-modal') || t.closest('#flixo-dispute-overlay')) return;
-    // คลิกที่ปุ่มในแชท (เช่น ติดตามพัสดุ) ไม่ให้ปิดทันทีก่อนเปิด
-    if (t.closest('.btn-action') || t.closest('.order-row-btn')) return;
+    // ปุ่มที่เปิดโมดัล — อย่าปิดในคลิกเดียวกับที่เปิด (event bubble)
+    if (
+        t.closest('.btn-action')
+        || t.closest('.order-row-btn')
+        || t.closest('.chat-action-btn')
+    ) return;
     closeAllModals();
 });
