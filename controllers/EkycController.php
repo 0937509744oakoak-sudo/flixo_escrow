@@ -46,6 +46,7 @@ try {
             'status' => 'success',
             'provider' => EkycService::activeProvider(),
             'sumsub_configured' => EkycService::isSumsubConfigured(),
+            'aigen_configured' => EkycService::isAigenConfigured(),
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }

@@ -426,8 +426,25 @@ if ($action == 'create_offer') {
         exit();
     }
 
-   
-    $oid = $orderModel->createOffer($partner, $me, $item, $price);
+    $itemImage = '';
+    if (isset($_FILES['offer_image']) && ($_FILES['offer_image']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
+        try {
+            $itemImage = secureUploadCloud(
+                $_FILES['offer_image'],
+                'products',
+                flixoUploadsSubdir('products'),
+                5242880,
+                true
+            );
+        } catch (Throwable $uploadError) {
+            error_log('ChatController create_offer: image upload failed — ' . $uploadError->getMessage());
+            http_response_code(400);
+            echo $uploadError->getMessage();
+            exit();
+        }
+    }
+
+    $oid = $orderModel->createOffer($partner, $me, $item, $price, 0, $itemImage);
     
     if ($oid) {
         $code = "[OFFER:$oid]";

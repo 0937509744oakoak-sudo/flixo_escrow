@@ -13,7 +13,7 @@ include 'layout_head.php';
         <div class="admin-topbar">
             <div>
                 <h1>🪪 eKYC Session Logs</h1>
-                <p>ประวัติการยืนยันตัวตนผ่าน Sumsub และระบบ eKYC</p>
+                <p>ประวัติการยืนยันตัวตนผ่าน AiGen / Sumsub และระบบ eKYC</p>
             </div>
         </div>
 

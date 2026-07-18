@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FLIXO — User Flow Presentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b1220;
+    --panel: #121a2b;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --good: #34d399;
+    --warn: #fbbf24;
+    --danger: #f87171;
+    --line: #243044;
+    --base: "http://localhost/flixo_escrow";
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Sarabun", "Segoe UI", sans-serif;
+    overflow: hidden;
+  }
+  .deck { height: 100%; }
+  .slide {
+    display: none;
+    height: 100%;
+    padding: 28px 28px 72px;
+    gap: 22px;
+  }
+  .slide.active { display: grid; animation: fade .25s ease; }
+  .slide.solo {
+    grid-template-columns: 1fr;
+    align-content: center;
+    justify-items: start;
+    padding-left: 64px;
+    padding-right: 64px;
+  }
+  .slide.split { grid-template-columns: minmax(320px, 42%) 1fr; }
+  @media (max-width: 980px) {
+    .slide.split { grid-template-columns: 1fr; }
+    .preview { min-height: 42vh; }
+  }
+  @keyframes fade {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+  }
+  .eyebrow { color: var(--accent); font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  h1 { font-size: clamp(2rem, 4vw, 3rem); line-height: 1.25; margin-bottom: 14px; }
+  h2 { font-size: clamp(1.35rem, 2.4vw, 1.9rem); line-height: 1.3; margin-bottom: 10px; }
+  h3 { font-size: 1.05rem; color: var(--good); margin: 14px 0 8px; }
+  .lead { color: var(--muted); font-size: 1.1rem; line-height: 1.65; max-width: 760px; }
+  .copy { overflow: auto; padding-right: 6px; }
+  .principle {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-left: 4px solid var(--accent);
+    background: rgba(56,189,248,.08);
+    border-radius: 0 10px 10px 0;
+    line-height: 1.55;
+    font-size: 1rem;
+  }
+  ul.clean { list-style: none; margin-top: 8px; }
+  ul.clean li {
+    position: relative;
+    padding-left: 18px;
+    margin: 7px 0;
+    line-height: 1.45;
+    color: #e2e8f0;
+    font-size: .98rem;
+  }
+  ul.clean li::before {
+    content: "";
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    position: absolute; left: 0; top: .55em;
+  }
+  ol.steps { list-style: none; counter-reset: s; margin-top: 8px; }
+  ol.steps li {
+    counter-increment: s;
+    display: flex; gap: 10px;
+    margin: 8px 0;
+    font-size: .98rem;
+    line-height: 1.45;
+  }
+  ol.steps li::before {
+    content: counter(s);
+    flex: 0 0 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--accent); color: #082f49;
+    font-weight: 700; font-size: .85rem;
+    display: grid; place-items: center; margin-top: 1px;
+  }
+  .qa { margin-top: 10px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .qa .q { background: rgba(251,191,36,.1); color: var(--warn); padding: 8px 12px; font-weight: 700; font-size: .92rem; }
+  .qa .a { padding: 8px 12px; color: #e2e8f0; line-height: 1.5; font-size: .95rem; }
+  .kbd { color: var(--warn); font-weight: 700; }
+  .good { color: var(--good); font-weight: 700; }
+  .bad { color: var(--danger); font-weight: 700; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 12px; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px;
+  }
+  .card strong { display: block; margin-bottom: 4px; }
+  .card p { color: var(--muted); font-size: .9rem; line-height: 1.4; }
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
+  .flow span {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: .92rem;
+  }
+  .flow .arrow { border: 0; background: transparent; color: var(--accent); padding: 0; }
+  table.score { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: .9rem; }
+  table.score th, table.score td { border-bottom: 1px solid var(--line); padding: 7px 6px; text-align: left; }
+  table.score th { color: var(--muted); }
+
+  /* browser preview frame */
+  .preview {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: #020617;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,.35);
+  }
+  .chrome {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #1e293b;
+    border-bottom: 1px solid var(--line);
+  }
+  .dots { display: flex; gap: 6px; }
+  .dots i { width: 10px; height: 10px; border-radius: 50%; display: block; }
+  .dots i:nth-child(1) { background: #f87171; }
+  .dots i:nth-child(2) { background: #fbbf24; }
+  .dots i:nth-child(3) { background: #34d399; }
+  .urlbar {
+    flex: 1;
+    background: #0f172a;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 6px 10px;
+    color: var(--muted);
+    font-size: .82rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .preview-actions { display: flex; gap: 6px; }
+  .preview-actions button, .preview-actions a {
+    border: 1px solid var(--line);
+    background: #0f172a;
+    color: var(--text);
+    border-radius: 7px;
+    padding: 5px 9px;
+    font-size: .78rem;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: inherit;
+  }
+  .preview-actions button:hover, .preview-actions a:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .viewport {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    background: #020617;
+  }
+  .viewport img, .viewport iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #fff;
+  }
+  .viewport img {
+    object-fit: contain;
+    object-position: top center;
+    background: #f8fafc;
+  }
+  .viewport.live img { display: none; }
+  .viewport.shot iframe { display: none; }
+  .badge-live {
+    position: absolute;
+    top: 12px; right: 12px;
+    z-index: 3;
+    background: rgba(15,23,42,.88);
+    color: var(--good);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: .75rem;
+    font-weight: 700;
+  }
+  .note {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: .82rem;
+  }
+
+  .footer-bar {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 18px;
+    background: rgba(11,18,32,.95);
+    border-top: 1px solid var(--line);
+    z-index: 30;
+  }
+  .progress {
+    position: absolute; left: 0; top: 0; height: 3px;
+    background: var(--accent); width: 0; transition: width .2s ease;
+  }
+  .hint { color: var(--muted); font-size: .85rem; }
+  .nav-btns { display: flex; gap: 8px; }
+  button.nav {
+    background: #1e293b; color: var(--text);
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 8px 12px; cursor: pointer; font-family: inherit;
+  }
+  button.nav:hover { border-color: var(--accent); color: var(--accent); }
+  .base-edit {
+    display: flex; gap: 6px; align-items: center;
+  }
+  .base-edit input {
+    width: 220px;
+    background: #0f172a;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: .75rem;
+  }
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+  <!-- 0 cover -->
+  <section class="slide solo active">
+    <p class="eyebrow">FLIXO Escrow Marketplace</p>
+    <h1>ระบบซื้อขายมือสอง<br>แบบพักเงินกลาง</h1>
+    <p class="lead">พรีเซ็นฝั่งผู้ใช้ทั่วไป (User View)<br>ตั้งแต่หน้าแรก จนจบหนึ่งรอบ — พร้อมหน้าจอจริงของระบบ</p>
+    <div class="principle">
+      หลักการทั้งระบบ:<br>
+      <span class="good">เงินของผู้ซื้อพักไว้ตรงกลางก่อน ผู้ขายถอนไม่ได้ จนกว่าผู้ซื้อจะกดยืนยันว่าได้รับของแล้ว</span>
+    </div>
+  </section>
+
+  <!-- 1 overview -->
+  <section class="slide solo">
+    <p class="eyebrow">ภาพรวม</p>
+    <h2>เส้นทางที่เราจะพาดูวันนี้</h2>
+    <div class="flow">
+      <span>หน้าแรก</span><span class="arrow">→</span>
+      <span>สินค้า</span><span class="arrow">→</span>
+      <span>สมัคร/ล็อกอิน</span><span class="arrow">→</span>
+      <span>ลงขาย</span><span class="arrow">→</span>
+      <span>ชำระเงิน</span>
+    </div>
+    <div class="flow">
+      <span>ออเดอร์</span><span class="arrow">→</span>
+      <span>แชท+ตรวจข้อความ</span><span class="arrow">→</span>
+      <span>รีวิว</span><span class="arrow">→</span>
+      <span>ถอนเงิน</span><span class="arrow">→</span>
+      <span>ข้อพิพาท</span>
+    </div>
+    <div class="principle">แต่ละหน้าจะมีทั้งคำอธิบาย + หลักการทำงาน + หน้าจอจริงด้านขวา</div>
+  </section>
+
+  <!-- 2 index -->
+  <section class="slide split" data-page="index.php" data-shot="slides/01-index.png">
+    <div class="copy">
+      <p class="eyebrow">หน้า 1</p>
+      <h2>หน้าแรก (Landing)</h2>
+      <h3>สิ่งที่เห็น</h3>
+      <ul class="clean">
+        <li>จุดขายระบบพักเงินกลาง</li>
+        <li>ใช้งาน 3 ขั้นตอน</li>
+        <li>กฎเหล็กความปลอดภัย</li>
+        <li>รายการสินค้า + ค้นหา/กรอง</li>
+      </ul>
+      <h3>หลักการทำงาน</h3>
+      <ol class="steps">
+        <li>เปิดเว็บได้โดยไม่ต้องล็อกอิน</li>
+        <li>ดึงสินค้าที่เปิดขายจากฐานข้อมูล</li>
+        <li>ค้นหา/กรอง แล้วแสดงทีละหน้า</li>
+      </ol>
+      <div class="qa">
+        <div class="q">ทำไมไม่บังคับล็อกอินก่อน?</div>
+        <div class="a">ให้ดูของได้เหมือนเดินตลาดจริง สมัครตอนพร้อมซื้อ</div>
+      </div>
+    </div>
+    <div class="preview" data-preview></div>
+  </section>
+
+  <!-- 3 product -->
+  <section class="slide split" data-page="product.php?id=1" data-shot="slides/02-product.png">
+    <div class="copy">
+      <p class="eyebrow">หน้า 2</p>
+      <h2>รายละเอียดสินค้า</h2>
+      <h3>สิ่งที่เห็น</h3>
+      <ul class="clean">
+        <li>รูป / ราคา / รายละเอียด</li>
+        <li>คะแนนและความน่าเชื่อถือผู้ขาย</li>
+        <li>ปุ่มซื้อ และปุ่มแชท</li>
+      </ul>
+      <h3>เมื่อกดซื้อ</h3>
+      <ol class="steps">
+        <li>ตรวจว่าล็อกอินแล้วหรือยัง</li>
+        <li>กันซื้อสินค้าของตัวเอง</li>
+        <li>สร้าง <span class="kbd">Order (ออ-เดอร์)</span> สถานะรอชำระเงิน</li>
+        <li>แจ้งเตือนผู้ขาย แล้วไปหน้าชำระเงิน</li>
+      </ol>
+      <div class="qa">
+        <div class="q">ตอนกดซื้อมีเงินเข้าเลยไหม?</div>
+        <div class="a">ยังไม่มี — ตอนนี้แค่จองดีล</div>
+      </div>
+    </div>
+    <div class="preview" data-preview></div>
+  </section>
+
+  <!-- 4 register -->
+  <section class="slide split" data-page="register.php" data-shot="slides/03-register.png">
+    <div class="copy">
+      <p class="eyebrow">หน้า 3</p>
+      <h2>สมัครสมาชิก</h2>
+      <h3>หลักการทำงาน</h3>
+      <ol class="steps">
+        <li>ตรวจข้อมูลและกันอีเมลซ้ำ</li>
+        <li>เข้ารหัสรหัสผ่านก่อนบันทึก</li>
+        <li>บันทึกการยินยอมแยกไว้</li>
+        <li>พาเข้าสู่ระบบ</li>
+      </ol>
+      <div class="qa">
+        <div class="q">เข้ารหัสรหัสผ่านหมายความว่าอะไร?</div>
+        <div class="a">ไม่เก็บรหัสจริงในฐานข้อมูล เก็บเป็นค่าที่แปลงแล้ว ตอนล็อกอินค่อยเทียบ</div>
+      </div>
+      <div class="qa">
+        <div class="q">ทำไมต้องติ๊กยอมรับ?</div>
+        <div class="a">มีหลักฐานยินยอมก่อนใช้งาน ตามหลักคุ้มครองข้อมูลส่วนบุคคล</div>
+      </div>
+    </div>
+    <div class="preview" data-preview></div>
+  </section>
+
+  <!-- 5 login -->
+  <section class="slide split" data-page="login.php" data-shot="slides/04-login.png">
+    <div class="copy">
+      <p class="eyebrow">หน้า 4</p>
+      <h2>เข้าสู่ระบบ</h2>
+      <ol class="steps">
+        <li>รับชื่อผู้ใช้/อีเมล + รหัสผ่าน</li>
+        <li>ค้นหาบัญชีจากฐานข้อมูล</li>
+        <li>ตรวจสถานะบัญชีก่อนเทียบรหัสผ่าน</li>
+        <li>เทียบรหัสผ่านกับค่าที่เข้ารหัสไว้</li>
+        <li>สร้าง <span class="kbd">Session (เซส-ชั่น)</span> ใหม่</li>
+      </ol>
+      <div class="qa">
+        <div class="q">Session คืออะไร?</div>
+        <div class="a">บัตรผ่านชั่วคราวหลังล็อกอิน ใช้บอกระบบว่าใครกำลังใช้งาน</div>
+      </div>
+      <p class="note">ทิป: ล็อกอินในแท็บนี้ก่อน แล้วสไลด์หน้าหลัก/ลงขาย/ออเดอร์จะโชว์หน้าจริงได้เมื่อกด “หน้าจริง”</p>
+    </div>
+    <div class="preview" data-preview></div>
+  </section>
+
+  <section class="slide solo">
+    <p class="eyebrow">หน้า 4 — ตรวจสถานะบัญชี</p>
+    <h2>“ตรวจว่าบัญชีไม่ถูกระงับ” ทำยังไง?</h2>
+    <p class="lead">ทุกบัญชีมีฟิลด์สถานะในฐานข้อมูล เช่น <span class="kbd">active</span> / <span class="kbd">banned</span></p>
+    <ol class="steps">
+      <li>หาบัญชีจากชื่อผู้ใช้หรืออีเมลที่กรอก</li>
+      <li>อ่านค่า <strong>status</strong> ของบัญชีนั้น</li>
+      <li>ถ้าเป็น <span class="bad">banned</span> → ปฏิเสธทันที แจ้งว่าบัญชีถูกระงับ</li>
+      <li>ถ้าไม่ใช่ <span class="good">active</span> → ปฏิเสธเช่นกัน (บัญชียังใช้ไม่ได้)</li>
+      <li>ผ่านแล้วค่อยเทียบรหัสผ่าน — กันไม่ให้บัญชีถูกระงับยังล็อกอินได้</li>
+    </ol>
+    <div class="qa">
+      <div class="q">ทำไมต้องเช็กสถานะก่อนเทียบรหัสผ่าน?</div>
+      <div class="a">แม้รหัสถูกก็ไม่ควรเข้าได้ ถ้าถูกระงับเพราะโกง/ผิดกฎ — สถานะบัญชีมาก่อนสิทธิ์เข้าใช้</div>
+    </div>
+    <div class="principle">
+      หลักการ: <span class="good">สิทธิ์เข้าใช้ระบบขึ้นกับสถานะบัญชี ไม่ใช่แค่รู้รหัสผ่าน</span>
+    </div>
+  </section>
+
+  <!-- 6 dashboard -->
+  <section class="slide split" data-page="dashboard.php" data-shot="">
+    <div class="copy">
+      <p class="eyebrow">หน้า 5</p>
+      <h2>หน้าหลักผู้ใช้</h2>
+      <p class="lead">ศูนย์รวมงานหลัก คล้ายแอปในหน้าเดียว</p>
+      <div class="grid">
+        <div class="card"><strong>หน้าแรก</strong><p>ค้นหาสินค้า</p></div>
+        <div class="card"><strong>ลงขาย</strong><p>สร้างประกาศ</p></div>
+        <div class="card"><strong>ประกาศของฉัน</strong><p>จัดการสินค้า</p></div>
+        <div class="card"><strong>คำสั่งซื้อ</strong><p>ติดตามออเดอร์</p></div>
+        <div class="card"><strong>แชท</strong><p>คุยกับคู่สัญญา</p></div>
+        <div class="card"><strong>โปรไฟล์</strong><p>ข้อมูลผู้ใช้</p></div>
+      </div>
+      <div class="principle">มีระบบเคลียร์ออเดอร์ที่ค้างชำระเกิน 24 ชั่วโมงอัตโนมัติ</div>
+      <p class="note">ต้องล็อกอินก่อน ถึงจะเห็นหน้านี้ในกรอบขวา</p>
+    </div>
+    <div class="preview" data-preview></div>
+  </section>
+
+  <!-- 7 sell form -->
+  <section class="slide split" data-page="dashboard.php?tab=sell" data-shot="">
+    <div class="copy">
+      <p class="eyebrow">หน้า 6</p>
+      <h2>ลงประกาศขาย</h2>
+      <p class="lead">หน้านี้คือฟอร์มลงขายจริง — กรอกรูป ชื่อ ราคา รายละเอียด</p>
+      <h3>ภาพรวม pipeline</h3>
+      <ol class="steps">
+        <li>รับรูปและข้อมูลสินค้า</li>
+        <li>ชั้น 1: ตรวจข้อมูลต้นทางรูปแบบเร็ว (ไม่เสียค่า API)</li>
+        <li>ถ้าน่าสงสัย → ชั้น 2: ส่ง <span class="kbd">Google Cloud Vision (กู-เกิล คลาวด์ วิ-ชั่น)</span></li>
+        <li>ไม่ผ่าน → ไม่บันทึกสินค้า</li>
+        <li>ผ่าน → เปิดประกาศในตลาด</li>
+      </ol>
+      <div class="qa">
+        <div class="q">ทำไมตรวจก่อนบันทึก?</div>
+        <div class="a">ไม่ให้ของเสี่ยงหลุดขึ้นตลาดก่อน แล้วค่อยมาลบทีหลัง</div>
+      </div>
+    </div>
+    <div class="preview" data-preview></div>
+  </section>
+
+  <section class="slide solo">
+    <p class="eyebrow">หน้า 6 — ชั้นที่ 1</p>
+    <h2>“ตรวจรูปเบื้องต้นแบบเร็ว” ใช้อะไร?</h2>
+    <p class="lead">ใช้ข้อมูล <span class="kbd">EXIF (อี-ซิฟ)</span> ในไฟล์รูป + ขนาดไฟล์ ไม่ได้อ่านเนื้อหารูปด้วย AI ตอนนี้</p>
+    <div class="grid">
+      <div class="card"><strong>EXIF คืออะไร</strong><p>ข้อมูลแอบอยู่ในไฟล์รูป เช่น ยี่ห้อกล้อง รุ่น วันถ่าย พิกัด GPS</p></div>
+      <div class="card"><strong>ทำไมใช้ตรวจ</strong><p>รูปถ่ายจากมือถือจริงมักมีข้อมูลกล้อง รูปก็อปจากแชท/เว็บมักไม่มี</p></div>
+    </div>
+    <h3>ระบบให้คะแนนความน่าเชื่อถือของรูป</h3>
+    <ul class="clean">
+      <li>มียี่ห้อกล้อง → เพิ่มคะแนน</li>
+      <li>มีรุ่นกล้อง → เพิ่มคะแนน</li>
+      <li>มีวันเวลาถ่าย → เพิ่มคะแนน</li>
+      <li>มี GPS → เพิ่มคะแนน</li>
+      <li>พบว่าผ่านแอปแชท/แต่งรูป (Line, Canva ฯลฯ) → ลดคะแนน</li>
+      <li>ไฟล์เล็กมาก + ไม่มีข้อมูลกล้อง → ลดคะแนน</li>
+    </ul>
+  </section>
+
+  <section class="slide solo">
+    <p class="eyebrow">หน้า 6 — เมื่อไหร่ถึง “น่าสงสัย”</p>
+    <h2>ถ้าน่าสงสัย เป็นเพราะอะไร?</h2>
+    <p class="lead">ถ้ารวมคะแนนความน่าเชื่อถือของรูป <strong>ต่ำกว่าเกณฑ์ประมาณ 65</strong> ระบบจะถือว่าน่าสงสัย</p>
+    <div class="grid">
+      <div class="card"><strong>เคสพบบ่อย</strong><p>ไม่มี EXIF เลย — มักเป็นรูปก็อปจากแชทหรือเว็บ</p></div>
+      <div class="card"><strong>เคสไฟล์เล็ก</strong><p>ถูกบีบอัดจากแชท แล้วไม่มีข้อมูลกล้อง</p></div>
+      <div class="card"><strong>เคสผ่านแอป</strong><p>metadata บอกว่าผ่าน Line / Facebook / Canva</p></div>
+    </div>
+    <div class="qa">
+      <div class="q">น่าสงสัยแล้วทำอะไรต่อ?</div>
+      <div class="a">ยังไม่บล็อกทันที — ส่งต่อไปให้ Google Cloud Vision ช่วยดูเนื้อหารูปต่อ</div>
+    </div>
+    <div class="principle">
+      ชั้น 1 = กรองหยาบฟรี · ของที่ดูน่าเชื่อถือผ่านเลย · ของน่าสงสัยค่อยเสียค่า AI
+    </div>
+  </section>
+
+  <section class="slide solo">
+    <p class="eyebrow">หน้า 6 — ชั้นที่ 2</p>
+    <h2>AI ใช้ตัวไหน? ตรวจอะไร?</h2>
+    <p class="lead">ใช้ <span class="kbd">Google Cloud Vision API (กู-เกิล คลาวด์ วิ-ชั่น)</span> เฉพาะรูปที่ชั้น 1 บอกว่าน่าสงสัย</p>
+    <ol class="steps">
+      <li>ส่งไฟล์รูปไป Google</li>
+      <li>ให้ตรวจหลายมุมพร้อมกัน เช่น ความปลอดภัยของภาพ, หาว่ารูปนี้มีบนเว็บไหม, อ่านป้าย/ข้อความในรูป, ติดป้ายประเภทวัตถุ</li>
+      <li>ระบบแปลงผลเป็นคะแนนความเสี่ยง</li>
+      <li>สูงมาก → ไม่ให้ลงขาย · กลาง → ติดธงรอตรวจ · ต่ำ → ผ่าน</li>
+    </ol>
+    <div class="grid">
+      <div class="card"><strong>ตัวอย่างที่เสี่ยง</strong><p>รูปไปโผล่บนเว็บอื่นเยอะ (เหมือนรูปก็อปจากเน็ต)</p></div>
+      <div class="card"><strong>ตัวอย่างที่เสี่ยง</strong><p>ติดป้าย screenshot / สกรีนช็อต</p></div>
+      <div class="card"><strong>ตัวอย่างที่เสี่ยง</strong><p>เนื้อหาไม่เหมาะสม หรือไม่เข้ากับชื่อสินค้า</p></div>
+    </div>
+  </section>
+
+  <section class="slide solo">
+    <p class="eyebrow">หน้า 6 — ทำไมเลือกตัวนี้</p>
+    <h2>ทำไมต้องเป็น Google Cloud Vision?<br>AI มีเยอะทำไมถึงเลือกตัวนี้</h2>
+    <p class="lead">เพราะงานนี้ไม่ใช่แค่ให้ AI <em>คุย</em> หรือ <em>เดาความหมายข้อความ</em> แต่ต้อง <strong>วิเคราะห์รูปภาพโดยตรง</strong> และมีฟีเจอร์ที่ระบบใช้จริงหลายอย่างในคำขอเดียว</p>
+    <div class="grid">
+      <div class="card">
+        <strong>1) หาว่ารูปมีบนเน็ตไหม</strong>
+        <p><span class="kbd">Web Detection</span> — สำคัญมาก เพราะคนโกงชอบเอาภาพจาก Shopee / Lazada / เว็บอื่นมาลง</p>
+      </div>
+      <div class="card">
+        <strong>2) อ่านข้อความในรูป</strong>
+        <p><span class="kbd">OCR / Text Detection</span> — ใช้ตอนแปะสกรีนช็อตเลขบัญชีในแชท</p>
+      </div>
+      <div class="card">
+        <strong>3) ติดป้ายประเภทภาพ</strong>
+        <p><span class="kbd">Label Detection</span> — เช่น จับว่าเป็น screenshot / หน้าจอมือถือ</p>
+      </div>
+      <div class="card">
+        <strong>4) ตรวจเนื้อหาไม่เหมาะสม</strong>
+        <p><span class="kbd">Safe Search</span> — กันรูปที่ไม่ควรขึ้นตลาด</p>
+      </div>
+    </div>
+    <div class="principle">
+      ไม่ได้เลือกเพราะชื่อดัง แต่เลือกเพราะ <span class="good">ตรงกับปัญหาของระบบ</span>:
+      รูปหลอกลวง / รูปก็อปจากเน็ต / รูปที่มีข้อความเลี่ยงระบบ
+    </div>
+    <div class="qa">
+      <div class="q">ทำไมไม่ใช้ GPT / Gemini วิเคราะห์รูปอย่างเดียว?</div>
+      <div class="a">วิเคราะห์ความหมายภาพได้บ้าง แต่สิ่งที่ต้องการหลักคือตรวจภาพซ้ำบนเว็บ และ OCR ที่เสถียร ซึ่งเป็นจุดแข็งของ Vision โดยเฉพาะ Web Detection</div>
+    </div>
+  </section>
+
+  <section class="slide solo">
+    <p class="eyebrow">หน้า 6 — ความถูกต้องของ AI</p>
+    <h2>แล้วจะรู้ได้ไงว่า AI ไม่พลาด?</h2>
+    <p class="lead">ตอบตรงๆ: <strong>ไม่มีระบบไหนการันตีว่าไม่พลาด 100%</strong> เลยออกแบบเป็นหลายชั้น + เอียงไปทางปลอดภัย</p>
+    <ol class="steps">
+      <li>ชั้น 1 จับรูปไม่มีต้นทางกล้องก่อน — ลดภาระ AI และกันเคสก็อปชัดๆ บางส่วน</li>
+      <li>ชั้น 2 ใช้หลายสัญญาณพร้อมกัน ไม่เชื่อแค่ตัวเดียว</li>
+      <li>ผลรวมเอียงไปทางเข้มงวด: ถ้าเสี่ยงสูงจะไม่ปล่อยขึ้นตลาดทันที</li>
+      <li>ถ้าระดับกลางจะ <strong>ติดธง</strong> ให้เจ้าหน้าที่ช่วยดูต่อได้ ไม่ปล่อย AI ตัดสินคนเดียวทุกเคส</li>
+      <li>ถ้า Vision ล้มเหลวชั่วคราว ระบบไม่ปล่อยผ่านเงียบๆ — จะติดธงว่าตรวจเพิ่มไม่สำเร็จ</li>
+    </ol>
+    <div class="qa">
+      <div class="q">ทำไมไม่ใช้ AI ทุกรูป?</div>
+      <div class="a">แพงและช้า รูปที่ดูเหมือนถ่ายจากมือถือจริง (มี EXIF ครบ) ชั้น 1 ผ่านได้เลย</div>
+    </div>
+    <div class="principle">
+      เป้าหมายไม่ใช่ “AI แม่นเสมอ” แต่คือ <span class="good">ลดความเสี่ยงรูปหลอกลวงหลุดขึ้นตลาด</span> ด้วยการกรองซ้อนกัน
+    </div>
+  </section>
+
+  <!-- escrow concept -->
+  <section class="slide solo">
+    <p class="eyebrow">หัวใจของระบบ</p>
+    <h2>ชำระเงินเข้า <span class="kbd">Escrow (เอส-โครว)</span></h2>
+    <p class="lead">ผู้ซื้อจ่ายเข้า “ระบบกลาง” ไม่โอนตรงเข้าบัญชีผู้ขาย</p>
+    <div class="principle">
+      พอจ่ายสำเร็จ ผู้ขายเห็นว่ามีเงินเข้าแล้ว<br>
+      แต่ยัง <span class="bad">ถอนเข้าธนาคารไม่ได้</span> เพราะเงินยังอยู่ในบัญชีพักกลาง
+    </div>
+    <div class="flow">
+      <span>ผู้ซื้อจ่าย</span><span class="arrow">→</span>
+      <span>พักกลาง</span><span class="arrow">→</span>
+      <span>ผู้ขายส่งของ</span><span class="arrow">→</span>
+      <span>ผู้ซื้อยืนยัน</span><span class="arrow">→</span>
+      <span class="good">เงินพร้อมถอน</span>
+    </div>
+  </section>
+
+  <section class="slide solo">
+    <p class="eyebrow">หน้าชำระเงิน</p>
+    <h2>ผู้ซื้อจ่ายเงินยังไง?</h2>
+    <p class="lead">หลังกดซื้อ จะเข้าหน้าชำระเงินของออเดอร์นั้น ผู้ซื้อเลือกได้ 2 ทางหลัก</p>
+    <div class="grid">
+      <div class="card">
+        <strong>ทางที่ 1: จ่ายออนไลน์</strong>
+        <p>เช่น สแกน QR / จ่ายบัตร ผ่านระบบชำระเงิน → พอสำเร็จ ระบบยืนยันยอดเอง แล้วเงินเข้าพักกลาง</p>
+      </div>
+      <div class="card">
+        <strong>ทางที่ 2: โอนแล้วอัปโหลดสลิป</strong>
+        <p>ผู้ซื้อโอนเงินเอง แล้วส่งรูปสลิปเข้ามา → ระบบต้องตรวจว่าสลิปนี้จริงและยอดตรงไหม</p>
+      </div>
+    </div>
+    <div class="principle">
+      จุดสำคัญของทางที่ 2 คือต้องมีตัวช่วยอ่านสลิปอัตโนมัติ<br>
+      ระบบใช้ <span class="kbd">EasySlip API (อี-ซี่-สลิป)</span>
+    </div>
+  </section>
+
+  <section class="slide solo">
+    <p class="eyebrow">ตรวจสลิปอัตโนมัติ</p>
+    <h2>EasySlip ทำงานยังไง?</h2>
+    <p class="lead"><span class="kbd">EasySlip (อี-ซี่-สลิป)</span> คือบริการภายนอกที่อ่านสลิปโอนเงินไทย แล้วส่งข้อมูลยอดเงินกลับมาให้ระบบเรา</p>
+    <ol class="steps">
+      <li>ผู้ซื้ออัปโหลดรูปสลิป</li>
+      <li>ระบบกันใช้สลิปซ้ำก่อน (เทียบลายนิ้วมือไฟล์)</li>
+      <li>ส่งไฟล์สลิปไปที่ <span class="kbd">EasySlip API</span></li>
+      <li>EasySlip อ่านสลิป แล้วคืนค่ายอดเงินที่โอน</li>
+      <li>ระบบเทียบยอดกับราคาสินค้าในออเดอร์</li>
+      <li>ถ้ายอดตรง → ยืนยันชำระเงินสำเร็จ เงินเข้าพักกลาง</li>
+      <li>ถ้ายอดไม่ตรง / อ่านไม่ได้ → ไม่ผ่านอัตโนมัติ ต้องแก้หรือรอตรวจเพิ่ม</li>
+    </ol>
+  </section>
+
+  <section class="slide solo">
+    <p class="eyebrow">ทำไมต้อง EasySlip</p>
+    <h2>ทำไมไม่ให้แอดมินดูสลิปเองทุกใบ?</h2>
+    <div class="grid">
+      <div class="card">
+        <strong>เร็ว</strong>
+        <p>ผู้ซื้อรู้ผลเกือบทันที ไม่ต้องรอคนมานั่งเปิดสลิปทีละใบ</p>
+      </div>
+      <div class="card">
+        <strong>กันพลาดเรื่องยอด</strong>
+        <p>เทียบยอดตัวเลขจากสลิปกับราคาสินค้าอัตโนมัติ</p>
+      </div>
+      <div class="card">
+        <strong>กันสลิปปลอม/ใช้ซ้ำ</strong>
+        <p>ก่อนส่ง EasySlip ระบบกันใช้ไฟล์สลิปซ้ำข้ามออเดอร์อยู่แล้ว</p>
+      </div>
+    </div>
+    <div class="qa">
+      <div class="q">ถ้า EasySlip อ่านสลิปไม่ได้ทำยังไง?</div>
+      <div class="a">ระบบไม่ฟันธงว่าจ่ายสำเร็จเอง — จะพักสถานะไว้ให้ตรวจต่อแบบแมนนวล ไม่ปล่อยเงินเข้าขั้นถัดไปมั่วๆ</div>
+    </div>
+    <div class="qa">
+      <div class="q">จ่ายผ่านแล้วผู้ขายถอนได้เลยไหม?</div>
+      <div class="a">ยังไม่ได้ — เงินเข้าแค่บัญชีพักกลาง ต้องรอผู้ซื้อกดยืนยันรับของก่อน</div>
+    </div>
+  </section>
+
+  <!-- 10 orders -->
+  <section class="slide split" data-page="dashboard.php?tab=orders" data-shot="">
+    <div class="copy">
+      <p class="eyebrow">คำสั่งซื้อ</p>
+      <h2>ติดตามสถานะ + ยืนยันรับของ</h2>
+      <div class="flow">
+        <span>รอชำระ</span><span class="arrow">→</span>
+        <span>ชำระแล้ว</span><span class="arrow">→</span>
+        <span>ส่งของแล้ว</span><span class="arrow">→</span>
+        <span class="good">สำเร็จ</span>
+      </div>
+      <h3>เมื่อกดยืนยันรับของ</h3>
+      <ol class="steps">
+        <li>ตรวจว่าเป็นผู้ซื้อตัวจริง</li>
+        <li>ตรวจว่าสถานะถึงขั้นที่กดได้</li>
+        <li>เปลี่ยนเป็นสำเร็จ</li>
+        <li>ย้ายเงิน พักกลาง → พร้อมถอน</li>
+      </ol>
+      <div class="qa">
+        <div class="q">กันปล่อยเงินซ้ำยังไง?</div>
+        <div class="a">แต่ละออเดอร์มีรหัสอ้างอิงการปล่อยเงิน ถ้าเคยปล่อยแล้วจะไม่ปล่อยซ้ำ</div>
+      </div>
+    </div>
+    <div class="preview" data-preview></div>
+  </section>
+
+  <!-- 11 chat intro -->
+  <section class="slide split" data-page="dashboard.php?tab=chat" data-shot="">
+    <div class="copy">
+      <p class="eyebrow">หน้า 9 — จุดเสี่ยงสำคัญ</p>
+      <h2>ระบบแชท + ตัวจับข้อความ</h2>
+      <p class="lead">ถ้าคู่สัญญาชวนโอนนอกระบบ ความปลอดภัยของ Escrow จะหายไปทันที</p>
+      <div class="principle">
+        เลยตรวจข้อความ <strong>ก่อนส่ง</strong><br>
+        ไม่ใช่ส่งก่อนแล้วค่อยมาไล่ลบทีหลัง
+      </div>
+      <p class="note">เดโมสดแนะนำ: เปิดแชทจริง แล้วพิมพ์ “โอนเข้าบัญชีผมเลย”</p>
+    </div>
+    <div class="preview" data-preview></div>
+  </section>
+
+  <!-- ชั้นที่ 1: กฎ + คะแนน (ไม่ซ้ำตาราง) -->
+  <section class="slide solo">
+    <p class="eyebrow">หน้า 9 — ชั้นที่ 1 กฎคืออะไร</p>
+    <h2>“กฎที่เรากำหนดเอง” คือคำสั่งอะไร?</h2>
+    <p class="lead">ไม่ใช่คำสั่งคุยกับ AI แต่เป็น <strong>เงื่อนไขในโปรแกรม</strong> แบบ “ถ้าเจอแบบนี้ แล้วทำแบบนั้น”</p>
+    <div class="grid">
+      <div class="card">
+        <strong>คลังคำ (Keyword)</strong>
+        <p>เรามีลิสต์คำเสี่ยงไว้ล่วงหน้า<br>คำสั่งประมาณว่า:<br><span class="kbd">ถ้าข้อความมีคำว่า “โอนเข้าบัญชี” → ให้คะแนน 65</span></p>
+      </div>
+      <div class="card">
+        <strong>รูปแบบ (Pattern)</strong>
+        <p>เรากำหนดรูปแบบตัวเลข/ลิงก์ไว้<br>คำสั่งประมาณว่า:<br><span class="kbd">ถ้าเจอเลขติดกัน 10–12 ตัว → น่าจะเป็นเลขบัญชี → ให้คะแนน 70</span></p>
+      </div>
+      <div class="card">
+        <strong>คำผสม</strong>
+        <p>ตรวจมากกว่า 1 สิ่งพร้อมกัน<br>คำสั่งประมาณว่า:<br><span class="kbd">ถ้ามี “ลดราคา” และมี “โอนตรง” → ให้คะแนน 72</span></p>
+      </div>
+      <div class="card">
+        <strong>เกณฑ์ตัดสิน</strong>
+        <p>หลังได้คะแนนแล้ว<br><span class="kbd">ถ้า ≥70 บล็อก · 45–69 ติดธง · ต่ำกว่านั้นผ่าน</span></p>
+      </div>
+    </div>
+    <div class="principle">
+      พูดง่ายๆ: ชั้น 1 = <span class="good">ชุดคำสั่ง if/then ที่เขียนตายตัวไว้ล่วงหน้า</span><br>
+      ไม่ได้นั่งอ่านความหมายเอง แต่เทียบตามกฎที่เราวางไว้
+    </div>
+  </section>
+
+  <section class="slide solo">
+    <p class="eyebrow">หน้า 9 — ชั้นที่ 1 ทำงานทีละขั้น</p>
+    <h2>กฎพวกนี้ทำงานยังไงเมื่อมีคนพิมพ์?</h2>
+    <ol class="steps">
+      <li>ผู้ใช้กดส่ง เช่น “โอนเข้าบัญชีผมเลย 4381234567”</li>
+      <li>โปรแกรมเทียบกับคลังคำทีละคำ — เจอ “โอนเข้าบัญชี” → ได้ประมาณ 65</li>
+      <li>เทียบกับรูปแบบตัวเลข — เจอเลขยาวคล้ายบัญชี → ได้ประมาณ 70</li>
+      <li>เจอหลายสัญญาณ → บวกคะแนนเพิ่ม</li>
+      <li>เอาคะแนนสุดท้ายไปเทียบเกณฑ์ → ถึงเกณฑ์บล็อกก็ไม่ให้ส่ง</li>
+    </ol>
+    <div class="qa">
+      <div class="q">คลังคำมาจากไหน?</div>
+      <div class="a">เรารวบรวมคำที่คนมักใช้ชวนโอนนอกระบบไว้เอง เช่น โอนมาเลย, แอดไลน์, ไม่ผ่านแอป, พร้อมเพย์</div>
+    </div>
+    <div class="qa">
+      <div class="q">ต่างจาก AI ยังไง?</div>
+      <div class="a">กฎ = ต้องตรงตามที่เขียนไว้ถึงจะเจอ · AI = อ่านความหมายได้แม้พูดคนละคำ แต่ช้าและแพงกว่า</div>
+    </div>
+  </section>
+
+  <section class="slide solo">
+    <p class="eyebrow">หน้า 9 — คะแนนความเสี่ยง</p>
+    <h2>คะแนนมาจากไหน แล้วเอาไปใช้อย่างไร?</h2>
+    <table class="score">
+      <thead><tr><th>กฎเจอสิ่งนี้</th><th>คะแนน</th><th>ผลโดยประมาณ</th></tr></thead>
+      <tbody>
+        <tr><td>คำธนาคาร / ลิงก์ / เบอร์</td><td>~45–55</td><td>ติดธง หรือใกล้ๆ</td></tr>
+        <tr><td>คำชวนโอนนอกระบบ</td><td>~65</td><td>ติดธง / ใกล้บล็อก</td></tr>
+        <tr><td>เลขบัญชี หรือ ลดราคา+โอนตรง</td><td>~70–72</td><td>บล็อก</td></tr>
+      </tbody>
+    </table>
+    <div class="grid" style="margin-top:14px">
+      <div class="card"><strong>&lt; 45 ผ่าน</strong><p>ส่งได้ปกติ</p></div>
+      <div class="card"><strong>45–69 ติดธง</strong><p>ส่งได้ แต่เก็บประวัติให้ตรวจ</p></div>
+      <div class="card"><strong>≥ 70 บล็อก</strong><p>ไม่ให้ส่ง</p></div>
+    </div>
+    <div class="qa">
+      <div class="q">“โอนเข้าบัญชีผมเลย 4381234567”</div>
+      <div class="a">คำเสี่ยง + เลขบัญชี → คะแนนพุ่ง → <span class="bad">บล็อก</span></div>
+    </div>
+  </section>
+
+  <!-- 15 AI tier for chat -->
+  <section class="slide solo">
+    <p class="eyebrow">หน้า 9 — ชั้นที่ 2</p>
+    <h2>แล้ว AI เข้ามาตอนไหน? ทำไมต้องมี?</h2>
+    <p class="lead">ชั้นที่ 1 เป็นกฎตายตัว จับได้ดีเมื่อข้อความตรงคำในคลังหรือตรงรูปแบบ แต่คนโกงมักพูดอ้อมๆ ไม่พิมพ์คำตรงๆ</p>
+    <div class="grid">
+      <div class="card">
+        <strong>กฎจับได้ชัด</strong>
+        <p>“โอนเข้าบัญชีผมเลย” → ตรงคลังคำ → ได้คะแนนความเสี่ยงสูง</p>
+      </div>
+      <div class="card">
+        <strong>กฎอาจพลาด</strong>
+        <p>“ส่งเงินมาที่นี้เลยนะ ไม่ง้อแอป” → ไม่ตรงคำในลิสต์ แต่ความหมายเหมือนกัน</p>
+      </div>
+    </div>
+    <div class="principle">
+      เลยต้องมีชั้น 2 เป็น <strong>โมเดลภาษา</strong> มาอ่านความหมาย<br>
+      ตัวหลักที่ใช้คือ <span class="kbd">Groq API (กร็อก)</span> โมเดล <span class="kbd">Llama 3.3 70B (ลา-มา)</span>
+    </div>
+  </section>
+
+  <section class="slide solo">
+    <p class="eyebrow">หน้า 9 — ใช้ AI ตัวไหน</p>
+    <h2>เรียก API ตัวไหน? ทำไมต้องตัวนี้?</h2>
+    <p class="lead">ระบบเรียกโมเดลภาษาแบบมีลำดับสำรอง ถ้าตัวแรกใช้ไม่ได้จะลองตัวถัดไป</p>
+    <ol class="steps">
+      <li><strong>ตัวหลัก:</strong> <span class="kbd">Groq (กร็อก)</span> + โมเดล <span class="kbd">Llama 3.3 70B</span></li>
+      <li><strong>ตัวสำรอง 1:</strong> <span class="kbd">OpenRouter (โอ-เพิน-ราว-เตอร์)</span></li>
+      <li><strong>ตัวสำรอง 2:</strong> <span class="kbd">Gemini (เจ-มิ-ไน)</span> ของ Google</li>
+    </ol>
+    <h3>ทำไมเลือก Groq เป็นตัวหลัก?</h3>
+    <div class="grid">
+      <div class="card">
+        <strong>เร็ว</strong>
+        <p>แชทต้องตอบเกือบทันที ถ้ารอ AI นาน ผู้ใช้รู้สึกว่าระบบค้าง Groq เน้นความเร็วสูง</p>
+      </div>
+      <div class="card">
+        <strong>เหมาะกับงานจัดประเภท</strong>
+        <p>งานนี้ไม่ใช่ให้ AI แต่งนิทาน แต่ให้ตัดสินสั้นๆ ว่า ผ่าน / ติดธง / บล็อก</p>
+      </div>
+      <div class="card">
+        <strong>ต้นทุนคุ้ม</strong>
+        <p>ข้อความแชทมีจำนวนมาก ต้องเลือกตัวที่เรียกบ่อยได้โดยไม่แพงเกิน</p>
+      </div>
+      <div class="card">
+        <strong>อ่านภาษาพูดได้</strong>
+        <p>ช่วยจับประโยคอ้อมๆ / สแลงไทย ที่ไม่มีในคลังคำชั้น 1</p>
+      </div>
+    </div>
+    <div class="principle">
+      สรุป: เลือกเพราะ <span class="good">เร็ว + เหมาะกับงานตัดสินข้อความ + มีตัวสำรองถ้าล่ม</span>
+      ไม่ได้เลือกเพราะชื่อดังอย่างเดียว
+    </div>
+  </section>
+
+  <section class="slide solo">
+    <p class="eyebrow">หน้า 9 — เงื่อนไขเรียก AI</p>
+    <h2>ต้องแบบไหนถึงดึง API ของ AI?</h2>
+    <p class="lead">ไม่เรียก Groq ทุกข้อความ มีเกณฑ์ก่อนส่ง เพื่อไม่เสียเวลาและค่าใช้จ่าย</p>
+    <ol class="steps">
+      <li>ข้อความถูกตรวจด้วยกฎชั้น 1 ก่อนเสมอ</li>
+      <li>ถ้าคะแนนความเสี่ยงประมาณ <strong>25–79</strong> → ส่งต่อให้ <span class="kbd">Groq</span> อ่านเพิ่ม</li>
+      <li>ถ้าคะแนนต่ำมาก (ปลอดภัยชัด) → ไม่เรียก AI</li>
+      <li>ถ้าคะแนนสูงมาก (≥80 เช่น มีเลขบัญชีชัด) → ตัดสินด้วยกฎเลย ไม่เสียค่า AI</li>
+      <li>หรือมีตัวเลขยาวๆ น่าสงสัย แต่ชั้น 1 ยังไม่ฟันธง → ก็ส่ง AI ช่วยดู</li>
+    </ol>
+    <div class="qa">
+      <div class="q">ทำไมไม่ส่งทุกข้อความเข้า Groq?</div>
+      <div class="a">ช้า แพง และของที่ชัดๆ กฎจับได้ดีกว่าอยู่แล้ว — AI เก็บไว้ใช้กับเคสกำกวม</div>
+    </div>
+    <div class="qa">
+      <div class="q">ถ้า Groq ล่มทำยังไง?</div>
+      <div class="a">ระบบสลับไป OpenRouter แล้วค่อย Gemini ตามลำดับ ถ้าทุกตัวใช้ไม่ได้ จะไม่ปล่อยผ่านเงียบๆ ในเคสที่น่าสงสัย</div>
+    </div>
+  </section>
+
+  <section class="slide solo">
+    <p class="eyebrow">หน้า 9 — หลักการทำงานของ AI</p>
+    <h2>เมื่อเรียก Groq แล้วทำอะไรต่อ?</h2>
+    <ol class="steps">
+      <li>ระบบประกอบคำสั่งส่งให้โมเดล: ข้อความต้นฉบับ + สิ่งที่ชั้น 1 เจอแล้ว</li>
+      <li>บอกโมเดลให้ตอบแบบโครงสร้างชัดเจน: <strong>ผ่าน / ติดธง / บล็อก</strong> พร้อมเหตุผลสั้นๆ</li>
+      <li>เน้นให้จับภาษาพูดอ้อม เช่น “โอนมาเลย”, “คุยนอกแอพ”, “ลดให้ถ้าไม่ผ่านระบบ”</li>
+      <li>ระบบรวมผลชั้น 1 กับผล AI โดยยึดฝั่งที่เข้มงวดกว่า</li>
+      <li>ตัวอย่าง: ชั้น 1 บอก “ผ่าน” แต่ Groq บอก “บล็อก” → สรุปเป็นบล็อก</li>
+    </ol>
+    <div class="qa">
+      <div class="q">ทำไมต้องยึดฝั่งเข้มงวดกว่า?</div>
+      <div class="a">เป้าหมายคือกันเลี่ยงพักเงินกลาง ถ้ามีฝั่งใดเห็นความเสี่ยง ให้เอียงไปทางปลอดภัยก่อน</div>
+    </div>
+    <div class="qa">
+      <div class="q">ทำไมต้องมี AI ทั้งที่มีกฎอยู่แล้ว?</div>
+      <div class="a">กฎเก่งเรื่องคำตรงๆ AI เก่งเรื่องภาษาพูดอ้อม ความหมายแฝง และคำใหม่ที่ยังไม่ได้อยู่ในคลัง</div>
+    </div>
+  </section>
+
+  <section class="slide solo">
+    <p class="eyebrow">หน้า 9 — สรุป 2 ชั้น</p>
+    <h2>สรุปสั้นๆ ให้จำ</h2>
+    <div class="grid">
+      <div class="card">
+        <strong>ชั้น 1 = กฎ</strong>
+        <p>จับคำ/เลขบัญชี/เบอร์/ลิงก์ ให้คะแนนเร็ว ฟรี ใช้กับของชัดๆ</p>
+      </div>
+      <div class="card">
+        <strong>ชั้น 2 = Groq</strong>
+        <p>ถูกเรียกเฉพาะเคสกลางๆ ที่พูดอ้อมๆ อ่านความหมายแล้วช่วยตัดสิน</p>
+      </div>
+      <div class="card">
+        <strong>ผลรวม</strong>
+        <p>ยึดผลที่เข้มงวดกว่า แล้วค่อย ผ่าน / ติดธง / บล็อก</p>
+      </div>
+    </div>
+    <div class="principle">
+      หลักการออกแบบ: <span class="good">กรองหยาบก่อน กรองละเอียดทีหลัง</span><br>
+      ของชัดจบที่กฎ ของกำกวมค่อยเสียค่า AI
+    </div>
+  </section>
+
+  <!-- 16 review -->
+  <section class="slide solo">
+    <p class="eyebrow">หลังออเดอร์สำเร็จ</p>
+    <h2>รีวิวหลังรับของ</h2>
+    <ul class="clean">
+      <li>รีวิวได้เฉพาะออเดอร์ที่สำเร็จแล้ว</li>
+      <li>รีวิวซ้ำออเดอร์เดิมไม่ได้</li>
+      <li>คะแนนไปรวมเป็นความน่าเชื่อถือผู้ขาย</li>
+    </ul>
+    <div class="qa">
+      <div class="q">ทำไมต้องรอให้สำเร็จก่อน?</div>
+      <div class="a">กันรีวิวมั่วจากออเดอร์ที่ยังไม่จบจริง</div>
+    </div>
+    <p class="note">หน้ารีวิวจริงจะเปิดจากปุ่มหลังออเดอร์สำเร็จ (write_review.php)</p>
+  </section>
+
+  <!-- 17 wallet -->
+  <section class="slide split" data-page="earnings.php" data-shot="">
+    <div class="copy">
+      <p class="eyebrow">หน้า 11</p>
+      <h2>กระเป๋าเงิน / ถอนเงิน</h2>
+      <div class="grid">
+        <div class="card"><strong>เงินพักกลาง</strong><p>ยัง <span class="bad">ถอนไม่ได้</span></p></div>
+        <div class="card"><strong>เงินพร้อมถอน</strong><p>ถอนเข้าธนาคารได้</p></div>
+      </div>
+      <h3>ตอนกดถอน</h3>
+      <ol class="steps">
+        <li>ต้องยืนยันตัวตนแล้ว</li>
+        <li>ชื่อบัญชีต้องตรงชื่อที่ยืนยันตัวตน</li>
+        <li>ยอดไม่เกินยอดพร้อมถอน</li>
+        <li>สร้างคำขอถอนและกันยอดไว้ก่อน</li>
+      </ol>
+      <div class="qa">
+        <div class="q">ทำไมชื่อบัญชีต้องตรงชื่อยืนยันตัวตน?</div>
+        <div class="a">กันโอนเข้าบัญชีคนอื่น และลดความเสี่ยงบัญชีม้า</div>
+      </div>
+    </div>
+    <div class="preview" data-preview></div>
+  </section>
+
+  <!-- 18 dispute -->
+  <section class="slide split" data-page="my_disputes.php" data-shot="">
+    <div class="copy">
+      <p class="eyebrow">หน้า 12</p>
+      <h2>ข้อพิพาท</h2>
+      <ol class="steps">
+        <li>ผู้ซื้อเปิดข้อพิพาท</li>
+        <li>เงินถูกอายัดในพักกลางทันที</li>
+        <li>ระบบรวบรวมแชท / ของส่ง / หลักฐาน</li>
+        <li>AI ช่วยวิเคราะห์เบื้องต้น</li>
+        <li>เจ้าหน้าที่ตัดสินสุดท้าย</li>
+      </ol>
+      <div class="qa">
+        <div class="q">ทำไมไม่ให้ AI สั่งโอนเงินเอง?</div>
+        <div class="a">เรื่องพิพาทมีผลต่อเงินจริง ใช้ AI เป็นผู้ช่วย ไม่ใช่ผู้ตัดสินสุดท้าย</div>
+      </div>
+    </div>
+    <div class="preview" data-preview></div>
+  </section>
+
+  <!-- 19 summary flow -->
+  <section class="slide solo">
+    <p class="eyebrow">สรุปทั้งรอบ</p>
+    <h2>หนึ่งรอบการซื้อขายของผู้ใช้</h2>
+    <div class="flow">
+      <span>ดูสินค้า</span><span class="arrow">→</span>
+      <span>สมัคร/ล็อกอิน</span><span class="arrow">→</span>
+      <span>ลงขายหรือซื้อ</span><span class="arrow">→</span>
+      <span>จ่ายเข้าพักกลาง</span>
+    </div>
+    <div class="flow">
+      <span>ส่งของ / แชทภายใต้การตรวจ</span><span class="arrow">→</span>
+      <span>ยืนยันรับของ</span><span class="arrow">→</span>
+      <span>เงินพร้อมถอน</span>
+    </div>
+    <div class="principle">ถ้ามีปัญหา → เปิดข้อพิพาท → อายัดเงินไว้ก่อนตัดสิน</div>
+  </section>
+
+  <!-- 20 remember -->
+  <section class="slide solo">
+    <p class="eyebrow">สรุปหัวใจระบบ</p>
+    <h2>จำ 3 ประโยคนี้ไว้</h2>
+    <div class="grid">
+      <div class="card"><strong>1</strong><p>จ่ายเงินแล้ว ≠ ผู้ขายได้เงินทันที</p></div>
+      <div class="card"><strong>2</strong><p>กดยืนยันรับของ = ปล่อยเงิน</p></div>
+      <div class="card"><strong>3</strong><p>พิมพ์ชวนโอนนอกระบบในแชท = ให้คะแนนความเสี่ยง แล้วอาจถูกบล็อก</p></div>
+    </div>
+  </section>
+
+  <!-- 21 thanks -->
+  <section class="slide solo">
+    <p class="eyebrow">ปิดพรีเซ็น</p>
+    <h1>ขอบคุณครับ</h1>
+    <p class="lead">พร้อมตอบคำถามเพิ่มเติมเกี่ยวกับหลักการทำงานฝั่งผู้ใช้</p>
+    <div class="principle">
+      Invariant หลัก:<br>
+      <span class="good">เงินอยู่ใน Escrow (เอส-โครว) จนกว่าของถึงมือ หรือข้อพิพาทถูกตัดสิน</span>
+    </div>
+  </section>
+
+</div>
+
+<div class="footer-bar">
+  <div class="progress" id="progress"></div>
+  <div class="hint">← → / Space เลื่อน · F เต็มจอ · กด “หน้าจริง” เพื่อดูเว็บสด</div>
+  <div class="base-edit">
+    <span class="hint">Base</span>
+    <input id="baseUrl" value="http://localhost/flixo_escrow" title="ที่อยู่เว็บ FLIXO">
+  </div>
+  <div><span id="page" class="hint">1 / 1</span></div>
+  <div class="nav-btns">
+    <button class="nav" id="prev" type="button">ก่อนหน้า</button>
+    <button class="nav" id="next" type="button">ถัดไป</button>
+  </div>
+</div>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  let i = 0;
+  const baseInput = document.getElementById('baseUrl');
+  // default to same host as this presentation so CSS/assets match
+  if (/^https?:$/i.test(location.protocol)) {
+    const guessed = location.origin + location.pathname.replace(/\/docs\/.*$/, '');
+    if (guessed && !baseInput.dataset.locked) baseInput.value = guessed.replace(/\/$/, '');
+  }
+
+  function base() {
+    return (baseInput.value || 'http://localhost/flixo_escrow').replace(/\/$/, '');
+  }
+
+  function buildPreview(slide) {
+    const host = slide.querySelector('[data-preview]');
+    if (!host || host.dataset.ready === '1') return;
+    const page = slide.dataset.page || '';
+    const shot = slide.dataset.shot || '';
+    if (!page && !shot) return;
+
+    const url = page ? (base() + '/' + page.replace(/^\//, '')) : '';
+    host.innerHTML = `
+      <div class="chrome">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <div class="urlbar">${url || 'ภาพตัวอย่างหน้าจอ'}</div>
+        <div class="preview-actions">
+          ${shot ? '<button type="button" data-mode="shot">ภาพนิ่ง</button>' : ''}
+          ${url ? '<button type="button" data-mode="live">หน้าจริง</button>' : ''}
+          ${url ? `<a href="${url}" target="_blank" rel="noopener">เปิดแท็บใหม่</a>` : ''}
+        </div>
+      </div>
+      <div class="viewport ${shot ? 'shot' : 'live'}">
+        <span class="badge-live">${shot ? 'ภาพหน้าจอจริง' : 'หน้าเว็บสด'}</span>
+        ${shot ? `<img src="${shot}" alt="screenshot">` : ''}
+        ${url ? `<iframe title="live preview" loading="lazy" src="${url}"></iframe>` : ''}
+      </div>
+    `;
+    host.dataset.ready = '1';
+
+    const viewport = host.querySelector('.viewport');
+    const badge = host.querySelector('.badge-live');
+    host.querySelectorAll('[data-mode]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.getAttribute('data-mode');
+        viewport.classList.toggle('shot', mode === 'shot');
+        viewport.classList.toggle('live', mode === 'live');
+        badge.textContent = mode === 'live' ? 'หน้าเว็บสด' : 'ภาพหน้าจอจริง';
+        if (mode === 'live') {
+          const iframe = viewport.querySelector('iframe');
+          if (iframe) iframe.src = base() + '/' + page.replace(/^\//, '');
+        }
+      });
+    });
+  }
+
+  function refreshLiveSrc(slide) {
+    const page = slide.dataset.page;
+    if (!page) return;
+    const iframe = slide.querySelector('iframe');
+    const urlbar = slide.querySelector('.urlbar');
+    const url = base() + '/' + page.replace(/^\//, '');
+    if (urlbar) urlbar.textContent = url;
+    if (iframe && slide.querySelector('.viewport.live')) iframe.src = url;
+  }
+
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, idx) => {
+      const on = idx === i;
+      s.classList.toggle('active', on);
+      if (on) {
+        buildPreview(s);
+        refreshLiveSrc(s);
+      }
+    });
+    document.getElementById('page').textContent = (i + 1) + ' / ' + slides.length;
+    document.getElementById('progress').style.width = ((i + 1) / slides.length * 100) + '%';
+  }
+
+  document.getElementById('prev').onclick = () => show(i - 1);
+  document.getElementById('next').onclick = () => show(i + 1);
+  baseInput.addEventListener('change', () => show(i));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.target === baseInput) return;
+    if (['ArrowRight', 'ArrowDown', ' ', 'PageDown', 'Enter'].includes(e.key)) {
+      e.preventDefault(); show(i + 1);
+    } else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) {
+      e.preventDefault(); show(i - 1);
+    } else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key.toLowerCase() === 'f') {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    }
+  });
+
+  show(0);
+</script>
+</body>
+</html>

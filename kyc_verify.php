@@ -20,6 +20,7 @@ $user_data = $stmt->get_result()->fetch_assoc();
 
 $provider = EkycService::activeProvider();
 $useSumsub = ($provider === EkycService::PROVIDER_SUMSUB);
+$useAigen = ($provider === EkycService::PROVIDER_AIGEN);
 
 if ($useSumsub && $userId > 0) {
     try {
@@ -68,6 +69,8 @@ include 'includes/navbar.php';
     <p style="text-align:center;color:#666;margin-bottom:24px;">
         <?php if ($useSumsub): ?>
             ระบบอัตโนมัติ — ถ่ายบัตรประชาชน + สแกนใบหน้า (Liveness)
+        <?php elseif ($useAigen): ?>
+            ระบบอัตโนมัติ (AiGen) — อัปโหลดบัตรประชาชน + ถ่ายใบหน้า ตรวจ OCR และจับคู่ใบหน้าทันที
         <?php else: ?>
             อัปโหลดบัตรประชาชน + ถ่ายรูปใบหน้า (Selfie)
         <?php endif; ?>
@@ -144,11 +147,16 @@ include 'includes/navbar.php';
                 </label>
 
                 <button type="submit" class="ripple-btn" id="btnSubmitKyc" style="width:100%;padding:12px;background:var(--primary-color);color:#fff;border:none;border-radius:50px;cursor:pointer;" disabled>
-                    📤 ส่งเอกสารยืนยันตัวตน
+                    <?php echo $useAigen ? '🔍 ตรวจสอบและยืนยันตัวตน' : '📤 ส่งเอกสารยืนยันตัวตน'; ?>
                 </button>
                 <button type="button" id="btnBack1" style="width:100%;margin-top:8px;padding:10px;background:transparent;border:1px solid #ddd;border-radius:50px;cursor:pointer;">← กลับ</button>
             </div>
         </form>
+        <?php if ($useAigen): ?>
+        <p style="font-size:12px;color:#888;text-align:center;margin-top:12px;">
+            ขับเคลื่อนโดย AiGen — OCR บัตรประชาชน + Face Compare
+        </p>
+        <?php endif; ?>
     <?php endif; ?>
 </div>
 
@@ -368,14 +376,25 @@ document.getElementById('kycForm')?.addEventListener('submit', function(e) {
         Swal.fire('ผิดพลาด', 'กรุณาถ่ายรูปใบหน้า', 'error');
         return;
     }
-    Swal.fire({ title: 'กำลังอัปโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    const useAigen = <?php echo $useAigen ? 'true' : 'false'; ?>;
+    Swal.fire({
+        title: useAigen ? 'กำลังตรวจสอบด้วย AiGen...' : 'กำลังอัปโหลด...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
     fetch('<?php echo BASE_URL; ?>/controllers/UserController.php', { method: 'POST', body: new FormData(this) })
         .then(r => r.json())
         .then(data => {
-            if (data.status === 'success') {
-                Swal.fire('สำเร็จ', 'ส่งเอกสารแล้ว รอแอดมินตรวจสอบ', 'success').then(() => location.reload());
+            if (data.status === 'success' && data.verified) {
+                Swal.fire('สำเร็จ', data.message || 'ยืนยันตัวตนผ่านแล้ว', 'success').then(() => {
+                    window.location.href = 'dashboard.php?tab=profile';
+                });
+            } else if (data.status === 'success') {
+                Swal.fire('สำเร็จ', data.message || 'ส่งเอกสารแล้ว รอแอดมินตรวจสอบ', 'success').then(() => location.reload());
             } else {
-                Swal.fire('ผิดพลาด', data.message || 'อัปโหลดไม่สำเร็จ', 'error');
+                Swal.fire('ไม่ผ่าน', data.message || 'อัปโหลดไม่สำเร็จ', 'error').then(() => {
+                    if (data.kyc_status === 'rejected') location.reload();
+                });
             }
         })
         .catch(() => Swal.fire('ผิดพลาด', 'เชื่อมต่อไม่ได้', 'error'));

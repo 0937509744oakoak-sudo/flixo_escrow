@@ -135,13 +135,18 @@ $logErrorsEnv = getenv('LOG_ERRORS');
 define('LOG_ERRORS', $logErrorsEnv === '1' || ($logErrorsEnv !== '0' && APP_ENV === 'production'));
 define('LOG_PATH', getenv('LOG_PATH') ?: '');
 
-// eKYC (Sumsub) — set EKYC_PROVIDER=sumsub when keys are configured
+// eKYC — provider: auto | manual | sumsub | aigen
 define('EKYC_PROVIDER', getenv('EKYC_PROVIDER') ?: 'auto');
 define('SUMSUB_APP_TOKEN', getenv('SUMSUB_APP_TOKEN') ?: '');
 define('SUMSUB_SECRET_KEY', getenv('SUMSUB_SECRET_KEY') ?: '');
 define('SUMSUB_LEVEL_NAME', getenv('SUMSUB_LEVEL_NAME') ?: 'id-and-liveness');
 define('SUMSUB_WEBHOOK_SECRET', getenv('SUMSUB_WEBHOOK_SECRET') ?: '');
 define('SUMSUB_API_BASE', 'https://api.sumsub.com');
+// AiGen (developer.aigen.online) — Thai ID OCR + Face Compare trial
+define('AIGEN_API_KEY', getenv('AIGEN_API_KEY') ?: '');
+define('AIGEN_API_BASE', getenv('AIGEN_API_BASE') ?: 'https://api.aigen.online');
+define('AIGEN_FACE_THRESHOLD', getenv('AIGEN_FACE_THRESHOLD') !== false && getenv('AIGEN_FACE_THRESHOLD') !== ''
+    ? (int) getenv('AIGEN_FACE_THRESHOLD') : 80);
 define('EKYC_REQUIRED_FOR_SELL', getenv('EKYC_REQUIRED_FOR_SELL') === '1');
 
 // AI product image fraud: Tier 1 EXIF (free) → Tier 2 Google Cloud Vision (suspicious only)

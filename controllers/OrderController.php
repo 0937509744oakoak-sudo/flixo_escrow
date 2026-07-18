@@ -72,7 +72,8 @@ try {
             $product['seller_name'],
             $product['product_name'],
             $product['price'],
-            $productId
+            $productId,
+            (string) ($product['image_path'] ?? '')
         );
 
         if ($orderId) {

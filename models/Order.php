@@ -17,12 +17,13 @@ class Order {
     }
 
   
-    public function createOffer($buyer, $seller, $item, $price, $productId = 0) {
+    public function createOffer($buyer, $seller, $item, $price, $productId = 0, $itemImage = '') {
     
-        $status = OrderStateMachine::CREATED; 
-        $sql = "INSERT INTO orders (buyer_name, seller_name, item_name, amount, status, product_id) VALUES (?, ?, ?, ?, ?, ?)";
+        $status = OrderStateMachine::CREATED;
+        $itemImage = trim((string) $itemImage);
+        $sql = "INSERT INTO orders (buyer_name, seller_name, item_name, amount, status, product_id, item_image) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("sssisi", $buyer, $seller, $item, $price, $status, $productId);
+        $stmt->bind_param("sssisis", $buyer, $seller, $item, $price, $status, $productId, $itemImage);
         
         if ($stmt->execute()) {
             $orderId = $this->conn->insert_id;
@@ -33,11 +34,12 @@ class Order {
         return false;
     }
 
-    public function createFromProduct($buyer, $seller, $item, $price, $productId) {
+    public function createFromProduct($buyer, $seller, $item, $price, $productId, $itemImage = '') {
         $status = OrderStateMachine::PENDING_PAYMENT;
-        $sql = "INSERT INTO orders (buyer_name, seller_name, item_name, amount, status, product_id) VALUES (?, ?, ?, ?, ?, ?)";
+        $itemImage = trim((string) $itemImage);
+        $sql = "INSERT INTO orders (buyer_name, seller_name, item_name, amount, status, product_id, item_image) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("sssisi", $buyer, $seller, $item, $price, $status, $productId);
+        $stmt->bind_param("sssisis", $buyer, $seller, $item, $price, $status, $productId, $itemImage);
 
         if ($stmt->execute()) {
             $orderId = $this->conn->insert_id;
@@ -208,7 +210,8 @@ class Order {
    
     public function getCompletedHistory($seller_name) {
         $completed = OrderStateMachine::COMPLETED;
-        $sql = "SELECT o.*, COALESCE(p.product_name, o.item_name) AS product_name, p.image_path
+        $sql = "SELECT o.*, COALESCE(p.product_name, o.item_name) AS product_name,
+                       COALESCE(NULLIF(o.item_image, ''), p.image_path) AS image_path
                 FROM orders o
                 LEFT JOIN products p ON o.product_id = p.id AND o.product_id > 0
                 WHERE o.seller_name = ? AND o.status = ? ORDER BY o.id DESC";
@@ -221,7 +224,8 @@ class Order {
   
     public function getOrdersByRole($username, $role = 'buyer') {
         $column = ($role === 'seller') ? 'o.seller_name' : 'o.buyer_name';
-        $sql = "SELECT o.*, COALESCE(p.product_name, o.item_name) AS product_name, p.image_path
+        $sql = "SELECT o.*, COALESCE(p.product_name, o.item_name) AS product_name,
+                       COALESCE(NULLIF(o.item_image, ''), p.image_path) AS image_path
                 FROM orders o
                 LEFT JOIN products p ON o.product_id = p.id AND o.product_id > 0
                 WHERE $column = ? ORDER BY o.id DESC";
@@ -232,7 +236,8 @@ class Order {
     }
 
     public function getRecentOrders($username, $limit = 5) {
-        $sql = "SELECT o.*, COALESCE(p.product_name, o.item_name) AS product_name, p.image_path
+        $sql = "SELECT o.*, COALESCE(p.product_name, o.item_name) AS product_name,
+                       COALESCE(NULLIF(o.item_image, ''), p.image_path) AS image_path
                 FROM orders o
                 LEFT JOIN products p ON o.product_id = p.id AND o.product_id > 0
                 WHERE o.buyer_name = ? OR o.seller_name = ?
