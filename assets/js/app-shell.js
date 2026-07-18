@@ -319,20 +319,19 @@
         if (!app) return;
 
         const initialTab = getTabFromUrl();
+        const initialViewId = resolveViewId(initialTab);
 
         syncNavHeightVar();
         window.addEventListener('resize', syncNavHeightVar);
 
         document.querySelectorAll('.app-view').forEach(function (view) {
+            if (view.id === initialViewId) {
+                view.style.display = 'block';
+                view.classList.add('is-shown', 'is-active');
+                return;
+            }
             hideViewElement(view);
         });
-
-        const initialViewId = resolveViewId(initialTab);
-        const initialView = initialViewId ? document.getElementById(initialViewId) : null;
-        if (initialView) {
-            initialView.style.display = 'block';
-            initialView.classList.add('is-shown', 'is-active');
-        }
 
         syncNavActive(initialTab);
         syncHomeChrome(initialTab);

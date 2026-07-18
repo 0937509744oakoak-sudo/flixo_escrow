@@ -537,6 +537,13 @@
     will-change: transform, opacity;
 }
 
+/* Server-rendered / settled visible tab — must not depend on JS to become opaque */
+.app-view.is-shown.is-active {
+    display: block;
+    opacity: 1;
+    transform: translate(0, 0);
+}
+
 .app-view.is-shown {
     display: block;
 }

@@ -154,22 +154,22 @@ include 'includes/navbar.php';
     ?>">
 
         <div id="app-views">
-            <div id="view-home" class="app-view" data-tab="home">
+            <div id="view-home" class="app-view<?php echo $initial_tab === 'home' ? ' is-shown is-active' : ''; ?>" data-tab="home"<?php echo $initial_tab === 'home' ? ' style="display:block"' : ''; ?>>
                 <?php include __DIR__ . '/includes/views/view_home.php'; ?>
             </div>
-            <div id="view-orders" class="app-view" data-tab="orders">
+            <div id="view-orders" class="app-view<?php echo $initial_tab === 'orders' ? ' is-shown is-active' : ''; ?>" data-tab="orders"<?php echo $initial_tab === 'orders' ? ' style="display:block"' : ''; ?>>
                 <?php include __DIR__ . '/includes/views/view_orders.php'; ?>
             </div>
-            <div id="view-chat" class="app-view app-view--chat" data-tab="chat">
+            <div id="view-chat" class="app-view app-view--chat<?php echo $initial_tab === 'chat' ? ' is-shown is-active' : ''; ?>" data-tab="chat"<?php echo $initial_tab === 'chat' ? ' style="display:block"' : ''; ?>>
                 <?php include __DIR__ . '/includes/views/view_chat.php'; ?>
             </div>
-            <div id="view-profile" class="app-view" data-tab="profile">
+            <div id="view-profile" class="app-view<?php echo $initial_tab === 'profile' ? ' is-shown is-active' : ''; ?>" data-tab="profile"<?php echo $initial_tab === 'profile' ? ' style="display:block"' : ''; ?>>
                 <?php include __DIR__ . '/includes/views/view_profile.php'; ?>
             </div>
-            <div id="view-sell-product" class="app-view" data-tab="sell">
+            <div id="view-sell-product" class="app-view<?php echo $initial_tab === 'sell' ? ' is-shown is-active' : ''; ?>" data-tab="sell"<?php echo $initial_tab === 'sell' ? ' style="display:block"' : ''; ?>>
                 <?php include __DIR__ . '/includes/views/view_sell_product.php'; ?>
             </div>
-            <div id="view-my-products" class="app-view" data-tab="my_products">
+            <div id="view-my-products" class="app-view<?php echo $initial_tab === 'my_products' ? ' is-shown is-active' : ''; ?>" data-tab="my_products"<?php echo $initial_tab === 'my_products' ? ' style="display:block"' : ''; ?>>
                 <?php include __DIR__ . '/includes/views/view_my_products.php'; ?>
             </div>
         </div>

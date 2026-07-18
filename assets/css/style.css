@@ -89,7 +89,8 @@ h1, h2, h3, h4, h5, h6, .logo a {
     letter-spacing: -0.01em;
 }
 body.page-loaded {
-    animation: fadeInPage 0.45s ease forwards;
+    /* Avoid animating body opacity from 0 — it reads as a white screen if JS/CSS is delayed */
+    animation: none;
 }
 
 a { text-decoration: none; color: inherit; }

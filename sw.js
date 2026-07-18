@@ -1,5 +1,5 @@
 /* FLIXO Escrow — minimal PWA service worker */
-const CACHE = 'flixo-shell-v2';
+const CACHE = 'flixo-shell-v3';
 const ASSETS = [
   './assets/css/flixo-app.css',
   './assets/css/style.css',
