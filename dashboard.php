@@ -16,12 +16,8 @@ if (!in_array($initial_tab, $allowed_tabs, true)) {
 
 $chat_partner = trim($_GET['user'] ?? '');
 
-$page_title = 'Dashboard';
-include 'includes/header.php';
-?>
-<link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/chat-page.css?v=<?php echo time(); ?>">
-<?php
-
+// Load all dashboard data BEFORE any HTML output so fatals are handled cleanly
+// (avoids White Screen of Death after headers are sent).
 $userModel = new User($conn);
 $orderModel = new Order($conn);
 $productModel = new Product($conn);
@@ -76,6 +72,12 @@ if ($catalog_page > $catalog_total_pages) {
 $profile_reviews = $reviewModel->getByTarget($me, 10);
 
 $thai_months = ['', 'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+
+$page_title = 'Dashboard';
+include 'includes/header.php';
+?>
+<link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/chat-page.css?v=<?php echo time(); ?>">
+<?php
 
 function formatThaiDate($datetime, array $thai_months) {
     if (empty($datetime)) {

@@ -1,5 +1,18 @@
 <?php
 
+if (!function_exists('mb_strlen')) {
+    function mb_strlen($string, $encoding = null) {
+        return strlen((string) $string);
+    }
+}
+if (!function_exists('mb_substr')) {
+    function mb_substr($string, $start, $length = null, $encoding = null) {
+        return $length === null
+            ? substr((string) $string, (int) $start)
+            : substr((string) $string, (int) $start, (int) $length);
+    }
+}
+
 /**
  * Build sidebar partner list for chat UI.
  *

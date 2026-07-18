@@ -110,17 +110,20 @@ class ErrorLogger {
         ]);
 
         // Avoid silent white screen of death — surface the fatal when possible.
-        if (php_sapi_name() === 'cli' || headers_sent()) {
+        if (php_sapi_name() === 'cli') {
             return;
         }
         if (!empty($GLOBALS['flixo_wsod_shown'])) {
             return;
         }
         $GLOBALS['flixo_wsod_shown'] = true;
-        http_response_code(500);
         $msg = $error['message'] . ' in ' . $error['file'] . ':' . $error['line'];
+        if (!headers_sent()) {
+            http_response_code(500);
+        }
+        // Even after HTML started, append a visible error so production isn't a blank page.
         if (defined('APP_ENV') && APP_ENV === 'production') {
-            echo '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>ข้อผิดพลาด</title></head><body style="font-family:sans-serif;text-align:center;padding:48px;"><h1>เกิดข้อผิดพลาด</h1><p>กรุณาลองใหม่อีกครั้งในภายหลัง</p></body></html>';
+            echo '<div style="font-family:sans-serif;text-align:center;padding:48px;"><h1>เกิดข้อผิดพลาด</h1><p>กรุณาลองใหม่อีกครั้งในภายหลัง</p></div>';
         } else {
             echo '<pre style="white-space:pre-wrap;padding:24px;font:14px/1.4 Consolas,monospace;background:#111;color:#f88;">'
                 . htmlspecialchars($msg, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
