@@ -329,6 +329,9 @@ class Product {
     public function getBySeller($seller, $limit = 12) {
         $sql = "SELECT * FROM products WHERE seller_name = ? ORDER BY id DESC LIMIT ?";
         $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
         $stmt->bind_param('si', $seller, $limit);
         $stmt->execute();
         return $stmt->get_result();

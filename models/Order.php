@@ -57,12 +57,22 @@ class Order {
 
         $sql = "SELECT id, status FROM orders WHERE status = ? AND created_at < ?";
         $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return;
+        }
         $stmt->bind_param("ss", $pendingStatus, $threshold);
         $stmt->execute();
         $result = $stmt->get_result();
+        if (!$result) {
+            return;
+        }
 
         while ($row = $result->fetch_assoc()) {
-            $this->changeStatus($row['id'], $row['status'], $cancelledStatus, 'system', 'ยกเลิกออเดอร์อัตโนมัติเมื่อไม่ชำระเงินภายใน 24 ชั่วโมง');
+            try {
+                $this->changeStatus($row['id'], $row['status'], $cancelledStatus, 'system', 'ยกเลิกออเดอร์อัตโนมัติเมื่อไม่ชำระเงินภายใน 24 ชั่วโมง');
+            } catch (Throwable $e) {
+                error_log('cancelExpiredPendingOrders #' . $row['id'] . ': ' . $e->getMessage());
+            }
         }
     }
 
@@ -148,23 +158,36 @@ class Order {
             (buyer_name=? AND status=?)";
         $pending = OrderStateMachine::PENDING_PAYMENT;
         $stmt_todo = $this->conn->prepare($sql_todo);
-        $stmt_todo->bind_param("ssssss", $username, $paid, $username, $shipped, $username, $pending);
-        $stmt_todo->execute();
-        $todo_count = $stmt_todo->get_result()->fetch_assoc()['count'] ?? 0;
+        $todo_count = 0;
+        if ($stmt_todo) {
+            $stmt_todo->bind_param("ssssss", $username, $paid, $username, $shipped, $username, $pending);
+            $stmt_todo->execute();
+            $todo_count = $stmt_todo->get_result()->fetch_assoc()['count'] ?? 0;
+        }
 
         $sql_money = "SELECT SUM(amount) as total FROM orders WHERE seller_name=? AND (status=? OR status=?)";
         $stmt_money = $this->conn->prepare($sql_money);
-        $stmt_money->bind_param("sss", $username, $paid, $shipped);
-        $stmt_money->execute();
-        $money_pending = $stmt_money->get_result()->fetch_assoc()['total'] ?? 0;
+        $money_pending = 0;
+        if ($stmt_money) {
+            $stmt_money->bind_param("sss", $username, $paid, $shipped);
+            $stmt_money->execute();
+            $money_pending = $stmt_money->get_result()->fetch_assoc()['total'] ?? 0;
+        }
 
-        require_once __DIR__ . '/../includes/WalletService.php';
-        (new WalletService($this->conn))->reconcileUserWallet($username);
-        require_once __DIR__ . '/../models/Wallet.php';
-        $walletModel = new Wallet($this->conn);
-        $wallet = $walletModel->getWalletByUsername($username);
-        if ($wallet) {
-            $money_pending = (float)$wallet['escrow_balance'];
+        try {
+            require_once __DIR__ . '/../includes/WalletService.php';
+            (new WalletService($this->conn))->reconcileUserWallet($username);
+            require_once __DIR__ . '/../models/Wallet.php';
+            $walletModel = new Wallet($this->conn);
+            $wallet = $walletModel->getWalletByUsername($username);
+            if ($wallet) {
+                $money_pending = (float)$wallet['escrow_balance'];
+            }
+        } catch (Throwable $e) {
+            error_log('getDashboardStats wallet: ' . $e->getMessage());
+            if (class_exists('ErrorLogger')) {
+                ErrorLogger::write('error', 'getDashboardStats wallet: ' . $e->getMessage());
+            }
         }
 
         return ['todo_count' => $todo_count, 'money_pending' => $money_pending];
@@ -190,19 +213,26 @@ class Order {
 
   
     public function getEarningsStats($seller_name) {
-        require_once __DIR__ . '/../includes/WalletService.php';
-        (new WalletService($this->conn))->reconcileUserWallet($seller_name);
+        try {
+            require_once __DIR__ . '/../includes/WalletService.php';
+            (new WalletService($this->conn))->reconcileUserWallet($seller_name);
 
-        require_once __DIR__ . '/../models/Wallet.php';
-        $walletModel = new Wallet($this->conn);
-        $wallet = $walletModel->getWalletByUsername($seller_name);
-        if ($wallet) {
-            return [
-                'total' => (float)$wallet['available_balance'],
-                'pending' => (float)$wallet['escrow_balance'],
-                'total_earned' => (float)$wallet['total_earned'],
-                'total_withdrawn' => (float)$wallet['total_withdrawn'],
-            ];
+            require_once __DIR__ . '/../models/Wallet.php';
+            $walletModel = new Wallet($this->conn);
+            $wallet = $walletModel->getWalletByUsername($seller_name);
+            if ($wallet) {
+                return [
+                    'total' => (float)$wallet['available_balance'],
+                    'pending' => (float)$wallet['escrow_balance'],
+                    'total_earned' => (float)$wallet['total_earned'],
+                    'total_withdrawn' => (float)$wallet['total_withdrawn'],
+                ];
+            }
+        } catch (Throwable $e) {
+            error_log('getEarningsStats wallet: ' . $e->getMessage());
+            if (class_exists('ErrorLogger')) {
+                ErrorLogger::write('error', 'getEarningsStats wallet: ' . $e->getMessage());
+            }
         }
         return ['total' => 0, 'pending' => 0, 'total_earned' => 0, 'total_withdrawn' => 0];
     }
@@ -230,6 +260,9 @@ class Order {
                 LEFT JOIN products p ON o.product_id = p.id AND o.product_id > 0
                 WHERE $column = ? ORDER BY o.id DESC";
         $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
         $stmt->bind_param("s", $username);
         $stmt->execute();
         return $stmt->get_result();
@@ -244,6 +277,9 @@ class Order {
                 ORDER BY o.id DESC
                 LIMIT ?";
         $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
         $stmt->bind_param("ssi", $username, $username, $limit);
         $stmt->execute();
         return $stmt->get_result();

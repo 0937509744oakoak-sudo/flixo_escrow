@@ -2,7 +2,7 @@
 <div class="my-products-grid">
     <?php
     $my_products = $productModel->getBySeller($me, 50);
-    if ($my_products->num_rows > 0):
+    if ($my_products && $my_products->num_rows > 0):
         while ($p = $my_products->fetch_assoc()):
             $fraudStatus = $p['image_fraud_status'] ?? 'skipped';
             $fraudLabel = '';

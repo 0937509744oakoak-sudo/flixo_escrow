@@ -54,6 +54,24 @@ try {
     $ok = false;
 }
 
+if (($checks['db'] ?? '') === 'ok' && isset($conn) && $conn instanceof mysqli) {
+    $requiredTables = [
+        'users', 'orders', 'products', 'messages', 'reviews',
+        'wallets', 'wallet_transactions', 'order_status_logs',
+    ];
+    $tableStatus = [];
+    foreach ($requiredTables as $table) {
+        $safe = preg_replace('/[^a-z0-9_]/i', '', $table);
+        $res = @$conn->query("SHOW TABLES LIKE '{$safe}'");
+        $exists = $res && $res->num_rows > 0;
+        $tableStatus[$table] = $exists ? 'ok' : 'missing';
+        if (!$exists) {
+            $ok = false;
+        }
+    }
+    $checks['tables'] = $tableStatus;
+}
+
 if (defined('APP_ENV') && APP_ENV === 'production') {
     require_once __DIR__ . '/includes/ProductionGuard.php';
     $guard = ProductionGuard::validate();
@@ -73,6 +91,24 @@ try {
     $checks['pii_roundtrip'] = 'fail';
     $checks['pii_error'] = $e->getMessage();
     $ok = false;
+}
+
+// Optional: /health.php?diag=1&token=...  (token = first 32 of sha256(ENCRYPTION_KEY + ":diag"))
+$diagToken = $_GET['token'] ?? '';
+$wantDiag = isset($_GET['diag']) && $_GET['diag'] === '1';
+if ($wantDiag && defined('ENCRYPTION_KEY') && ENCRYPTION_KEY !== '') {
+    $expected = substr(hash('sha256', ENCRYPTION_KEY . ':diag'), 0, 32);
+    if (hash_equals($expected, (string) $diagToken)) {
+        require_once __DIR__ . '/includes/ErrorLogger.php';
+        $checks['last_error'] = ErrorLogger::readLastError();
+        $logFile = ErrorLogger::logFilePath();
+        if ($logFile && is_file($logFile)) {
+            $tail = @file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            $checks['log_tail'] = $tail ? array_slice($tail, -15) : [];
+        }
+    } else {
+        $checks['diag'] = 'invalid_token';
+    }
 }
 
 echo json_encode(['ok' => $ok, 'checks' => $checks], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);

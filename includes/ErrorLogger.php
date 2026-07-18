@@ -66,6 +66,44 @@ class ErrorLogger {
             $context !== [] ? json_encode($context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : ''
         );
         @file_put_contents($file, $line, FILE_APPEND | LOCK_EX);
+
+        if (in_array($level, ['fatal', 'exception'], true)) {
+            self::writeLastError($level, $message, $context);
+        }
+    }
+
+    public static function writeLastError(string $level, string $message, array $context = []): void {
+        $dir = defined('LOG_PATH') && LOG_PATH !== ''
+            ? rtrim(LOG_PATH, '/\\')
+            : (defined('ROOT_PATH') ? ROOT_PATH . '/logs' : dirname(__DIR__) . '/logs');
+        if (!is_dir($dir) && !@mkdir($dir, 0755, true) && !is_dir($dir)) {
+            return;
+        }
+        $payload = [
+            'at' => date('c'),
+            'level' => $level,
+            'message' => $message,
+            'file' => $context['file'] ?? null,
+            'line' => $context['line'] ?? null,
+            'uri' => $_SERVER['REQUEST_URI'] ?? null,
+        ];
+        @file_put_contents($dir . '/last_error.json', json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+    }
+
+    public static function readLastError(): ?array {
+        $dir = defined('LOG_PATH') && LOG_PATH !== ''
+            ? rtrim(LOG_PATH, '/\\')
+            : (defined('ROOT_PATH') ? ROOT_PATH . '/logs' : dirname(__DIR__) . '/logs');
+        $path = $dir . '/last_error.json';
+        if (!is_file($path)) {
+            return null;
+        }
+        $raw = @file_get_contents($path);
+        if ($raw === false || $raw === '') {
+            return null;
+        }
+        $data = json_decode($raw, true);
+        return is_array($data) ? $data : null;
     }
 
     public static function handleError(int $severity, string $message, string $file, int $line): bool {
@@ -85,11 +123,13 @@ class ErrorLogger {
 
         if (php_sapi_name() !== 'cli' && !headers_sent()) {
             http_response_code(500);
-            if (defined('APP_ENV') && APP_ENV === 'production') {
-                echo '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>ข้อผิดพลาด</title></head><body style="font-family:sans-serif;text-align:center;padding:48px;"><h1>เกิดข้อผิดพลาด</h1><p>กรุณาลองใหม่อีกครั้งในภายหลัง</p></body></html>';
-            } else {
-                echo '<pre>' . htmlspecialchars($e->getMessage() . "\n" . $e->getTraceAsString()) . '</pre>';
-            }
+            $detail = $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine();
+            echo '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>ข้อผิดพลาด</title></head><body style="font-family:sans-serif;text-align:center;padding:48px;">';
+            echo '<h1>เกิดข้อผิดพลาด</h1><p>กรุณาลองใหม่อีกครั้งในภายหลัง</p>';
+            echo '<pre style="text-align:left;max-width:900px;margin:24px auto;padding:16px;background:#111;color:#f88;white-space:pre-wrap;font:13px/1.4 Consolas,monospace;">'
+                . htmlspecialchars($detail, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+                . '</pre>';
+            echo '</body></html>';
         }
         exit(1);
     }
@@ -121,14 +161,11 @@ class ErrorLogger {
         if (!headers_sent()) {
             http_response_code(500);
         }
-        // Even after HTML started, append a visible error so production isn't a blank page.
-        if (defined('APP_ENV') && APP_ENV === 'production') {
-            echo '<div style="font-family:sans-serif;text-align:center;padding:48px;"><h1>เกิดข้อผิดพลาด</h1><p>กรุณาลองใหม่อีกครั้งในภายหลัง</p></div>';
-        } else {
-            echo '<pre style="white-space:pre-wrap;padding:24px;font:14px/1.4 Consolas,monospace;background:#111;color:#f88;">'
-                . htmlspecialchars($msg, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
-                . '</pre>';
-        }
+        // Surface the fatal so we can diagnose production WSOD (remove detail after fix).
+        echo '<div style="font-family:sans-serif;text-align:center;padding:48px;"><h1>เกิดข้อผิดพลาด</h1><p>กรุณาลองใหม่อีกครั้งในภายหลัง</p>';
+        echo '<pre style="text-align:left;max-width:900px;margin:24px auto;padding:16px;background:#111;color:#f88;white-space:pre-wrap;font:13px/1.4 Consolas,monospace;">'
+            . htmlspecialchars($msg, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+            . '</pre></div>';
     }
 
     private static function rotateIfNeeded(string $file): void {

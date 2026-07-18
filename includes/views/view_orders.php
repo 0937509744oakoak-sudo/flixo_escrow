@@ -7,13 +7,17 @@ $res_buy = $orderModel->getOrdersByRole($me, 'buyer');
 $res_sell = $orderModel->getOrdersByRole($me, 'seller');
 
 $buy_orders = [];
-while ($row = $res_buy->fetch_assoc()) {
-    $buy_orders[] = $row;
+if ($res_buy) {
+    while ($row = $res_buy->fetch_assoc()) {
+        $buy_orders[] = $row;
+    }
 }
 
 $sell_orders = [];
-while ($row = $res_sell->fetch_assoc()) {
-    $sell_orders[] = $row;
+if ($res_sell) {
+    while ($row = $res_sell->fetch_assoc()) {
+        $sell_orders[] = $row;
+    }
 }
 
 $completed_order_ids = [];

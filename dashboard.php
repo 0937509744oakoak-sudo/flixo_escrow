@@ -26,6 +26,10 @@ $reviewModel = new Review($conn);
 $orderModel->cancelExpiredPendingOrders(24);
 
 $user = $userModel->findByUsername($me);
+if (!$user) {
+    clearSession();
+    redirectTo('login.php');
+}
 $my_display_name = User::resolveDisplayName($user['real_name'] ?? '', $me);
 $seller_verified = $userModel->isVerified($me);
 $chat_count = $userModel->getChatCount($me);

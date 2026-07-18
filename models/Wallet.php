@@ -20,6 +20,9 @@ class Wallet {
 
     public function getOrCreateWallet(int $userId): array {
         $stmt = $this->conn->prepare("SELECT * FROM wallets WHERE user_id = ? LIMIT 1");
+        if (!$stmt) {
+            throw new RuntimeException('wallets table missing or unreadable: ' . $this->conn->error);
+        }
         $stmt->bind_param('i', $userId);
         $stmt->execute();
         $wallet = $stmt->get_result()->fetch_assoc();
@@ -27,6 +30,9 @@ class Wallet {
             return $wallet;
         }
         $ins = $this->conn->prepare("INSERT INTO wallets (user_id) VALUES (?)");
+        if (!$ins) {
+            throw new RuntimeException('Cannot create wallet: ' . $this->conn->error);
+        }
         $ins->bind_param('i', $userId);
         $ins->execute();
         return [
@@ -49,6 +55,9 @@ class Wallet {
 
     public function hasTransaction(string $idempotencyKey): bool {
         $stmt = $this->conn->prepare("SELECT id FROM wallet_transactions WHERE idempotency_key = ? LIMIT 1");
+        if (!$stmt) {
+            throw new RuntimeException('wallet_transactions table missing or unreadable: ' . $this->conn->error);
+        }
         $stmt->bind_param('s', $idempotencyKey);
         $stmt->execute();
         return $stmt->get_result()->num_rows > 0;
