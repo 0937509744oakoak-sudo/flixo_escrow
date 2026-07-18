@@ -1,5 +1,5 @@
 /* FLIXO Escrow — minimal PWA service worker */
-const CACHE = 'flixo-shell-v3';
+const CACHE = 'flixo-shell-v4';
 const ASSETS = [
   './assets/css/flixo-app.css',
   './assets/css/style.css',
@@ -7,16 +7,14 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(ASSETS).catch(() => {}))
-  );
+  // Do not precache CSS/JS — stale shells caused white-screen after deploys.
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
+      Promise.all(keys.map((k) => caches.delete(k)))
     )
   );
   self.clients.claim();
@@ -76,22 +74,20 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
+
+  // Never intercept app pages or API — always network.
   if (
     url.pathname.includes('/controllers/') ||
     url.pathname.includes('/api/') ||
-    url.pathname.endsWith('.php')
+    url.pathname.endsWith('.php') ||
+    url.pathname.endsWith('.css') ||
+    url.pathname.endsWith('.js')
   ) {
     return;
   }
+
+  // Optional: icons only — network first, no stale CSS/JS shells.
   event.respondWith(
-    caches.match(req).then((cached) =>
-      cached || fetch(req).then((res) => {
-        if (res.ok && (url.pathname.endsWith('.css') || url.pathname.endsWith('.js'))) {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy));
-        }
-        return res;
-      }).catch(() => cached)
-    )
+    fetch(req).catch(() => caches.match(req))
   );
 });

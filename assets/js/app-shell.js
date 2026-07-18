@@ -362,8 +362,19 @@
     });
 
     if ('serviceWorker' in navigator) {
+        // Push notifications need a SW; register a network-only worker after clearing old caches.
         window.addEventListener('load', function () {
-            navigator.serviceWorker.register('sw.js').catch(function () {});
+            navigator.serviceWorker.getRegistrations().then(function (regs) {
+                return Promise.all(regs.map(function (r) { return r.unregister(); }));
+            }).then(function () {
+                if (window.caches && caches.keys) {
+                    return caches.keys().then(function (keys) {
+                        return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+                    });
+                }
+            }).then(function () {
+                return navigator.serviceWorker.register('sw.js?v=4').catch(function () {});
+            });
         });
     }
 })();

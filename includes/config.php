@@ -131,8 +131,9 @@ define('APP_ENV', getenv('APP_ENV') ?: 'local');
 define('ENCRYPTION_KEY', getenv('ENCRYPTION_KEY') ?: '');
 
 // Error logging (auto-enabled in production unless LOG_ERRORS=0)
+// Also enable locally so fatals are written to logs/app.log (helps WSOD debugging).
 $logErrorsEnv = getenv('LOG_ERRORS');
-define('LOG_ERRORS', $logErrorsEnv === '1' || ($logErrorsEnv !== '0' && APP_ENV === 'production'));
+define('LOG_ERRORS', $logErrorsEnv === '1' || ($logErrorsEnv !== '0' && (APP_ENV === 'production' || APP_ENV === 'local')));
 define('LOG_PATH', getenv('LOG_PATH') ?: '');
 
 // eKYC — provider: auto | manual | sumsub | aigen

@@ -60,3 +60,29 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet" />
 </head>
 <body>
+<style id="flixo-critical-visibility">
+/* Prevent WSOD from stale cached CSS (body opacity:0 / hidden app views) */
+html, body { opacity: 1 !important; }
+body.page-loaded { animation: none !important; opacity: 1 !important; }
+.app-view.is-shown.is-active,
+.app-view.is-shown.is-active.is-enter-fade-up {
+  display: block !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+.home-chrome.is-visible { display: block !important; }
+</style>
+<script>
+(function () {
+  // Bust stale service workers that cached broken CSS shells
+  if (!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.getRegistrations().then(function (regs) {
+    regs.forEach(function (reg) { reg.unregister(); });
+  });
+  if (window.caches && caches.keys) {
+    caches.keys().then(function (keys) {
+      keys.forEach(function (k) { caches.delete(k); });
+    });
+  }
+})();
+</script>
