@@ -1,0 +1,2 @@
+# Payment slips are served only through controllers/SlipController.php.
+Require all denied

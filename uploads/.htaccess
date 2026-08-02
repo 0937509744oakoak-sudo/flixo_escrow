@@ -1,0 +1,16 @@
+# Uploads are user-controlled data: never execute them, only serve them as files.
+# Public subfolders (products/) stay readable; private ones deny access in their
+# own .htaccess and are served through authorising controllers instead.
+
+Options -Indexes -ExecCGI
+
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+
+<FilesMatch "(?i)\.(php|phtml|php[0-9]|phar|cgi|pl|py|sh|htm|html|svg)$">
+    Require all denied
+</FilesMatch>
+
+RemoveHandler .php .phtml .phar
+RemoveType .php .phtml .phar

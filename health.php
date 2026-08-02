@@ -34,13 +34,10 @@ $checks['encryption_key_set'] = defined('ENCRYPTION_KEY') && strlen(ENCRYPTION_K
 $checks['slip_key_set'] = defined('SLIP_API_KEY') && SLIP_API_KEY !== '';
 $checks['ekyc_provider'] = defined('EKYC_PROVIDER') ? EKYC_PROVIDER : null;
 $checks['aigen_key_set'] = defined('AIGEN_API_KEY') && AIGEN_API_KEY !== '';
+$checks['mock_api_mode'] = defined('MOCK_API_MODE') ? (bool) MOCK_API_MODE : false;
 $checks['request_host'] = $_SERVER['HTTP_HOST'] ?? null;
 $checks['forwarded_proto'] = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null;
 $checks['https'] = $_SERVER['HTTPS'] ?? null;
-
-$sessionPath = ini_get('session.save_path') ?: '(default)';
-$checks['session_save_path'] = $sessionPath;
-$checks['session_path_writable'] = $sessionPath !== '(default)' ? is_writable($sessionPath) : true;
 
 $uploadRoot = __DIR__ . '/uploads';
 $checks['uploads_writable'] = is_dir($uploadRoot) && is_writable($uploadRoot);
@@ -53,6 +50,12 @@ try {
     $checks['db_error'] = $e->getMessage();
     $ok = false;
 }
+
+// Read after db.php, which pulls in session.php: before that point this only
+// reports the php.ini default, not the path the application actually uses.
+$sessionPath = ini_get('session.save_path') ?: '(default)';
+$checks['session_save_path'] = $sessionPath;
+$checks['session_path_writable'] = $sessionPath !== '(default)' ? is_writable($sessionPath) : true;
 
 if (($checks['db'] ?? '') === 'ok' && isset($conn) && $conn instanceof mysqli) {
     $requiredTables = [
@@ -91,6 +94,45 @@ try {
     $checks['pii_roundtrip'] = 'fail';
     $checks['pii_error'] = $e->getMessage();
     $ok = false;
+}
+
+// Integration status — booleans / mode labels only. Never echo secrets.
+$omisePublic = defined('OMISE_PUBLIC_KEY') ? (string) OMISE_PUBLIC_KEY : '';
+$omiseSecret = defined('OMISE_SECRET_KEY') ? (string) OMISE_SECRET_KEY : '';
+$omiseMode = 'unset';
+if ($omisePublic !== '' || $omiseSecret !== '') {
+    $probe = $omisePublic !== '' ? $omisePublic : $omiseSecret;
+    if (str_contains($probe, '_test_')) {
+        $omiseMode = 'test';
+    } elseif (str_contains($probe, '_live_')) {
+        $omiseMode = 'live';
+    } else {
+        $omiseMode = 'unknown';
+    }
+}
+$checks['integrations'] = [
+    'mock_api_mode' => defined('MOCK_API_MODE') ? (bool) MOCK_API_MODE : false,
+    'easyslip' => defined('SLIP_API_KEY') && SLIP_API_KEY !== '',
+    'omise' => $omisePublic !== '' && $omiseSecret !== '',
+    'omise_mode' => $omiseMode,
+    'google_signin' => defined('GOOGLE_CLIENT_ID') && GOOGLE_CLIENT_ID !== '',
+    'sumsub_api' => defined('SUMSUB_APP_TOKEN') && SUMSUB_APP_TOKEN !== ''
+        && defined('SUMSUB_SECRET_KEY') && SUMSUB_SECRET_KEY !== '',
+    'sumsub_webhook' => defined('SUMSUB_WEBHOOK_SECRET') && SUMSUB_WEBHOOK_SECRET !== '',
+    'aigen' => defined('AIGEN_API_KEY') && AIGEN_API_KEY !== '',
+    'thaid' => defined('THAID_ENABLED') && THAID_ENABLED,
+    'cloud_vision' => defined('GOOGLE_CLOUD_VISION_API_KEY') && GOOGLE_CLOUD_VISION_API_KEY !== '',
+    'groq' => defined('GROQ_API_KEY') && GROQ_API_KEY !== '',
+    'openrouter' => defined('OPENROUTER_API_KEY') && OPENROUTER_API_KEY !== '',
+    'gemini' => defined('GEMINI_API_KEY') && GEMINI_API_KEY !== '',
+    'mail' => defined('MAIL_ENABLED') && MAIL_ENABLED,
+];
+
+try {
+    require_once __DIR__ . '/includes/EkycService.php';
+    $checks['integrations']['ekyc_active_provider'] = EkycService::activeProvider();
+} catch (Throwable $e) {
+    $checks['integrations']['ekyc_active_provider'] = 'error';
 }
 
 // Optional: /health.php?diag=1&token=...  (token = first 32 of sha256(ENCRYPTION_KEY + ":diag"))

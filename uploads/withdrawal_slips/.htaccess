@@ -1,0 +1,2 @@
+# Payout slips are served only through controllers/WithdrawalSlipController.php.
+Require all denied

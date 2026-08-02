@@ -1,6 +1,9 @@
 # Local environment variables
 .env
 
+# Real personal test data (ID cards / selfies / slips) — never commit
+data_real/
+
 # System files
 Thumbs.db
 .DS_Store
@@ -9,8 +12,22 @@ Thumbs.db
 *.log
 logs/*
 !logs/.gitkeep
-storage/
-!storage/.gitkeep
+!logs/.htaccess
 
-# XAMPP runtime files
-uploads/desktop.ini
+# Runtime state: session files (the filename IS the session id) and caches
+storage/*
+!storage/.gitkeep
+!storage/.htaccess
+
+# User uploads — KYC documents, payment slips and dispute evidence are real
+# personal data. Only the directory guards are tracked.
+uploads/*
+!uploads/.htaccess
+!uploads/*/
+uploads/*/*
+!uploads/*/.htaccess
+!uploads/*/.gitkeep
+
+# Python tooling for the thesis report generators
+__pycache__/
+*.pyc

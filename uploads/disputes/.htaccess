@@ -1,0 +1,3 @@
+# Dispute evidence is served only through controllers/DisputeEvidenceController.php,
+# which verifies the caller is a party to the dispute (or staff).
+Require all denied

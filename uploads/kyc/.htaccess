@@ -1,3 +1,2 @@
-# ปฏิเสธการเข้าถึงผ่าน URL โดยตรงทั้งหมด
-Order Deny,Allow
-Deny from all
+# KYC documents are served only through admin/get_image.php (RBAC + audit log).
+Require all denied
