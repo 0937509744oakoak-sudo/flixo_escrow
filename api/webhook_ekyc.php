@@ -12,13 +12,20 @@ if ($raw === '') {
     exit(json_encode(['error' => 'empty body']));
 }
 
-if (defined('SUMSUB_WEBHOOK_SECRET') && SUMSUB_WEBHOOK_SECRET !== '') {
-    $digest = $_SERVER['HTTP_X_PAYLOAD_DIGEST'] ?? '';
-    $expected = hash_hmac('sha256', $raw, SUMSUB_WEBHOOK_SECRET);
-    if (!hash_equals($expected, $digest)) {
-        http_response_code(401);
-        exit(json_encode(['error' => 'invalid signature']));
-    }
+// This endpoint can grant KYC-verified status, which is the gate for
+// withdrawals — so an unverifiable request must be rejected, never trusted.
+$webhookSecret = defined('SUMSUB_WEBHOOK_SECRET') ? SUMSUB_WEBHOOK_SECRET : '';
+if ($webhookSecret === '') {
+    ErrorLogger::write('error', 'eKYC webhook rejected: SUMSUB_WEBHOOK_SECRET is not configured');
+    http_response_code(503);
+    exit(json_encode(['error' => 'webhook not configured']));
+}
+
+$digest = $_SERVER['HTTP_X_PAYLOAD_DIGEST'] ?? '';
+$expected = hash_hmac('sha256', $raw, $webhookSecret);
+if (!is_string($digest) || !hash_equals($expected, $digest)) {
+    http_response_code(401);
+    exit(json_encode(['error' => 'invalid signature']));
 }
 
 $payload = json_decode($raw, true);

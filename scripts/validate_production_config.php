@@ -42,6 +42,7 @@ check(
     WEBHOOK_SECRET !== '' && WEBHOOK_SECRET !== 'FLIXO_SECRET_DEMO_2026',
     'WEBHOOK_SECRET (not demo default)'
 );
+check(!MOCK_API_MODE, 'MOCK_API_MODE off', 'eKYC and AI checks return simulated results while this is on');
 
 echo "\n2. PAYMENT & INTEGRATIONS\n";
 check(SLIP_API_KEY !== '', 'SLIP_API_KEY configured');
@@ -69,7 +70,7 @@ check(is_dir($logDir) || @mkdir($logDir, 0755, true), 'Log directory writable', 
 
 if ($strict || APP_ENV === 'production') {
     echo "\n5. PRODUCTION GUARD (strict)\n";
-    $guardErrors = ProductionGuard::validate();
+    $guardErrors = ProductionGuard::validate($strict);
     if ($guardErrors === []) {
         check(true, 'ProductionGuard::validate() passed');
     } else {

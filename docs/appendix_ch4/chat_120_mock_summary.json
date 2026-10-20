@@ -1,0 +1,139 @@
+{
+    "n": 120,
+    "tp": 51,
+    "tn": 56,
+    "fp": 4,
+    "fn": 9,
+    "accuracy_pct": 89.17,
+    "precision": 0.9273,
+    "recall": 0.85,
+    "f1": 0.887,
+    "avg_ms": 414,
+    "p95_ms": 1653,
+    "providers": {
+        "groq": 39,
+        "none": 81
+    },
+    "mock_api_mode": true,
+    "mode": "mock",
+    "dataset": "C:\\xampp\\htdocs\\flixo_escrow\\tests\\chat_moderation_dataset_120.csv",
+    "misses": [
+        {
+            "no": 43,
+            "group": "C2",
+            "gt": 1,
+            "verdict": "pass",
+            "provider": "none",
+            "text": "Line ID sell_cash โอนสดรับของเร็ว",
+            "note": "MISS | pred=0 | preview: Line ID sell_cash โอนสดรับของเร็ว"
+        },
+        {
+            "no": 52,
+            "group": "C2",
+            "gt": 1,
+            "verdict": "pass",
+            "provider": "none",
+            "text": "ไลน์: escrow_skip คุยโอนเงินนอก",
+            "note": "MISS | pred=0 | preview: ไลน์: escrow_skip คุยโอนเงินนอก"
+        },
+        {
+            "no": 84,
+            "group": "C1",
+            "gt": 0,
+            "verdict": "flag",
+            "provider": "groq",
+            "text": "ลดเหลือเท่านี้นะคับ แล้วกดซื้อผ่านแอป",
+            "note": "MISS | pred=1 | พบคำชักชวนโอน\/ติดต่อนอกระบบ (ผ่านแอป); ข้อความมีลักษณะกำกวม ควรติดตาม (mock)"
+        },
+        {
+            "no": 101,
+            "group": "C2",
+            "gt": 1,
+            "verdict": "pass",
+            "provider": "none",
+            "text": "Line ID cash_now99 โอนสดรับทันที",
+            "note": "MISS | pred=0 | preview: Line ID cash_now99 โอนสดรับทันที"
+        },
+        {
+            "no": 102,
+            "group": "C2",
+            "gt": 1,
+            "verdict": "pass",
+            "provider": "none",
+            "text": "ไลน์: meet_out88 คุยโอนเงินนอกแพลต",
+            "note": "MISS | pred=0 | preview: ไลน์: meet_out88 คุยโอนเงินนอกแพลต"
+        },
+        {
+            "no": 103,
+            "group": "C2",
+            "gt": 1,
+            "verdict": "pass",
+            "provider": "none",
+            "text": "ส่งไลน์มาได้มั้ย จะบอกราคาโอนสด",
+            "note": "MISS | pred=0 | preview: ส่งไลน์มาได้มั้ย จะบอกราคาโอนสด"
+        },
+        {
+            "no": 104,
+            "group": "C2",
+            "gt": 1,
+            "verdict": "pass",
+            "provider": "none",
+            "text": "โอนเงินนอกแอปให้ ส่วนลดพิเศษ",
+            "note": "MISS | pred=0 | preview: โอนเงินนอกแอปให้ ส่วนลดพิเศษ"
+        },
+        {
+            "no": 105,
+            "group": "C2",
+            "gt": 1,
+            "verdict": "pass",
+            "provider": "none",
+            "text": "line id: quickpay77 อย่ากดในระบบ",
+            "note": "MISS | pred=0 | preview: line id: quickpay77 อย่ากดในระบบ"
+        },
+        {
+            "no": 108,
+            "group": "C2",
+            "gt": 1,
+            "verdict": "pass",
+            "provider": "none",
+            "text": "คุยทางไลน์แล้วโอนเงินนอกเลย",
+            "note": "MISS | pred=0 | preview: คุยทางไลน์แล้วโอนเงินนอกเลย"
+        },
+        {
+            "no": 110,
+            "group": "C2",
+            "gt": 1,
+            "verdict": "pass",
+            "provider": "none",
+            "text": "อย่าใช้ระบบเลย โอนสดรับของไว",
+            "note": "MISS | pred=0 | preview: อย่าใช้ระบบเลย โอนสดรับของไว"
+        },
+        {
+            "no": 111,
+            "group": "C1",
+            "gt": 0,
+            "verdict": "flag",
+            "provider": "groq",
+            "text": "เดี๋ยวผมกดซื้อผ่านแอปตามราคานี้",
+            "note": "MISS | pred=1 | พบคำชักชวนโอน\/ติดต่อนอกระบบ (ผ่านแอป); ข้อความมีลักษณะกำกวม ควรติดตาม (mock)"
+        },
+        {
+            "no": 114,
+            "group": "C1",
+            "gt": 0,
+            "verdict": "reject",
+            "provider": "groq",
+            "text": "กดชำระผ่านแอปเรียบร้อยแล้วครับ",
+            "note": "MISS | pred=1 | พบคำชักชวนโอน\/ติดต่อนอกระบบ (ผ่านแอป); ตรวจพบการชักชวนชำระหรือติดต่อนอกแพลตฟอร์ม (mock)"
+        },
+        {
+            "no": 116,
+            "group": "C1",
+            "gt": 0,
+            "verdict": "reject",
+            "provider": "groq",
+            "text": "ราคาผ่านแอปนี้รวมค่าส่งแล้วใช่ไหม",
+            "note": "MISS | pred=1 | พบคำชักชวนโอน\/ติดต่อนอกระบบ (ผ่านแอป); ตรวจพบการชักชวนชำระหรือติดต่อนอกแพลตฟอร์ม (mock)"
+        }
+    ]
+}

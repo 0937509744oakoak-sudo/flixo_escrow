@@ -5,6 +5,7 @@ require_once __DIR__ . '/CourierService.php';
 require_once __DIR__ . '/order_helper.php';
 require_once __DIR__ . '/OpenRouterService.php';
 require_once __DIR__ . '/GroqService.php';
+require_once __DIR__ . '/MockApiHelper.php';
 
 class DisputeAssistantService {
     public const PROVIDER_GEMINI = 'gemini';
@@ -28,14 +29,23 @@ class DisputeAssistantService {
     }
 
     public static function isGeminiConfigured(): bool {
+        if (MockApiHelper::isEnabled()) {
+            return true;
+        }
         return defined('GEMINI_API_KEY') && GEMINI_API_KEY !== '';
     }
 
     public static function isOpenRouterConfigured(): bool {
+        if (MockApiHelper::isEnabled()) {
+            return true;
+        }
         return OpenRouterService::isConfigured();
     }
 
     public static function isGroqConfigured(): bool {
+        if (MockApiHelper::isEnabled()) {
+            return true;
+        }
         return GroqService::isConfigured();
     }
 
@@ -232,7 +242,32 @@ class DisputeAssistantService {
      * @param array<string, mixed> $context
      * @return array<string, mixed>
      */
+    /**
+     * Benchmark / load-test entry (no DB dispute required, no persistence).
+     *
+     * @param array<string, mixed> $context
+     * @return array<string, mixed>
+     */
+    public function analyzeContextForBenchmark(array $context, bool $forceHeuristic = false): array {
+        $amount = (float) ($context['order']['amount'] ?? 1000);
+        if ($forceHeuristic) {
+            return $this->analyzeWithHeuristics($context);
+        }
+        if (MockApiHelper::isEnabled()) {
+            $forced = MockApiHelper::consumeDisputeAction();
+            $parsed = MockApiHelper::disputeAiJson($amount, $forced);
+            return $this->normalizeAnalysis($parsed, $amount, self::PROVIDER_GROQ, $parsed);
+        }
+        return $this->analyzeWithPreferredAi($context);
+    }
+
     private function analyzeWithPreferredAi(array $context): array {
+        if (MockApiHelper::isEnabled()) {
+            $amount = (float) ($context['order']['amount'] ?? 1000);
+            $parsed = MockApiHelper::disputeAiJson($amount, MockApiHelper::consumeDisputeAction());
+            return $this->normalizeAnalysis($parsed, $amount, self::PROVIDER_GROQ, $parsed);
+        }
+
         $errors = [];
 
         if (self::isGroqConfigured()) {

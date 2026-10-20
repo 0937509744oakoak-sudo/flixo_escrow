@@ -1,0 +1,467 @@
+{
+    "ekyc": {
+        "n": 100,
+        "rows_sample": [
+            {
+                "No.": "1",
+                "Group": "G1",
+                "GT Match (1/0)": "1",
+                "OCR Pass (1/0)": "1",
+                "Face Score": "89.46",
+                "System Match (1/0)": "1",
+                "KYC Status": "approved",
+                "OCR ms": "515",
+                "Face ms": "1769",
+                "E2E ms": "2285",
+                "Device": "CLI-LoadTest / fixtures JPEG",
+                "Light": "Good",
+                "Note": "ยืนยันตัวตนสำเร็จ"
+            },
+            {
+                "No.": "2",
+                "Group": "G2",
+                "GT Match (1/0)": "0",
+                "OCR Pass (1/0)": "1",
+                "Face Score": "50.13",
+                "System Match (1/0)": "0",
+                "KYC Status": "rejected",
+                "OCR ms": "1171",
+                "Face ms": "1661",
+                "E2E ms": "2833",
+                "Device": "CLI-LoadTest / fixtures JPEG",
+                "Light": "Good",
+                "Note": "ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 50.1)"
+            }
+        ],
+        "tp": 50,
+        "tn": 50,
+        "fp": 0,
+        "fn": 0,
+        "avg": 2429,
+        "p95": 3407,
+        "min": 1217,
+        "max": 3723
+    },
+    "chat": {
+        "n": 100,
+        "rows_sample": [
+            {
+                "No.": "1",
+                "Group": "C2",
+                "GT Risky (1/0)": "1",
+                "Regex Score": "65",
+                "AI Provider Used": "groq",
+                "AI Score": "61",
+                "Final Score": "65",
+                "Verdict": "flag",
+                "Blocked?": "0",
+                "Latency ms": "690",
+                "Note": "OK | pred=1 | พบคำชักชวนโอน/ติดต่อนอกระบบ (คุยนอกแอพ, แอดไลน์); ข้อความมีลักษณะกำกวม ควรติดตาม (mock)"
+            },
+            {
+                "No.": "2",
+                "Group": "C2",
+                "GT Risky (1/0)": "1",
+                "Regex Score": "75",
+                "AI Provider Used": "groq",
+                "AI Score": "82",
+                "Final Score": "82",
+                "Verdict": "reject",
+                "Blocked?": "1",
+                "Latency ms": "1539",
+                "Note": "OK | pred=1 | พบเบอร์โทรศัพท์ในข้อความ; พบคำที่เกี่ยวกับบัญชีธนาคาร (พร้อมเพย์); พบคำชักชวนโอน/ติดต่อนอกระบบ (พร้อมเพย์); ตรวจพบการชักชวนชำระหรือติดต่อนอกแพลตฟอร์ม (mock)"
+            }
+        ],
+        "tp": 48,
+        "tn": 49,
+        "fp": 1,
+        "fn": 2,
+        "avg": 399,
+        "p95": 1676,
+        "providers": {
+            "none": 66,
+            "groq": 34
+        },
+        "accuracy": 97,
+        "precision": 97.96,
+        "recall": 96,
+        "f1": 0.9697,
+        "miss": [
+            {
+                "no": "43",
+                "group": "C2",
+                "gt": 1,
+                "verdict": "pass",
+                "score": 0,
+                "provider": "none",
+                "text": "Line ID sell_cash โอนสดรับของเร็ว"
+            },
+            {
+                "no": "52",
+                "group": "C2",
+                "gt": 1,
+                "verdict": "pass",
+                "score": 0,
+                "provider": "none",
+                "text": "ไลน์: escrow_skip คุยโอนเงินนอก"
+            },
+            {
+                "no": "84",
+                "group": "C1",
+                "gt": 0,
+                "verdict": "flag",
+                "score": 68,
+                "provider": "groq",
+                "text": "ลดเหลือเท่านี้นะคับ แล้วกดซื้อผ่านแอป"
+            }
+        ]
+    },
+    "image": {
+        "n": 100,
+        "rows_sample": [
+            {
+                "No.": "1",
+                "Group": "P2",
+                "GT Risky (1/0)": "1",
+                "EXIF Trust": "20",
+                "Suspicious?": "1",
+                "Vision Used (0/1)": "1",
+                "Risk Score": "80",
+                "Verdict": "reject",
+                "Blocked?": "1",
+                "Latency ms": "1418",
+                "Note": "พบภาพคล้ายกันบนอินเทอร์เน็ต; ภาพน่าจะเป็น Screenshot ไม่ใช่รูปถ่ายสินค้า; พบข้อความชวนติดต่อนอกแพลตฟอร์มในภาพ; จำลองภาพน่าสงสัยสำหรับ load test"
+            },
+            {
+                "No.": "2",
+                "Group": "P1",
+                "GT Risky (1/0)": "0",
+                "EXIF Trust": "80",
+                "Suspicious?": "0",
+                "Vision Used (0/1)": "0",
+                "Risk Score": "12",
+                "Verdict": "pass",
+                "Blocked?": "0",
+                "Latency ms": "469",
+                "Note": ""
+            }
+        ],
+        "tp": 50,
+        "tn": 50,
+        "fp": 0,
+        "fn": 0,
+        "avg": 1129,
+        "p95": 2137
+    },
+    "dispute": {
+        "n": 100,
+        "rows_sample": [
+            {
+                "No.": "1",
+                "Dispute ID": "SYN-1",
+                "Admin Gold Action": "REFUND_BUYER",
+                "AI Action": "REFUND_BUYER",
+                "Provider": "groq",
+                "Confidence": "78",
+                "Agree (1/0)": "1",
+                "Latency ms": "764",
+                "Note": "แนะนำคืนเงินผู้ซื้อ (mock) — ผู้ขายน่าจะผิดส่วนใหญ่"
+            },
+            {
+                "No.": "2",
+                "Dispute ID": "SYN-2",
+                "Admin Gold Action": "REFUND_BUYER",
+                "AI Action": "REFUND_BUYER",
+                "Provider": "groq",
+                "Confidence": "70",
+                "Agree (1/0)": "1",
+                "Latency ms": "1044",
+                "Note": "แนะนำคืนเงินผู้ซื้อ (mock) — ผู้ขายน่าจะผิดส่วนใหญ่"
+            }
+        ],
+        "agree": 100,
+        "agreement_pct": 100,
+        "avg": 1333,
+        "p95": 1971
+    },
+    "sumsub": {
+        "n": 100,
+        "rows_sample": [
+            {
+                "No.": "1",
+                "Group": "S1",
+                "GT Answer": "GREEN",
+                "Token Latency ms": "743",
+                "Applicant Latency ms": "1034",
+                "Review Latency ms": "1329",
+                "E2E ms": "3106",
+                "System Answer": "GREEN",
+                "Match (1/0)": "1",
+                "Note": "token=mock_sumsub_sdk_… applicant=mock_applicant_0bf9621c0a6688c4"
+            },
+            {
+                "No.": "2",
+                "Group": "S2",
+                "GT Answer": "RED",
+                "Token Latency ms": "503",
+                "Applicant Latency ms": "579",
+                "Review Latency ms": "503",
+                "E2E ms": "1585",
+                "System Answer": "RED",
+                "Match (1/0)": "1",
+                "Note": "token=mock_sumsub_sdk_… applicant=mock_applicant_ff820363d2c3b71e"
+            }
+        ],
+        "acc": 100,
+        "avg": 3063,
+        "p95": 4048
+    },
+    "easyslip": {
+        "n": 100,
+        "correct": 100,
+        "accuracy": 100.0,
+        "false_autopay": 0,
+        "manual_fallback": 50,
+        "api_http200": 50,
+        "avg": 299,
+        "p95": 439,
+        "mode": "fixture_decision_logic"
+    },
+    "omise": {
+        "n": 100,
+        "pass": 100,
+        "pass_rate": 100.0,
+        "avg": 1033,
+        "p95": 2438,
+        "avg_charges": 1608,
+        "avg_sources": 557,
+        "pass_by_case": {
+            "O1": 30,
+            "O2": 20,
+            "O3": 30,
+            "O5": 10,
+            "O4": 10
+        },
+        "mode": "sandbox_live",
+        "webhook_logic_pct": 100.0
+    },
+    "google_auth": {
+        "n": 100,
+        "pass": 100,
+        "accuracy": 100.0,
+        "false_accept": 0,
+        "avg": 94,
+        "p95": 465,
+        "certs_success_pct": 100.0,
+        "mode": "certs_live_plus_synthetic_negative"
+    },
+    "resilience": {
+        "n": 10,
+        "pass": 10,
+        "rate_pct": 100,
+        "mock_api_mode": false,
+        "vision_key_stubbed": "__RESILIENCE_DISABLED__",
+        "cases": [
+            {
+                "no": "1",
+                "module": "AiGen eKYC",
+                "pass": 1,
+                "actual": "{\"kyc_status\":\"pending\",\"is_verified\":\"0\",\"ekyc_provider\":\"aigen\"}"
+            },
+            {
+                "no": "2",
+                "module": "Sumsub",
+                "pass": 1,
+                "actual": "{\"synced\":true,\"verified\":true,\"status\":\"approved\",\"answer\":\"GREEN\"}"
+            },
+            {
+                "no": "3",
+                "module": "Cloud Vision (Image)",
+                "pass": 1,
+                "actual": "{\"risk\":55,\"verdict\":\"flag\",\"provider\":\"exif\",\"raw_skip\":\"API key not valid. Please pass a valid API key.\"}"
+            },
+            {
+                "no": "4",
+                "module": "Chat LLM",
+                "pass": 1,
+                "actual": "{\"provider\":\"regex\",\"verdict\":\"reject\",\"score\":75}"
+            },
+            {
+                "no": "5",
+                "module": "Vision OCR in Chat",
+                "pass": 1,
+                "actual": "{\"provider\":\"cloud_vision\",\"risk_score\":40,\"verdict\":\"flag\",\"status\":\"flagged\",\"matched_patterns\":[\"vision_error\"],\"reas"
+            },
+            {
+                "no": "6",
+                "module": "Dispute AI",
+                "pass": 1,
+                "actual": "{\"action\":\"NEEDS_REVIEW\",\"provider\":\"heuristic\",\"confidence\":30}"
+            },
+            {
+                "no": "7",
+                "module": "EasySlip",
+                "pass": 1,
+                "actual": "OrderController branch present"
+            },
+            {
+                "no": "8",
+                "module": "Omise",
+                "pass": 1,
+                "actual": "isConfigured=1; emptyCtorThrows=1"
+            },
+            {
+                "no": "9",
+                "module": "Redis",
+                "pass": 1,
+                "actual": "connect=null; publish_ok=1"
+            },
+            {
+                "no": "10",
+                "module": "Object Storage",
+                "pass": 1,
+                "actual": "configured=0; uploads_writable=0; probe=1"
+            }
+        ]
+    },
+    "uat": {
+        "n": 12,
+        "pass": 12,
+        "rate_pct": 100,
+        "cases": [
+            {
+                "id": "U-01",
+                "pass": 1,
+                "actual": "bcrypt/argon hash present for user#1"
+            },
+            {
+                "id": "U-02",
+                "pass": 1,
+                "actual": "client_id set; reject-path verified in §4.9"
+            },
+            {
+                "id": "U-03",
+                "pass": 1,
+                "actual": "ekyc_results.csv has approved"
+            },
+            {
+                "id": "U-04",
+                "pass": 1,
+                "actual": "ekyc_results.csv has rejected"
+            },
+            {
+                "id": "U-05",
+                "pass": 1,
+                "actual": "{\"kyc_status\":\"pending\",\"is_verified\":\"0\",\"ekyc_provider\":\"aigen\"}"
+            },
+            {
+                "id": "U-06",
+                "pass": 1,
+                "actual": "image_fraud_results has pass"
+            },
+            {
+                "id": "U-07",
+                "pass": 1,
+                "actual": "image_fraud_results has reject/flag"
+            },
+            {
+                "id": "U-08",
+                "pass": 1,
+                "actual": "{\"verdict\":\"flag\",\"score\":65}"
+            },
+            {
+                "id": "U-09",
+                "pass": 1,
+                "actual": "{\"verdict\":\"pass\"}"
+            },
+            {
+                "id": "U-10",
+                "pass": 1,
+                "actual": "easyslip S1→PAID in CSV"
+            },
+            {
+                "id": "U-11",
+                "pass": 1,
+                "actual": "source=src_test_68ii84c683sqb0quha2 qr=null"
+            },
+            {
+                "id": "U-12",
+                "pass": 1,
+                "actual": "{\"action\":\"NEEDS_REVIEW\",\"provider\":\"heuristic\"}"
+            }
+        ]
+    },
+    "ekyc_real": {
+        "n_pairs": 4,
+        "tp": 2,
+        "tn": 2,
+        "fp": 0,
+        "fn": 0,
+        "ocr_fail": 0,
+        "accuracy_among_ocr_pass_pct": 100,
+        "accuracy_all_pairs_pct": 100,
+        "avg_e2e_ms": 4657,
+        "p95_e2e_ms": 5050,
+        "mock_api_mode": false,
+        "subjects": "2 people (A/B) genuine + swapped impostor",
+        "csv": "tests/ekyc_real_results.csv"
+    },
+    "chat_real": {
+        "n": 100,
+        "tp": 48,
+        "tn": 49,
+        "fp": 1,
+        "fn": 2,
+        "accuracy_pct": 97,
+        "precision": 0.9796,
+        "recall": 0.96,
+        "f1": 0.9697,
+        "avg_ms": 427,
+        "p95_ms": 1908,
+        "providers": {
+            "groq": 27,
+            "none": 66,
+            "openrouter": 7
+        },
+        "mock_api_mode": false,
+        "misses": [
+            {
+                "no": 43,
+                "group": "C2",
+                "gt": 1,
+                "verdict": "pass",
+                "provider": "none",
+                "text": "Line ID sell_cash โอนสดรับของเร็ว",
+                "note": "MISS | pred=0 | preview: Line ID sell_cash โอนสดรับของเร็ว"
+            },
+            {
+                "no": 52,
+                "group": "C2",
+                "gt": 1,
+                "verdict": "pass",
+                "provider": "none",
+                "text": "ไลน์: escrow_skip คุยโอนเงินนอก",
+                "note": "MISS | pred=0 | preview: ไลน์: escrow_skip คุยโอนเงินนอก"
+            },
+            {
+                "no": 84,
+                "group": "C1",
+                "gt": 0,
+                "verdict": "flag",
+                "provider": "groq",
+                "text": "ลดเหลือเท่านี้นะคับ แล้วกดซื้อผ่านแอป",
+                "note": "MISS | pred=1 | พบคำชักชวนโอน/ติดต่อนอกระบบ (ผ่านแอป); พูดถึงการซื้อผ่านแอป"
+            }
+        ],
+        "compare_to_mock": {
+            "mock_accuracy_pct": 97,
+            "mock_tp_tn_fp_fn": [
+                48,
+                49,
+                1,
+                2
+            ],
+            "delta_accuracy_pp": 0
+        }
+    }
+}

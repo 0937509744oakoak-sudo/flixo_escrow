@@ -334,7 +334,7 @@ $max_images = Product::MAX_IMAGES;
                         : 'ลงประกาศขายสินค้าเรียบร้อย (' + (data.image_count || 0) + ' รูป)';
                     Swal.fire(data.flagged ? 'รอตรวจสอบ' : 'สำเร็จ', successText, data.flagged ? 'info' : 'success').then(function () {
                         if (typeof window.flixoSwitchTab === 'function') {
-                            window.flixoSwitchTab('my_products');
+                            window.location.href = 'dashboard.php';
                         }
                     });
                 } else {

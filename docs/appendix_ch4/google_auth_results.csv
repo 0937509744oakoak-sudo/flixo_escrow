@@ -1,0 +1,101 @@
+No.,Case,"Token Type","Verify Result","HTTP Certs Fetch","Latency ms",Pass?,Note
+1,G_CERTS,G_CERTS,certs_ok,200,385,1,kids=4
+2,G_NO_CONFIG,G_NO_CONFIG,rejected,n/a,1,1,"Google Sign-In ยังไม่ได้ตั้งค่า"
+3,G_CERTS,G_CERTS,certs_ok,200,398,1,kids=4
+4,G_TAMPER,tampered_sig,rejected,cached/fetch,385,1,ลายเซ็นโทเคนไม่ถูกต้อง
+5,G_EXPIRED,expired,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+6,G_CERTS,G_CERTS,certs_ok,200,428,1,kids=4
+7,G_EXPIRED,expired,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+8,G_WRONG_AUD,wrong_aud,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+9,G_CERTS,G_CERTS,certs_ok,200,457,1,kids=4
+10,G_EXPIRED,expired,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+11,G_NO_CONFIG,G_NO_CONFIG,rejected,n/a,0,1,"Google Sign-In ยังไม่ได้ตั้งค่า"
+12,G_WRONG_AUD,wrong_aud,rejected,cached/fetch,1,1,ลายเซ็นโทเคนไม่ถูกต้อง
+13,G_TAMPER,tampered_sig,rejected,cached/fetch,1,1,ลายเซ็นโทเคนไม่ถูกต้อง
+14,G_TAMPER,tampered_sig,rejected,cached/fetch,1,1,ลายเซ็นโทเคนไม่ถูกต้อง
+15,G_WRONG_AUD,wrong_aud,rejected,cached/fetch,1,1,ลายเซ็นโทเคนไม่ถูกต้อง
+16,G_MALFORMED,G_MALFORMED,rejected,n/a,0,1,โทเคนไม่ถูกต้อง
+17,G_CERTS,G_CERTS,certs_ok,200,406,1,kids=4
+18,G_WRONG_AUD,wrong_aud,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+19,G_NO_CONFIG,G_NO_CONFIG,rejected,n/a,0,1,"Google Sign-In ยังไม่ได้ตั้งค่า"
+20,G_MALFORMED,G_MALFORMED,rejected,n/a,0,1,โทเคนไม่ถูกต้อง
+21,G_CERTS,G_CERTS,certs_ok,200,400,1,kids=4
+22,G_CERTS,G_CERTS,certs_ok,200,465,1,kids=4
+23,G_CERTS,G_CERTS,certs_ok,200,411,1,kids=4
+24,G_CERTS,G_CERTS,certs_ok,200,404,1,kids=4
+25,G_MALFORMED,G_MALFORMED,rejected,n/a,0,1,โทเคนไม่ถูกต้อง
+26,G_NO_CONFIG,G_NO_CONFIG,rejected,n/a,0,1,"Google Sign-In ยังไม่ได้ตั้งค่า"
+27,G_EXPIRED,expired,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+28,G_WRONG_AUD,wrong_aud,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+29,G_WRONG_AUD,wrong_aud,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+30,G_EXPIRED,expired,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+31,G_EXPIRED,expired,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+32,G_WRONG_AUD,wrong_aud,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+33,G_EXPIRED,expired,rejected,cached/fetch,1,1,ลายเซ็นโทเคนไม่ถูกต้อง
+34,G_EXPIRED,expired,rejected,cached/fetch,1,1,ลายเซ็นโทเคนไม่ถูกต้อง
+35,G_EXPIRED,expired,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+36,G_TAMPER,tampered_sig,rejected,cached/fetch,1,1,ลายเซ็นโทเคนไม่ถูกต้อง
+37,G_TAMPER,tampered_sig,rejected,cached/fetch,1,1,ลายเซ็นโทเคนไม่ถูกต้อง
+38,G_TAMPER,tampered_sig,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+39,G_EXPIRED,expired,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+40,G_MALFORMED,G_MALFORMED,rejected,n/a,0,1,โทเคนไม่ถูกต้อง
+41,G_EXPIRED,expired,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+42,G_NO_CONFIG,G_NO_CONFIG,rejected,n/a,0,1,"Google Sign-In ยังไม่ได้ตั้งค่า"
+43,G_WRONG_AUD,wrong_aud,rejected,cached/fetch,1,1,ลายเซ็นโทเคนไม่ถูกต้อง
+44,G_CERTS,G_CERTS,certs_ok,200,519,1,kids=4
+45,G_TAMPER,tampered_sig,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+46,G_TAMPER,tampered_sig,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+47,G_TAMPER,tampered_sig,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+48,G_MALFORMED,G_MALFORMED,rejected,n/a,0,1,โทเคนไม่ถูกต้อง
+49,G_EXPIRED,expired,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+50,G_WRONG_AUD,wrong_aud,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+51,G_EXPIRED,expired,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+52,G_MALFORMED,G_MALFORMED,rejected,n/a,0,1,โทเคนไม่ถูกต้อง
+53,G_CERTS,G_CERTS,certs_ok,200,391,1,kids=4
+54,G_MALFORMED,G_MALFORMED,rejected,n/a,0,1,โทเคนไม่ถูกต้อง
+55,G_EXPIRED,expired,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+56,G_EXPIRED,expired,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+57,G_WRONG_AUD,wrong_aud,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+58,G_EXPIRED,expired,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+59,G_NO_CONFIG,G_NO_CONFIG,rejected,n/a,0,1,"Google Sign-In ยังไม่ได้ตั้งค่า"
+60,G_WRONG_AUD,wrong_aud,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+61,G_TAMPER,tampered_sig,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+62,G_EXPIRED,expired,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+63,G_MALFORMED,G_MALFORMED,rejected,n/a,0,1,โทเคนไม่ถูกต้อง
+64,G_NO_CONFIG,G_NO_CONFIG,rejected,n/a,0,1,"Google Sign-In ยังไม่ได้ตั้งค่า"
+65,G_TAMPER,tampered_sig,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+66,G_EXPIRED,expired,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+67,G_TAMPER,tampered_sig,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+68,G_TAMPER,tampered_sig,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+69,G_TAMPER,tampered_sig,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+70,G_CERTS,G_CERTS,certs_ok,200,412,1,kids=4
+71,G_NO_CONFIG,G_NO_CONFIG,rejected,n/a,0,1,"Google Sign-In ยังไม่ได้ตั้งค่า"
+72,G_CERTS,G_CERTS,certs_ok,200,575,1,kids=4
+73,G_WRONG_AUD,wrong_aud,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+74,G_TAMPER,tampered_sig,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+75,G_CERTS,G_CERTS,certs_ok,200,369,1,kids=4
+76,G_EXPIRED,expired,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+77,G_TAMPER,tampered_sig,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+78,G_WRONG_AUD,wrong_aud,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+79,G_CERTS,G_CERTS,certs_ok,200,458,1,kids=4
+80,G_TAMPER,tampered_sig,rejected,cached/fetch,1,1,ลายเซ็นโทเคนไม่ถูกต้อง
+81,G_MALFORMED,G_MALFORMED,rejected,n/a,0,1,โทเคนไม่ถูกต้อง
+82,G_WRONG_AUD,wrong_aud,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+83,G_CERTS,G_CERTS,certs_ok,200,514,1,kids=4
+84,G_NO_CONFIG,G_NO_CONFIG,rejected,n/a,0,1,"Google Sign-In ยังไม่ได้ตั้งค่า"
+85,G_CERTS,G_CERTS,certs_ok,200,521,1,kids=4
+86,G_TAMPER,tampered_sig,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+87,G_WRONG_AUD,wrong_aud,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+88,G_CERTS,G_CERTS,certs_ok,200,645,1,kids=4
+89,G_TAMPER,tampered_sig,rejected,cached/fetch,1,1,ลายเซ็นโทเคนไม่ถูกต้อง
+90,G_CERTS,G_CERTS,certs_ok,200,413,1,kids=4
+91,G_CERTS,G_CERTS,certs_ok,200,419,1,kids=4
+92,G_MALFORMED,G_MALFORMED,rejected,n/a,0,1,โทเคนไม่ถูกต้อง
+93,G_WRONG_AUD,wrong_aud,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+94,G_WRONG_AUD,wrong_aud,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+95,G_TAMPER,tampered_sig,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+96,G_WRONG_AUD,wrong_aud,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+97,G_WRONG_AUD,wrong_aud,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+98,G_WRONG_AUD,wrong_aud,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+99,G_EXPIRED,expired,rejected,cached/fetch,0,1,ลายเซ็นโทเคนไม่ถูกต้อง
+100,G_NO_CONFIG,G_NO_CONFIG,rejected,n/a,0,1,"Google Sign-In ยังไม่ได้ตั้งค่า"

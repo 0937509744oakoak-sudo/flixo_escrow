@@ -6,12 +6,87 @@ require_once __DIR__ . '/order_helper.php';
 require_once __DIR__ . '/../models/Wallet.php';
 
 class WalletService {
+    /** Tolerance for DECIMAL(12,2) values round-tripped through PHP floats. */
+    private const EPSILON = 0.005;
+
     private mysqli $conn;
     private Wallet $wallet;
+
+    /**
+     * MySQL implicitly commits an open transaction when START TRANSACTION runs
+     * again, so a nested begin_transaction() would quietly make the outer
+     * rollback a no-op. Tracking depth lets inner operations join the caller's
+     * transaction instead of starting their own.
+     */
+    private int $txDepth = 0;
 
     public function __construct(mysqli $conn) {
         $this->conn = $conn;
         $this->wallet = new Wallet($conn);
+    }
+
+    /**
+     * Run $fn inside a transaction, committing only at the outermost level.
+     * Exceptions roll the whole thing back and propagate to the caller.
+     *
+     * @template T
+     * @param callable():T $fn
+     * @return T
+     */
+    private function withTransaction(callable $fn) {
+        if ($this->txDepth > 0) {
+            $this->txDepth++;
+            try {
+                return $fn();
+            } finally {
+                $this->txDepth--;
+            }
+        }
+
+        $this->conn->begin_transaction();
+        $this->txDepth = 1;
+        try {
+            $result = $fn();
+            $this->conn->commit();
+            return $result;
+        } catch (Throwable $e) {
+            $this->conn->rollback();
+            throw $e;
+        } finally {
+            $this->txDepth = 0;
+        }
+    }
+
+    /**
+     * Read a wallet with a row lock held for the rest of the transaction, so
+     * concurrent balance changes queue behind us instead of racing on a value
+     * we already read.
+     *
+     * @return array{id:string, available_balance:string, escrow_balance:string}
+     */
+    private function lockWallet(int $userId): array {
+        $this->wallet->getOrCreateWallet($userId);
+        $stmt = $this->conn->prepare('SELECT id, available_balance, escrow_balance FROM wallets WHERE user_id = ? FOR UPDATE');
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        if (!$row) {
+            throw new RuntimeException("ไม่พบกระเป๋าเงินของผู้ใช้ #{$userId}");
+        }
+        return $row;
+    }
+
+    private function requireUserId(string $username): int {
+        $userId = $this->wallet->getUserIdByUsername($username);
+        if (!$userId) {
+            throw new RuntimeException("ไม่พบผู้ใช้ {$username}");
+        }
+        return $userId;
+    }
+
+    private function failed(string $operation, Throwable $e, array $context = []): bool {
+        ErrorLogger::write('error', "WalletService {$operation}: " . $e->getMessage(), $context);
+        return false;
     }
 
     public function syncOrderStatus(int $orderId, string $oldStatus, string $newStatus, string $actionBy): void {
@@ -42,7 +117,14 @@ class WalletService {
         if ($this->wallet->hasTransaction($key)) {
             return true;
         }
-        return $this->applyLedger($sellerUsername, $orderId, $amount, 'escrow', 'credit', 'escrow_in', "รับเงินเข้า Escrow ออเดอร์ #{$orderId}", $by, $key);
+        try {
+            return $this->withTransaction(function () use ($sellerUsername, $orderId, $amount, $by, $key) {
+                $this->applyLedger($sellerUsername, $orderId, $amount, 'escrow', 'credit', 'escrow_in', "รับเงินเข้า Escrow ออเดอร์ #{$orderId}", $by, $key);
+                return true;
+            });
+        } catch (Throwable $e) {
+            return $this->failed('creditEscrow', $e, ['order_id' => $orderId, 'seller' => $sellerUsername]);
+        }
     }
 
     public function releaseToSeller(string $sellerUsername, int $orderId, float $amount, string $by): bool {
@@ -50,30 +132,25 @@ class WalletService {
         if ($this->wallet->hasTransaction($key)) {
             return true;
         }
-        $userId = $this->wallet->getUserIdByUsername($sellerUsername);
-        if (!$userId) {
-            return false;
-        }
-        $this->conn->begin_transaction();
         try {
-            $wallet = $this->wallet->getOrCreateWallet($userId);
-            $escrow = (float)$wallet['escrow_balance'];
-            $releaseAmount = min($amount, $escrow);
-            if ($releaseAmount <= 0) {
-                $this->conn->rollback();
-                return false;
-            }
-            $this->debitEscrow($sellerUsername, $orderId, $releaseAmount, $by, "escrow_release_debit:order:{$orderId}");
-            $this->creditAvailable($sellerUsername, $orderId, $releaseAmount, $by, $key, 'escrow_release', "ปล่อยเงินจาก Escrow ออเดอร์ #{$orderId}");
-            $upd = $this->conn->prepare("UPDATE wallets SET total_earned = total_earned + ? WHERE user_id = ?");
-            $upd->bind_param('di', $releaseAmount, $userId);
-            $upd->execute();
-            $this->conn->commit();
-            return true;
+            return $this->withTransaction(function () use ($sellerUsername, $orderId, $amount, $by, $key) {
+                $userId = $this->requireUserId($sellerUsername);
+                $wallet = $this->lockWallet($userId);
+                $releaseAmount = min($amount, (float) $wallet['escrow_balance']);
+                if ($releaseAmount <= 0) {
+                    throw new RuntimeException("ไม่มียอดใน Escrow สำหรับออเดอร์ #{$orderId}");
+                }
+
+                $this->applyLedger($sellerUsername, $orderId, $releaseAmount, 'escrow', 'debit', 'escrow_debit', 'หักเงิน Escrow', $by, "escrow_release_debit:order:{$orderId}");
+                $this->applyLedger($sellerUsername, $orderId, $releaseAmount, 'available', 'credit', 'escrow_release', "ปล่อยเงินจาก Escrow ออเดอร์ #{$orderId}", $by, $key);
+
+                $upd = $this->conn->prepare('UPDATE wallets SET total_earned = total_earned + ? WHERE user_id = ?');
+                $upd->bind_param('di', $releaseAmount, $userId);
+                $upd->execute();
+                return true;
+            });
         } catch (Throwable $e) {
-            $this->conn->rollback();
-            error_log('WalletService releaseToSeller: ' . $e->getMessage());
-            return false;
+            return $this->failed('releaseToSeller', $e, ['order_id' => $orderId, 'seller' => $sellerUsername]);
         }
     }
 
@@ -82,63 +159,65 @@ class WalletService {
         if ($this->wallet->hasTransaction($key)) {
             return true;
         }
-        $this->conn->begin_transaction();
         try {
-            $sellerId = $this->wallet->getUserIdByUsername($sellerUsername);
-            if ($sellerId) {
-                $wallet = $this->wallet->getOrCreateWallet($sellerId);
-                $escrow = (float)$wallet['escrow_balance'];
-                $deduct = min($amount, $escrow);
-                if ($deduct > 0) {
-                    $this->debitEscrow($sellerUsername, $orderId, $deduct, $by, "refund_escrow_debit:order:{$orderId}");
+            return $this->withTransaction(function () use ($buyerUsername, $sellerUsername, $orderId, $amount, $by, $key) {
+                $sellerId = $this->wallet->getUserIdByUsername($sellerUsername);
+                if ($sellerId) {
+                    $wallet = $this->lockWallet($sellerId);
+                    $deduct = min($amount, (float) $wallet['escrow_balance']);
+                    if ($deduct > 0) {
+                        $this->applyLedger($sellerUsername, $orderId, $deduct, 'escrow', 'debit', 'escrow_debit', 'หักเงิน Escrow', $by, "refund_escrow_debit:order:{$orderId}");
+                    }
                 }
-            }
-            $this->creditAvailable($buyerUsername, $orderId, $amount, $by, $key, 'refund_credit', "คืนเงินออเดอร์ #{$orderId}");
-            $this->conn->commit();
-            return true;
+                $this->applyLedger($buyerUsername, $orderId, $amount, 'available', 'credit', 'refund_credit', "คืนเงินออเดอร์ #{$orderId}", $by, $key);
+                return true;
+            });
         } catch (Throwable $e) {
-            $this->conn->rollback();
-            error_log('WalletService refundBuyer: ' . $e->getMessage());
-            return false;
+            return $this->failed('refundBuyer', $e, ['order_id' => $orderId, 'buyer' => $buyerUsername]);
         }
     }
 
     public function requestWithdrawal(string $username, float $amount, int $bankAccountId): array {
-        $userId = $this->wallet->getUserIdByUsername($username);
-        if (!$userId) {
-            return ['ok' => false, 'error' => 'ไม่พบผู้ใช้'];
-        }
         if ($amount < 100) {
             return ['ok' => false, 'error' => 'ถอนขั้นต่ำ ฿100'];
         }
-        $wallet = $this->wallet->getOrCreateWallet($userId);
-        if ($amount > (float)$wallet['available_balance']) {
-            return ['ok' => false, 'error' => 'ยอดเงินไม่เพียงพอ'];
-        }
-        $stmt = $this->conn->prepare("SELECT id FROM user_bank_accounts WHERE id = ? AND user_id = ?");
-        $stmt->bind_param('ii', $bankAccountId, $userId);
-        $stmt->execute();
-        if (!$stmt->get_result()->fetch_assoc()) {
-            return ['ok' => false, 'error' => 'ไม่พบบัญชีธนาคาร'];
-        }
 
-        $this->conn->begin_transaction();
         try {
-            $key = 'withdraw_hold:' . uniqid('', true);
-            if (!$this->debitAvailable($username, null, $amount, $username, $key, 'withdrawal_hold', 'ระงับเงินรอถอน')) {
-                throw new RuntimeException('ไม่สามารถหักยอดได้');
-            }
-            $ins = $this->conn->prepare(
-                "INSERT INTO withdrawal_requests (user_id, wallet_id, bank_account_id, amount) VALUES (?, ?, ?, ?)"
-            );
-            $wid = (int)$wallet['id'];
-            $ins->bind_param('iiid', $userId, $wid, $bankAccountId, $amount);
-            $ins->execute();
-            $requestId = (int)$this->conn->insert_id;
-            $this->conn->commit();
+            $requestId = $this->withTransaction(function () use ($username, $amount, $bankAccountId) {
+                $userId = $this->requireUserId($username);
+
+                // Lock first: the balance check and the debit have to see the
+                // same row, or two concurrent requests can both withdraw it.
+                $wallet = $this->lockWallet($userId);
+                if ($amount > (float) $wallet['available_balance'] + self::EPSILON) {
+                    throw new RuntimeException('ยอดเงินไม่เพียงพอ');
+                }
+
+                $stmt = $this->conn->prepare('SELECT id FROM user_bank_accounts WHERE id = ? AND user_id = ?');
+                $stmt->bind_param('ii', $bankAccountId, $userId);
+                $stmt->execute();
+                if (!$stmt->get_result()->fetch_assoc()) {
+                    throw new RuntimeException('ไม่พบบัญชีธนาคาร');
+                }
+
+                // Insert before debiting so the hold can key off the request id.
+                // A random key (uniqid) would make every retry look like new
+                // work to the idempotency constraint.
+                $ins = $this->conn->prepare(
+                    'INSERT INTO withdrawal_requests (user_id, wallet_id, bank_account_id, amount) VALUES (?, ?, ?, ?)'
+                );
+                $walletId = (int) $wallet['id'];
+                $ins->bind_param('iiid', $userId, $walletId, $bankAccountId, $amount);
+                $ins->execute();
+                $requestId = (int) $this->conn->insert_id;
+
+                $this->applyLedger($username, null, $amount, 'available', 'debit', 'withdrawal_hold', 'ระงับเงินรอถอน', $username, "withdraw_hold:req:{$requestId}");
+                return $requestId;
+            });
+
             return ['ok' => true, 'request_id' => $requestId];
         } catch (Throwable $e) {
-            $this->conn->rollback();
+            ErrorLogger::write('error', 'WalletService requestWithdrawal: ' . $e->getMessage(), ['username' => $username, 'amount' => $amount]);
             return ['ok' => false, 'error' => $e->getMessage()];
         }
     }
@@ -159,33 +238,52 @@ class WalletService {
         $stmtU->execute();
         $username = $stmtU->get_result()->fetch_assoc()['username'] ?? '';
 
-        $this->conn->begin_transaction();
         try {
             $slip = $payoutSlip !== null && $payoutSlip !== '' ? $payoutSlip : null;
-            $note = trim($adminNote);
-            $upd = $this->conn->prepare(
-                "UPDATE withdrawal_requests
-                 SET status = 'completed', processed_by = ?, processed_at = NOW(),
-                     payout_slip = COALESCE(?, payout_slip),
-                     admin_note = IF(? = '', admin_note, ?)
-                 WHERE id = ?"
-            );
-            $upd->bind_param('ssssi', $adminUser, $slip, $note, $note, $requestId);
-            $upd->execute();
+            $this->withTransaction(function () use ($requestId, $userId, $amount, $adminUser, $adminNote, $slip, $username) {
+                $note = trim($adminNote);
+                // Only claim a request that is still pending, so two admins
+                // clicking approve cannot both pay it out.
+                $upd = $this->conn->prepare(
+                    "UPDATE withdrawal_requests
+                     SET status = 'completed', processed_by = ?, processed_at = NOW(),
+                         payout_slip = COALESCE(?, payout_slip),
+                         admin_note = IF(? = '', admin_note, ?)
+                     WHERE id = ? AND status = 'pending'"
+                );
+                $upd->bind_param('ssssi', $adminUser, $slip, $note, $note, $requestId);
+                $upd->execute();
+                if ($upd->affected_rows !== 1) {
+                    throw new RuntimeException("คำขอถอน #{$requestId} ถูกดำเนินการไปแล้ว");
+                }
 
-            $key = "withdraw_complete:req:{$requestId}";
-            $this->recordTransaction($userId, null, $amount, 'available', 'debit', 'withdrawal_complete', 0, "ถอนเงินสำเร็จ #{$requestId}", $adminUser, $key);
+                // The money left available_balance when the hold was placed;
+                // this row only records the payout, so the balance is unchanged.
+                $wallet = $this->lockWallet($userId);
+                $key = "withdraw_complete:req:{$requestId}";
+                $this->recordTransaction(
+                    (int) $wallet['id'],
+                    $userId,
+                    null,
+                    $amount,
+                    'available',
+                    'debit',
+                    'withdrawal_complete',
+                    (float) $wallet['available_balance'],
+                    "ถอนเงินสำเร็จ #{$requestId}",
+                    $adminUser,
+                    $key
+                );
 
-            $wUpd = $this->conn->prepare("UPDATE wallets SET total_withdrawn = total_withdrawn + ? WHERE user_id = ?");
-            $wUpd->bind_param('di', $amount, $userId);
-            $wUpd->execute();
+                $wUpd = $this->conn->prepare('UPDATE wallets SET total_withdrawn = total_withdrawn + ? WHERE user_id = ?');
+                $wUpd->bind_param('di', $amount, $userId);
+                $wUpd->execute();
 
-            $meta = json_encode(['withdrawal_id' => $requestId, 'username' => $username, 'payout_slip' => $slip]);
-            $tx = $this->conn->prepare("INSERT INTO transaction_logs (order_id, type, amount, currency, meta) VALUES (NULL, 'withdrawal_payout', ?, 'THB', ?)");
-            $tx->bind_param('ds', $amount, $meta);
-            $tx->execute();
-
-            $this->conn->commit();
+                $meta = json_encode(['withdrawal_id' => $requestId, 'username' => $username, 'payout_slip' => $slip]);
+                $tx = $this->conn->prepare("INSERT INTO transaction_logs (order_id, type, amount, currency, meta) VALUES (NULL, 'withdrawal_payout', ?, 'THB', ?)");
+                $tx->bind_param('ds', $amount, $meta);
+                $tx->execute();
+            });
 
             if ($username !== '' && function_exists('createNotification')) {
                 $msg = '✅ ถอนเงิน ฿' . number_format($amount, 2) . ' สำเร็จแล้ว';
@@ -196,9 +294,7 @@ class WalletService {
             }
             return true;
         } catch (Throwable $e) {
-            $this->conn->rollback();
-            error_log('completeWithdrawal: ' . $e->getMessage());
-            return false;
+            return $this->failed('completeWithdrawal', $e, ['request_id' => $requestId]);
         }
     }
 
@@ -210,18 +306,20 @@ class WalletService {
         if (!$req) {
             return false;
         }
-        $this->conn->begin_transaction();
         try {
-            $upd = $this->conn->prepare(
-                "UPDATE withdrawal_requests SET status = 'rejected', admin_note = ?, processed_by = ?, processed_at = NOW() WHERE id = ?"
-            );
-            $upd->bind_param('ssi', $note, $adminUser, $requestId);
-            $upd->execute();
+            $this->withTransaction(function () use ($requestId, $adminUser, $note, $req) {
+                $upd = $this->conn->prepare(
+                    "UPDATE withdrawal_requests SET status = 'rejected', admin_note = ?, processed_by = ?, processed_at = NOW() WHERE id = ? AND status = 'pending'"
+                );
+                $upd->bind_param('ssi', $note, $adminUser, $requestId);
+                $upd->execute();
+                if ($upd->affected_rows !== 1) {
+                    throw new RuntimeException("คำขอถอน #{$requestId} ถูกดำเนินการไปแล้ว");
+                }
 
-            $key = "withdraw_reject:req:{$requestId}";
-            $this->creditAvailable($req['username'], null, (float)$req['amount'], $adminUser, $key, 'withdrawal_reject', 'คืนเงินจากคำขอถอนที่ถูกปฏิเสธ');
-
-            $this->conn->commit();
+                $key = "withdraw_reject:req:{$requestId}";
+                $this->applyLedger($req['username'], null, (float) $req['amount'], 'available', 'credit', 'withdrawal_reject', 'คืนเงินจากคำขอถอนที่ถูกปฏิเสธ', $adminUser, $key);
+            });
 
             if (function_exists('createNotification')) {
                 $reason = trim($note) !== '' ? trim($note) : 'ปฏิเสธโดยแอดมิน';
@@ -234,8 +332,7 @@ class WalletService {
             }
             return true;
         } catch (Throwable $e) {
-            $this->conn->rollback();
-            return false;
+            return $this->failed('rejectWithdrawal', $e, ['request_id' => $requestId]);
         }
     }
 
@@ -249,39 +346,38 @@ class WalletService {
             return false;
         }
 
-        $this->conn->begin_transaction();
         try {
-            $sellerId = $this->wallet->getUserIdByUsername($sellerUsername);
-            if ($sellerId) {
-                $wallet = $this->wallet->getOrCreateWallet($sellerId);
-                $escrow = (float) $wallet['escrow_balance'];
-                $total = min($buyerAmount + $sellerAmount, $escrow);
-                if ($total <= 0) {
-                    throw new RuntimeException('ไม่มียอดใน Escrow');
-                }
-                $ratio = $total / ($buyerAmount + $sellerAmount);
-                $buyerAmount = round($buyerAmount * $ratio, 2);
-                $sellerAmount = round($sellerAmount * $ratio, 2);
-                $this->debitEscrow($sellerUsername, $orderId, $total, $by, "split_escrow_debit:order:{$orderId}");
-            }
-            if ($buyerAmount > 0) {
-                $this->creditAvailable($buyerUsername, $orderId, $buyerAmount, $by, $keyBuyer, 'split_refund', "คืนเงินบางส่วนออเดอร์ #{$orderId}");
-            }
-            if ($sellerAmount > 0) {
-                $this->creditAvailable($sellerUsername, $orderId, $sellerAmount, $by, $keySeller, 'split_release', "ปล่อยเงินบางส่วนออเดอร์ #{$orderId}");
+            return $this->withTransaction(function () use ($buyerUsername, $sellerUsername, $orderId, $buyerAmount, $sellerAmount, $by, $keyBuyer, $keySeller) {
                 $sellerId = $this->wallet->getUserIdByUsername($sellerUsername);
                 if ($sellerId) {
-                    $upd = $this->conn->prepare("UPDATE wallets SET total_earned = total_earned + ? WHERE user_id = ?");
-                    $upd->bind_param('di', $sellerAmount, $sellerId);
-                    $upd->execute();
+                    $wallet = $this->lockWallet($sellerId);
+                    // Escrow may hold less than the ruling awards (partial
+                    // funding, earlier refund); scale both sides so the split
+                    // still adds up to exactly what is there.
+                    $total = min($buyerAmount + $sellerAmount, (float) $wallet['escrow_balance']);
+                    if ($total <= 0) {
+                        throw new RuntimeException('ไม่มียอดใน Escrow');
+                    }
+                    $ratio = $total / ($buyerAmount + $sellerAmount);
+                    $buyerAmount = round($buyerAmount * $ratio, 2);
+                    $sellerAmount = round($sellerAmount * $ratio, 2);
+                    $this->applyLedger($sellerUsername, $orderId, $total, 'escrow', 'debit', 'escrow_debit', 'หักเงิน Escrow', $by, "split_escrow_debit:order:{$orderId}");
                 }
-            }
-            $this->conn->commit();
-            return true;
+                if ($buyerAmount > 0) {
+                    $this->applyLedger($buyerUsername, $orderId, $buyerAmount, 'available', 'credit', 'split_refund', "คืนเงินบางส่วนออเดอร์ #{$orderId}", $by, $keyBuyer);
+                }
+                if ($sellerAmount > 0) {
+                    $this->applyLedger($sellerUsername, $orderId, $sellerAmount, 'available', 'credit', 'split_release', "ปล่อยเงินบางส่วนออเดอร์ #{$orderId}", $by, $keySeller);
+                    if ($sellerId) {
+                        $upd = $this->conn->prepare('UPDATE wallets SET total_earned = total_earned + ? WHERE user_id = ?');
+                        $upd->bind_param('di', $sellerAmount, $sellerId);
+                        $upd->execute();
+                    }
+                }
+                return true;
+            });
         } catch (Throwable $e) {
-            $this->conn->rollback();
-            error_log('WalletService splitDisputeResolution: ' . $e->getMessage());
-            return false;
+            return $this->failed('splitDisputeResolution', $e, ['order_id' => $orderId]);
         }
     }
 
@@ -451,54 +547,66 @@ class WalletService {
             if ($this->wallet->hasTransaction($reversalKey)) {
                 continue;
             }
-            if ($this->debitAvailable($username, $orderId, (float)$row['amount'], 'system_reconcile', $reversalKey, 'refund_reversal', "ยกเลิกคืนเงินผิดพลาด ออเดอร์ #{$orderId} (ไม่เคยชำระ)")) {
+
+            try {
+                $this->withTransaction(function () use ($username, $userId, $orderId, $row, $reversalKey) {
+                    // Repair path: the user may already have spent part of an
+                    // erroneous refund, so claw back only what is still there
+                    // rather than aborting and leaving the whole amount.
+                    $wallet = $this->lockWallet($userId);
+                    $reversible = min((float) $row['amount'], (float) $wallet['available_balance']);
+                    if ($reversible <= 0) {
+                        throw new RuntimeException('ยอดคงเหลือไม่พอสำหรับการยกเลิกคืนเงิน');
+                    }
+                    $this->applyLedger($username, $orderId, $reversible, 'available', 'debit', 'refund_reversal', "ยกเลิกคืนเงินผิดพลาด ออเดอร์ #{$orderId} (ไม่เคยชำระ)", 'system_reconcile', $reversalKey);
+                });
                 $fixed++;
+            } catch (Throwable $e) {
+                $this->failed('cleanupInvalidRefunds', $e, ['order_id' => $orderId, 'username' => $username]);
             }
         }
 
         return $fixed;
     }
 
-    private function applyLedger(string $username, ?int $orderId, float $amount, string $balanceType, string $direction, string $type, string $desc, string $by, string $key): bool {
-        $userId = $this->wallet->getUserIdByUsername($username);
-        if (!$userId || $amount <= 0) {
-            return false;
+    /**
+     * Apply a single balance movement plus its ledger row.
+     *
+     * Must be called inside withTransaction(). The wallet row is locked before
+     * being read, and the balance is written relative to its stored value
+     * (`col = col - ?`) rather than as a total computed beforehand — otherwise
+     * two concurrent debits both read the same balance and the second one
+     * silently erases the first.
+     *
+     * Throws rather than returning false so a failure aborts the whole
+     * enclosing operation instead of leaving half a transfer applied.
+     */
+    private function applyLedger(string $username, ?int $orderId, float $amount, string $balanceType, string $direction, string $type, string $desc, string $by, string $key): void {
+        if ($amount <= 0) {
+            throw new RuntimeException('จำนวนเงินต้องมากกว่า 0');
         }
-        $wallet = $this->wallet->getOrCreateWallet($userId);
+        $userId = $this->requireUserId($username);
+        $wallet = $this->lockWallet($userId);
+
         $col = $balanceType === 'escrow' ? 'escrow_balance' : 'available_balance';
-        $current = (float)$wallet[$col];
-        $newBal = $direction === 'credit' ? $current + $amount : max(0, $current - $amount);
+        $current = (float) $wallet[$col];
 
-        $this->conn->begin_transaction();
-        try {
-            $upd = $this->conn->prepare("UPDATE wallets SET {$col} = ? WHERE user_id = ?");
-            $upd->bind_param('di', $newBal, $userId);
-            $upd->execute();
-            $this->recordTransaction($userId, $orderId, $amount, $balanceType, $direction, $type, $newBal, $desc, $by, $key);
-            $this->conn->commit();
-            return true;
-        } catch (Throwable $e) {
-            $this->conn->rollback();
-            error_log('applyLedger: ' . $e->getMessage());
-            return false;
+        if ($direction === 'debit' && $current + self::EPSILON < $amount) {
+            throw new RuntimeException(sprintf(
+                'ยอดคงเหลือไม่พอ (%s ของ %s: %.2f < %.2f)', $col, $username, $current, $amount
+            ));
         }
+        $newBalance = $direction === 'credit' ? $current + $amount : $current - $amount;
+
+        $operator = $direction === 'credit' ? '+' : '-';
+        $upd = $this->conn->prepare("UPDATE wallets SET {$col} = {$col} {$operator} ? WHERE user_id = ?");
+        $upd->bind_param('di', $amount, $userId);
+        $upd->execute();
+
+        $this->recordTransaction((int) $wallet['id'], $userId, $orderId, $amount, $balanceType, $direction, $type, $newBalance, $desc, $by, $key);
     }
 
-    private function creditAvailable(string $username, ?int $orderId, float $amount, string $by, string $key, string $type, string $desc): bool {
-        return $this->applyLedger($username, $orderId, $amount, 'available', 'credit', $type, $desc, $by, $key);
-    }
-
-    private function debitEscrow(string $username, ?int $orderId, float $amount, string $by, string $key): bool {
-        return $this->applyLedger($username, $orderId, $amount, 'escrow', 'debit', 'escrow_debit', "หักเงิน Escrow", $by, $key);
-    }
-
-    private function debitAvailable(string $username, ?int $orderId, float $amount, string $by, string $key, string $type, string $desc): bool {
-        return $this->applyLedger($username, $orderId, $amount, 'available', 'debit', $type, $desc, $by, $key);
-    }
-
-    private function recordTransaction(int $userId, ?int $orderId, float $amount, string $balanceType, string $direction, string $type, float $balanceAfter, string $desc, string $by, string $key): void {
-        $wallet = $this->wallet->getOrCreateWallet($userId);
-        $walletId = (int)$wallet['id'];
+    private function recordTransaction(int $walletId, int $userId, ?int $orderId, float $amount, string $balanceType, string $direction, string $type, float $balanceAfter, string $desc, string $by, string $key): void {
         $oid = $orderId ?? 0;
         $stmt = $this->conn->prepare(
             "INSERT INTO wallet_transactions (wallet_id, user_id, order_id, type, amount, balance_type, direction, balance_after, description, created_by, idempotency_key) VALUES (?, ?, NULLIF(?, 0), ?, ?, ?, ?, ?, ?, ?, ?)"

@@ -1,0 +1,89 @@
+{
+    "mode": "live",
+    "mock_api_mode": false,
+    "dataset": "C:\\xampp\\htdocs\\flixo_escrow\\dataset\\benchmark_dataset.json",
+    "n": 333,
+    "n_block_gold": 63,
+    "n_allow_gold": 270,
+    "baseline_regex_only": {
+        "tp": 39,
+        "tn": 270,
+        "fp": 0,
+        "fn": 24,
+        "accuracy": 0.927928,
+        "precision": 1,
+        "recall": 0.619048,
+        "f1": 0.764706,
+        "acc_ci95": [
+            0.895002,
+            0.951093
+        ],
+        "cohen_kappa": 0.724907,
+        "latency": {
+            "n": 333,
+            "mean": 0.162,
+            "p50": 0.113,
+            "p95": 0.329,
+            "min": 0.058,
+            "max": 3.306
+        },
+        "estimated_cost_usd_total": 0,
+        "definition": "Tier-1 Regex only; ALLOW if pass, BLOCK if flag|reject (production thresholds)"
+    },
+    "proposed_cascaded_hybrid": {
+        "tp": 42,
+        "tn": 261,
+        "fp": 9,
+        "fn": 21,
+        "accuracy": 0.90991,
+        "precision": 0.823529,
+        "recall": 0.666667,
+        "f1": 0.736842,
+        "acc_ci95": [
+            0.874304,
+            0.936166
+        ],
+        "cohen_kappa": 0.683219,
+        "latency": {
+            "n": 333,
+            "mean": 419.833,
+            "p50": 0.11,
+            "p95": 1045.008,
+            "min": 0.056,
+            "max": 33477.188
+        },
+        "estimated_cost_usd_total": 0.0201234,
+        "tier_counts": {
+            "TIER_1_REGEX": 264,
+            "TIER_2_LLM": 69
+        },
+        "provider_counts": {
+            "none": 264,
+            "groq": 58,
+            "openrouter": 11
+        },
+        "tier1_only_n": 264,
+        "tier1_only_pct": 79.28,
+        "tier2_n": 69,
+        "tier3_n": 0,
+        "escalated_n": 69
+    },
+    "comparisons": {
+        "mcnemar_baseline_vs_proposed": {
+            "b": 3,
+            "c": 9,
+            "chi2": 3,
+            "chi2_continuity_corrected": 2.083333,
+            "p_approx": 0.14891468,
+            "significant_0_05": false,
+            "note": "b=Proposed correct when Baseline wrong; c=opposite; continuity-corrected chi2 df=1"
+        },
+        "api_call_saving_pct_vs_llm_every_message": 79.28,
+        "cost_saving_pct_vs_llm_every_message": 56.7,
+        "latency_saving_pct_vs_llm_every_message": 79.27,
+        "llm_every_message_mean_latency_proxy_ms": 2025.64,
+        "llm_only_counterfactual_cost_usd_total": 0.0464769
+    },
+    "generated_at": "2026-08-11T14:59:10+00:00",
+    "note": "All metrics computed from this CLI run against ChatModerationService. No fabricated numbers."
+}

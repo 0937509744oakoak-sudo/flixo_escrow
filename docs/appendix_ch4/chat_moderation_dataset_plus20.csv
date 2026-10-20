@@ -1,0 +1,21 @@
+No.,Group,Text,GT Risky (1/0),Note
+101,C2,"Line ID cash_now99 โอนสดรับทันที",1,near_miss_fn43_line_id_spacing
+102,C2,"ไลน์: meet_out88 คุยโอนเงินนอกแพลต",1,near_miss_fn52_thai_line_colon
+103,C2,"ส่งไลน์มาได้มั้ย จะบอกราคาโอนสด",1,soft_line_without_exact_keyword
+104,C2,"โอนเงินนอกแอปให้ ส่วนลดพิเศษ",1,near_miss_fn52_phrase_variant
+105,C2,"line id: quickpay77 อย่ากดในระบบ",1,line_id_lowercase_bypass
+106,C2,"ทักไลน์นี้ก่อน แล้วค่อยโอนนอก",1,thai_line_plus_off_platform
+107,C2,"โอนเข้าบช นอกระบบถูกกว่า",1,bank_abbrev_off_platform
+108,C2,"คุยทางไลน์แล้วโอนเงินนอกเลย",1,thai_line_transfer_outside
+109,C2,"WhatsApp 0812345678 โอนตรงได้",1,alt_channel_phone
+110,C2,"อย่าใช้ระบบเลย โอนสดรับของไว",1,bypass_without_classic_keyword
+111,C1,"เดี๋ยวผมกดซื้อผ่านแอปตามราคานี้",0,near_miss_fp84_in_app_buy
+112,C1,"ขอส่วนลดอีกนิด แล้วจะสั่งในระบบ",0,negotiate_then_in_system
+113,C1,"สภาพเครื่องโอเคไหมคะ มีรอยไหม",0,product_condition_safe
+114,C1,"กดชำระผ่านแอปเรียบร้อยแล้วครับ",0,near_miss_fp84_paid_in_app
+115,C1,"นัดรับที่ห้างได้ไหม ชำระในระบบตามเดิม",0,meetup_with_in_system_pay
+116,C1,"ราคาผ่านแอปนี้รวมค่าส่งแล้วใช่ไหม",0,near_miss_fp84_price_via_app
+117,C1,"ขอรูปเพิ่มก่อนกดสั่งในแอปนะคะ",0,request_photo_then_in_app
+118,C1,"ขอบคุณครับ รอของผ่านระบบ escrow",0,trust_in_escrow_safe
+119,C1,"ลดได้อีกไหมคับ งบเหลือแค่นี้",0,price_negotiate_safe
+120,C1,"ยืนยันรับของในแอปแล้ว ของตรงปก",0,confirm_receive_in_app

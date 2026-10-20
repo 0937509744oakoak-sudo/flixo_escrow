@@ -115,7 +115,9 @@ class ErrorLogger {
     }
 
     public static function handleException(Throwable $e): void {
+        $reference = self::newReference();
         self::write('exception', $e->getMessage(), [
+            'ref' => $reference,
             'file' => $e->getFile(),
             'line' => $e->getLine(),
             'trace' => $e->getTraceAsString(),
@@ -123,15 +125,66 @@ class ErrorLogger {
 
         if (php_sapi_name() !== 'cli' && !headers_sent()) {
             http_response_code(500);
-            $detail = $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine();
-            echo '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>ข้อผิดพลาด</title></head><body style="font-family:sans-serif;text-align:center;padding:48px;">';
-            echo '<h1>เกิดข้อผิดพลาด</h1><p>กรุณาลองใหม่อีกครั้งในภายหลัง</p>';
+            self::renderFailure($reference, $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+        }
+        exit(1);
+    }
+
+    /**
+     * Exception text routinely carries PII and infrastructure detail (mysqli
+     * errors name the DB user and host), so it is shown only outside
+     * production. Production gets a reference to quote to support, which the
+     * log line records alongside the full trace.
+     */
+    private static function showsDebugDetail(): bool {
+        return !defined('APP_ENV') || APP_ENV !== 'production';
+    }
+
+    private static function newReference(): string {
+        try {
+            return bin2hex(random_bytes(4));
+        } catch (Throwable $e) {
+            return dechex(mt_rand(0x10000000, 0x7fffffff));
+        }
+    }
+
+    private static function wantsJson(): bool {
+        if (strtolower((string) ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '')) === 'xmlhttprequest') {
+            return true;
+        }
+        if (str_contains(strtolower((string) ($_SERVER['HTTP_ACCEPT'] ?? '')), 'application/json')) {
+            return true;
+        }
+        // Controllers and webhooks always speak JSON; an HTML error page there
+        // just turns a server fault into an unparseable client-side one.
+        $script = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
+        return str_contains($script, '/controllers/') || str_contains($script, '/api/');
+    }
+
+    private static function renderFailure(string $reference, string $detail): void {
+        $showDetail = self::showsDebugDetail();
+
+        if (self::wantsJson()) {
+            if (!headers_sent()) {
+                header('Content-Type: application/json; charset=utf-8');
+            }
+            $payload = ['success' => false, 'error' => 'เกิดข้อผิดพลาดภายในระบบ', 'ref' => $reference];
+            if ($showDetail) {
+                $payload['detail'] = $detail;
+            }
+            echo json_encode($payload, JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        echo '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>ข้อผิดพลาด</title></head><body style="font-family:sans-serif;text-align:center;padding:48px;">';
+        echo '<h1>เกิดข้อผิดพลาด</h1><p>กรุณาลองใหม่อีกครั้งในภายหลัง</p>';
+        echo '<p style="color:#888;font-size:13px;">รหัสอ้างอิง: ' . htmlspecialchars($reference, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</p>';
+        if ($showDetail) {
             echo '<pre style="text-align:left;max-width:900px;margin:24px auto;padding:16px;background:#111;color:#f88;white-space:pre-wrap;font:13px/1.4 Consolas,monospace;">'
                 . htmlspecialchars($detail, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
                 . '</pre>';
-            echo '</body></html>';
         }
-        exit(1);
+        echo '</body></html>';
     }
 
     public static function handleShutdown(): void {
@@ -143,13 +196,15 @@ class ErrorLogger {
         if (!in_array($error['type'], $fatal, true)) {
             return;
         }
+        $reference = self::newReference();
         self::write('fatal', $error['message'], [
+            'ref' => $reference,
             'file' => $error['file'],
             'line' => $error['line'],
             'type' => $error['type'],
         ]);
 
-        // Avoid silent white screen of death — surface the fatal when possible.
+        // Avoid a silent white screen of death — always say something.
         if (php_sapi_name() === 'cli') {
             return;
         }
@@ -157,15 +212,10 @@ class ErrorLogger {
             return;
         }
         $GLOBALS['flixo_wsod_shown'] = true;
-        $msg = $error['message'] . ' in ' . $error['file'] . ':' . $error['line'];
         if (!headers_sent()) {
             http_response_code(500);
         }
-        // Surface the fatal so we can diagnose production WSOD (remove detail after fix).
-        echo '<div style="font-family:sans-serif;text-align:center;padding:48px;"><h1>เกิดข้อผิดพลาด</h1><p>กรุณาลองใหม่อีกครั้งในภายหลัง</p>';
-        echo '<pre style="text-align:left;max-width:900px;margin:24px auto;padding:16px;background:#111;color:#f88;white-space:pre-wrap;font:13px/1.4 Consolas,monospace;">'
-            . htmlspecialchars($msg, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
-            . '</pre></div>';
+        self::renderFailure($reference, $error['message'] . ' in ' . $error['file'] . ':' . $error['line']);
     }
 
     private static function rotateIfNeeded(string $file): void {

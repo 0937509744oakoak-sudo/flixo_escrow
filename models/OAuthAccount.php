@@ -2,8 +2,19 @@
 // models/OAuthAccount.php
 
 class OAuthAccount {
+    private const PROVIDER_LABELS = [
+        'google' => 'Google',
+        'facebook' => 'Facebook',
+        'line' => 'LINE',
+        'thaid' => 'ThaiD',
+    ];
+
     private $conn;
     private static bool $tableReady = false;
+
+    private static function label(string $provider): string {
+        return self::PROVIDER_LABELS[$provider] ?? $provider;
+    }
 
     public function __construct($db_connection) {
         $this->conn = $db_connection;
@@ -90,23 +101,23 @@ class OAuthAccount {
                     }
                 }
             }
-            throw new RuntimeException('บัญชี Google นี้ถูกผูกกับผู้ใช้อื่นอยู่แล้ว');
+            throw new RuntimeException('บัญชี ' . self::label($provider) . ' นี้ถูกผูกกับผู้ใช้อื่นอยู่แล้ว');
         }
 
-        // User already linked to another Google account?
+        // User already linked to another account from the same provider?
         $byUser = $this->findByUserAndProvider($userId, $provider);
         if ($byUser) {
             if ($byUser['provider_user_id'] === $providerUserId) {
                 return true;
             }
-            throw new RuntimeException('บัญชีนี้ผูกกับ Google อื่นอยู่แล้ว');
+            throw new RuntimeException('บัญชีนี้ผูกกับ ' . self::label($provider) . ' อื่นอยู่แล้ว');
         }
 
         $sql = 'INSERT INTO user_oauth_accounts (user_id, provider, provider_user_id, email) VALUES (?, ?, ?, ?)';
         $stmt = $this->conn->prepare($sql);
         if (!$stmt) {
             error_log('OAuthAccount link prepare failed: ' . $this->conn->error);
-            throw new RuntimeException('เชื่อมบัญชี Google ไม่สำเร็จ (ฐานข้อมูลยังไม่พร้อม)');
+            throw new RuntimeException('เชื่อมบัญชี ' . self::label($provider) . ' ไม่สำเร็จ (ฐานข้อมูลยังไม่พร้อม)');
         }
         $stmt->bind_param('isss', $userId, $provider, $providerUserId, $email);
         if (!$stmt->execute()) {
@@ -119,7 +130,7 @@ class OAuthAccount {
                     return true;
                 }
             }
-            throw new RuntimeException('เชื่อมบัญชี Google ไม่สำเร็จ');
+            throw new RuntimeException('เชื่อมบัญชี ' . self::label($provider) . ' ไม่สำเร็จ');
         }
         return true;
     }

@@ -1,0 +1,22 @@
+# FLIXO Escrow — root access control
+#
+# Apache 2.4 syntax. This only takes effect where AllowOverride is enabled:
+# XAMPP allows it by default, and the Dockerfile enables it explicitly while
+# also repeating these rules at server level (docker/flixo-security.conf), so
+# the app stays protected even if AllowOverride is ever turned off.
+
+Options -Indexes
+
+# Dotfiles: .env, .env.local, .git*, .dockerignore, ...
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Config, source dumps, docs and build artifacts that must never be served.
+<FilesMatch "(?i)\.(sql|md|log|ini|yml|yaml|sh|py|pyc|docx|pptx|xml|lock|dist|bak|old|sample|example)$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "(?i)^(composer\.json|Dockerfile|Procfile)$">
+    Require all denied
+</FilesMatch>

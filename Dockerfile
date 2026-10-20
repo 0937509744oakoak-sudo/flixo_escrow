@@ -18,6 +18,12 @@ RUN apt-get update \
 RUN printf "upload_max_filesize=12M\npost_max_size=64M\nmax_file_uploads=20\nmemory_limit=256M\ndisplay_errors=Off\nlog_errors=On\n" \
     > /usr/local/etc/php/conf.d/flixo-uploads.ini
 
+# Hardening must be enabled before the app is served. Kept at server level (not
+# only .htaccess) because Railway mounts a volume over uploads/ at runtime,
+# which would otherwise wipe the .htaccess files guarding private uploads.
+COPY docker/flixo-security.conf /etc/apache2/conf-available/flixo-security.conf
+RUN a2enconf flixo-security
+
 COPY . /var/www/html/
 
 RUN mkdir -p /var/www/html/uploads/products \

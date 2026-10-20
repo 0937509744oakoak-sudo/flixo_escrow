@@ -1,0 +1,14 @@
+{
+    "resilience": {
+        "n": 10,
+        "pass": 10,
+        "rate_pct": 100,
+        "mock_api_mode": false,
+        "vision_key_stubbed": "__RESILIENCE_DISABLED__"
+    },
+    "uat": {
+        "n": 12,
+        "pass": 12,
+        "rate_pct": 100
+    }
+}

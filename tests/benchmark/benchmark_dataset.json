@@ -1,0 +1,1184 @@
+{
+    "schema_version": "1.0",
+    "dataset_name": "flixo_thai_c2c_offplatform_chat_benchmark",
+    "language": "th",
+    "task": "binary_off_platform_circumvention_detection",
+    "label_space": [
+        "ALLOW",
+        "BLOCK"
+    ],
+    "phase_space": [
+        "normal_inquiry",
+        "off_platform_circumvention"
+    ],
+    "description": "Thai C2C escrow chat benchmark for cascaded hybrid moderation. Labels distinguish normal trade inquiry from off-platform payment/contact circumvention. Empirical motivation: fraud screenshots (N≈100) show most early turns look like normal trade; risky intent concentrates at account/PromptPay/Line sharing turns.",
+    "empirical_context": {
+        "fraud_screenshot_pool_n": 100,
+        "observed_normal_looking_preamble_rate_approx": 0.85,
+        "implication": "Regex-only misses soft/evasive bait (FN risk); LLM-on-every-message is costly; cascaded hybrid escalates only ambiguous mid-score cases."
+    },
+    "source": {
+        "primary_csv": "tests/chat_moderation_dataset_100.csv",
+        "built_at": "2026-08-11T13:29:25+00:00"
+    },
+    "stats": {
+        "n_messages": 100,
+        "n_allow": 50,
+        "n_block": 50,
+        "n_demo_conversations": 2
+    },
+    "messages": [
+        {
+            "id": "msg_001",
+            "no": 1,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "คุยนอกแอพดีกว่าคับ แอดไลน์ mall888",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_002",
+            "no": 2,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "พร้อมเพย์ 0898765432 โอนแล้วทักมา",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_003",
+            "no": 3,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "สภาพ 9/10 โอเคไหมคะ ราคาตามนี้",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_004",
+            "no": 4,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "โอนตรงเข้ากสิกรสิคับ อย่าโอนในแอป",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_005",
+            "no": 5,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ส่งด่วนได้ไหมคะ ถ้าสั่งวันนี้",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_006",
+            "no": 6,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ลดอีกนิดได้มั้ยคับ งบจำกัดจริงๆ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_007",
+            "no": 7,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "มีกลิ่นบุหรี่ไหมคะ แพ้ง่ายนิดหน่อย",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_008",
+            "no": 8,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "มีใบเสร็จเก่าไหมครับ ไม่เป็นไรถ้าไม่มี",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_009",
+            "no": 9,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "แพ็คให้เรียบร้อยก่อนส่งนะคะ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_010",
+            "no": 10,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "อย่ากดในแอปเลย โอนมาพร้อมเพย์นี้",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_011",
+            "no": 11,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "โอนเข้าออมสิน 6677889900 ลดพิเศษ",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_012",
+            "no": 12,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ขอบคุณสำหรับข้อมูล ช่วยได้เยอะเลยครับ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_013",
+            "no": 13,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "แอดไลน์แล้วโอนมาเลย id: cashdeal01",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_014",
+            "no": 14,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ขอดูรูปมุมอื่นเพิ่มได้มั้ยครับ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_015",
+            "no": 15,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "นัดรับพรุ่งนี้บ่ายสองได้ไหมคับ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_016",
+            "no": 16,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "โทรหาได้ครับ 0823456789 นอกแพลตฟอร์ม",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_017",
+            "no": 17,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "กดยืนยันรับของในแอปแล้วนะคะ ขอบคุณมาก",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_018",
+            "no": 18,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "add line: flixo_bypass แล้วโอนเงินโดยตรง",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_019",
+            "no": 19,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "ชำระนอกระบบแล้วส่งของให้เองนะคับ",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_020",
+            "no": 20,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ผมจะชำระผ่านระบบตามขั้นตอนเลย",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_021",
+            "no": 21,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "ส่งเบอร์โทรมาได้ครับ จะบอกราคาโอนสด",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_022",
+            "no": 22,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "โอนเข้าบัญชีกรุงเทพ 9988776655 ได้เลย",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_023",
+            "no": 23,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ขอบคุณครับ รอของในระบบนะ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_024",
+            "no": 24,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ขอรูปใต้เครื่องกับมุมข้างหน่อยคับ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_025",
+            "no": 25,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "เบอร์โทรผม 089-999-9999 โทรมาคุยนอกแอป",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_026",
+            "no": 26,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "ไม่ผ่านระบบได้นะคะ โอนเข้ากสิกรสิ",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_027",
+            "no": 27,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ขอต่อรองอีก 100 ได้ไหมคับสุดท้ายแล้ว",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_028",
+            "no": 28,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "มีของแถมไหมคะ เช่นสายชาร์จ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_029",
+            "no": 29,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "โอนเข้าบัญชีไทยพาณิชย์ 9876543210 ได้เลยครับ",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_030",
+            "no": 30,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "สีจริงใกล้เคียงรูปมั้ยครับ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_031",
+            "no": 31,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "สินค้าถึงแล้วนะครับ ของตรงปกดี",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_032",
+            "no": 32,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "นัดรับที่หน้าห้างเย็นนี้ได้ไหมคับ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_033",
+            "no": 33,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "รุ่นนี้แบตอึดไหมคับ ใช้มาประมาณไหน",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_034",
+            "no": 34,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "ชำระภายนอกได้ครับ ตัดค่าธรรมเนียมให้",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_035",
+            "no": 35,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "แพ็คกันกระแทกหน่อยนะคับ ของบอบบาง",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_036",
+            "no": 36,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "ส่งเบอร์มา 0811112222 เดี๋ยวโทรไปนัดโอน",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_037",
+            "no": 37,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ส่งผ่านระบบ FLIXO ได้เลยนะคะ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_038",
+            "no": 38,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "แพ็กของแน่นหนาดีมากครับ ประทับใจ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_039",
+            "no": 39,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "โอเค เดี๋ยวผมกดซื้อในแอปเลย",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_040",
+            "no": 40,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "มีใบรับประกันหรือกล่องเดิมไหมครับ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_041",
+            "no": 41,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "เดี๋ยวผมกดสั่งผ่านระบบเลยนะครับ แพ็คของให้ด้วย",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_042",
+            "no": 42,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "โอนนอกแพลตฟอร์มลดให้ 300 บาท",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_043",
+            "no": 43,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "Line ID sell_cash โอนสดรับของเร็ว",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_044",
+            "no": 44,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "กสิกร 1234567890 โอนตรงได้เลยคับ",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_045",
+            "no": 45,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ขอบคุณที่ตอบเร็วมากครับ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_046",
+            "no": 46,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ขอคลิปเปิดเครื่องให้ดูหน่อยได้มั้ย",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_047",
+            "no": 47,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "แอดไลน์ @outpay แล้วโอนเงินโดยตรง",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_048",
+            "no": 48,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "โอเค ตามราคานี้ เดี๋ยวกดสั่ง",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_049",
+            "no": 49,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "รุ่นปีไหนคะ ใช้งานหนักไหม",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_050",
+            "no": 50,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "คุยรายละเอียดสินค้าต่อได้เลยครับ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_051",
+            "no": 51,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "id line: seller_direct มาคุยโอนสด",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_052",
+            "no": 52,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "ไลน์: escrow_skip คุยโอนเงินนอก",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_053",
+            "no": 53,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "เดี๋ยวผมไปชำระเงินในหน้าออเดอร์เลย",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_054",
+            "no": 54,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "พร้อมเพย์ 0912345678 โอนมาเลยลดให้อีก",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_055",
+            "no": 55,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "เลขบัญชีไทยพาณิชย์ 4455667788 โอนเลย",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_056",
+            "no": 56,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "เลขบัญชีทหารไทย 1212121212 โอนได้เลย",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_057",
+            "no": 57,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "เบอร์พร้อมเพย์ 0866667777 โอนตรงได้",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_058",
+            "no": 58,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "โอนสดลดให้ 500 บาทครับ เบอร์พร้อมเพย์ 0812345678",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_059",
+            "no": 59,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "เดี๋ยวแอดมินระบบยืนยันยอดให้ก่อนนะครับ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_060",
+            "no": 60,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "โอเคครับ ผมโอเคกับราคานี้",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_061",
+            "no": 61,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "พี่โอนตรงเข้าบัญชีนี้เลยครับ 123-4-56789-0 กสิกร",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_062",
+            "no": 62,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "สภาพเครื่องเป็นยังไง มีรอยไหมคะ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_063",
+            "no": 63,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "แอดไลน์ก่อนคับ id: pay_direct88",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_064",
+            "no": 64,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ของถึงมือแล้ว สภาพดีตามที่คุยกัน",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_065",
+            "no": 65,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "addline shop_out แล้วส่งเลขบช.ไป",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_066",
+            "no": 66,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ของครบกล่องมั้ยคะ มีที่ชาร์จไหม",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_067",
+            "no": 67,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "อยากได้รุ่นสีดำ สต็อกยังมีไหม",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_068",
+            "no": 68,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ขอดูเลขซีเรียลในรูปเพิ่มได้มั้ย",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_069",
+            "no": 69,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "โอนนอกได้นะคับ ลดให้ 10% เลย",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_070",
+            "no": 70,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "แอดไลน์ผมมาคุยดีกว่าครับ id: sellermall",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_071",
+            "no": 71,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ถ้ากดสั่งวันนี้ ส่งวันไหนได้คะ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_072",
+            "no": 72,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "ชวนโอนนอกระบบหน่อยคับ ของส่งทันที",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_073",
+            "no": 73,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "มีรอยบ้างเล็กน้อย แต่ยอมรับได้ครับ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_074",
+            "no": 74,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "ไม่ต้องผ่านแอพก็ได้คับ โอนมาเลยถูกกว่า",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_075",
+            "no": 75,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "บัญชี SCB 3344556677 โอนมาเลยนะ",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_076",
+            "no": 76,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "โอนภายนอกได้ครับ รับส่วนลดพิเศษ",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_077",
+            "no": 77,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ขอเช็คของก่อนกดยืนยันในระบบนะคะ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_078",
+            "no": 78,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "บัญชีออมสิน 5566778899 โอนมาได้เลยครับ",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_079",
+            "no": 79,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "สินค้าใช้งานปกติทุกปุ่มใช่ไหมครับ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_080",
+            "no": 80,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "Line: transfer_now โอนสดลดทันที",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_081",
+            "no": 81,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "ไม่ต้องผ่านแอพ โอนเข้าบช. กสิกรสิคะ",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_082",
+            "no": 82,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ยืนยันรับของแล้ว กดในแอปเรียบร้อย",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_083",
+            "no": 83,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "ติดต่อไลน์ไอดี buyout_th แล้วคุยต่อ",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_084",
+            "no": 84,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ลดเหลือเท่านี้นะคับ แล้วกดซื้อผ่านแอป",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_085",
+            "no": 85,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ราคาเท่านี้ถือว่าโอเคแล้วสำหรับผม",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_086",
+            "no": 86,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "ไม่ผ่านระบบก็ได้นะ โอนมาลดให้เยอะ",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_087",
+            "no": 87,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ของยังอยู่ไหมครับ ลดได้สุดเท่าไหร่",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_088",
+            "no": 88,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "โทรมา 083-222-3333 คุยเรื่องโอนสด",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_089",
+            "no": 89,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ราคานี้รวมค่าส่งในระบบแล้วใช่ไหม",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_090",
+            "no": 90,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "ไลน์ไอดี: deal_out99 คุยนอกระบบไวกว่า",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_091",
+            "no": 91,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "ไม่ต้องใช้ระบบ โอนเข้าบช. ได้เลย",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_092",
+            "no": 92,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "หลีกเลี่ยงค่าธรรมเนียม โอนภายนอกดีกว่าครับ",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_093",
+            "no": 93,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "แอดไลน์ @cheapdeal คุยราคาพิเศษนอกแอป",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_094",
+            "no": 94,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "โอนตรงเข้าบช. กรุงไทย 1122334455 ได้เลย",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_095",
+            "no": 95,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ขอเลื่อนนัดรับของเป็นวันพรุ่งนี้ได้ไหม",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_096",
+            "no": 96,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "พร้อมเพย์ชื่อสมชาย 0800001111 โอนมา",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_097",
+            "no": 97,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ของมือสองใช้งานมานานแค่ไหนคะ",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_098",
+            "no": 98,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "โอนเงินโดยตรงได้ไหม ตัดค่าธรรมเนียม",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        },
+        {
+            "id": "msg_099",
+            "no": 99,
+            "group": "C1",
+            "phase": "normal_inquiry",
+            "role": "peer",
+            "text": "ขอเวลาคิดก่อนนะคะ แป๊บเดียว",
+            "gold_label": "ALLOW",
+            "gt_risky": 0,
+            "notes": "Normal trade inquiry / escrow-compliant talk (binary gold=ALLOW)"
+        },
+        {
+            "id": "msg_100",
+            "no": 100,
+            "group": "C2",
+            "phase": "off_platform_circumvention",
+            "role": "peer",
+            "text": "เบอร์ 0876543210 โทรมาคุยโอนนอกแอป",
+            "gold_label": "BLOCK",
+            "gt_risky": 1,
+            "notes": "Off-platform payment/contact bait (binary gold=BLOCK)"
+        }
+    ],
+    "conversations": [
+        {
+            "conversation_id": "thread_demo_01",
+            "scenario": "normal_then_promptpay_bypass",
+            "empirical_note": "Mirrors observed Thai C2C fraud: early turns look legitimate; risk appears at direct transfer.",
+            "turns": [
+                {
+                    "turn": 1,
+                    "phase": "normal_inquiry",
+                    "text": "สภาพเครื่องเป็นยังไง มีรอยไหมคะ",
+                    "gold_label": "ALLOW"
+                },
+                {
+                    "turn": 2,
+                    "phase": "normal_inquiry",
+                    "text": "ราคาเท่านี้ถือว่าโอเคแล้วสำหรับผม",
+                    "gold_label": "ALLOW"
+                },
+                {
+                    "turn": 3,
+                    "phase": "off_platform_circumvention",
+                    "text": "พร้อมเพย์ 0898765432 โอนแล้วทักมา",
+                    "gold_label": "BLOCK"
+                }
+            ]
+        },
+        {
+            "conversation_id": "thread_demo_02",
+            "scenario": "normal_then_line_bypass",
+            "empirical_note": "Contact-channel bait after ordinary product Q&A.",
+            "turns": [
+                {
+                    "turn": 1,
+                    "phase": "normal_inquiry",
+                    "text": "ขอดูรูปมุมอื่นเพิ่มได้มั้ยครับ",
+                    "gold_label": "ALLOW"
+                },
+                {
+                    "turn": 2,
+                    "phase": "normal_inquiry",
+                    "text": "ส่งด่วนได้ไหมคะ ถ้าสั่งวันนี้",
+                    "gold_label": "ALLOW"
+                },
+                {
+                    "turn": 3,
+                    "phase": "off_platform_circumvention",
+                    "text": "แอดไลน์แล้วโอนมาเลย id: cashdeal01",
+                    "gold_label": "BLOCK"
+                }
+            ]
+        }
+    ]
+}

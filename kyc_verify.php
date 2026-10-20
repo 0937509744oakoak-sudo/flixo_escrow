@@ -35,8 +35,15 @@ if ($useSumsub && $userId > 0) {
     }
 }
 
+// Single consumption point for the ThaiD redirect flow, which cannot render its
+// own output: it always lands back here after leaving the site.
+$thaidFlash = $_SESSION['thaid_flash'] ?? null;
+unset($_SESSION['thaid_flash']);
+$thaidEnabled = EkycService::isThaiDConfigured();
+
 if (!empty($user_data['is_verified']) || ($user_data['kyc_status'] ?? '') === 'approved') {
-    echo "<script>alert('คุณผ่านการยืนยันตัวตนแล้ว'); window.location='dashboard.php?tab=profile';</script>";
+    $doneMessage = $thaidFlash['message'] ?? 'คุณผ่านการยืนยันตัวตนแล้ว';
+    echo '<script>alert(' . json_encode($doneMessage, JSON_UNESCAPED_UNICODE) . "); window.location='dashboard.php?tab=profile';</script>";
     exit();
 }
 
@@ -59,6 +66,9 @@ include 'includes/navbar.php';
 .kyc-step { flex: 1; text-align: center; padding: 8px; border-radius: 8px; background: #f5f5f5; font-size: 12px; }
 .kyc-step.active { background: #e3f2fd; color: #1565c0; font-weight: 600; }
 #sumsub-websdk-container { min-height: 480px; }
+.kyc-thaid { padding: 16px; border: 1px solid #bbdefb; background: #f5faff; border-radius: 12px; }
+.kyc-divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; color: #999; font-size: 13px; }
+.kyc-divider::before, .kyc-divider::after { content: ''; flex: 1; height: 1px; background: #e0e0e0; }
 #cameraPreview { width: 100%; max-width: 320px; border-radius: 12px; background: #000; display: none; }
 #selfieCanvas { display: none; }
 .capture-btns { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
@@ -76,10 +86,45 @@ include 'includes/navbar.php';
         <?php endif; ?>
     </p>
 
+    <?php if ($thaidFlash): ?>
+        <?php
+        $flashStyles = [
+            'success' => 'background:#e8f5e9;color:#2e7d32;',
+            'info' => 'background:#e3f2fd;color:#1565c0;',
+            'error' => 'background:#ffebee;color:#c62828;',
+        ];
+        ?>
+        <div style="padding:14px;border-radius:10px;margin-bottom:16px;<?php echo $flashStyles[$thaidFlash['type']] ?? $flashStyles['info']; ?>">
+            <?php echo safeText($thaidFlash['message']); ?>
+        </div>
+    <?php endif; ?>
+
     <?php if ($kycStatus === 'rejected'): ?>
         <div style="padding:14px;background:#ffebee;color:#c62828;border-radius:10px;margin-bottom:16px;">
             <strong>การยืนยันตัวตนไม่ผ่าน</strong><br>กรุณาลองใหม่อีกครั้ง
         </div>
+    <?php endif; ?>
+
+    <?php if ($thaidEnabled): ?>
+        <form method="post" action="<?php echo safeText(BASE_URL . '/controllers/ThaiDController.php'); ?>" class="kyc-thaid">
+            <input type="hidden" name="csrf_token" value="<?php echo safeText($csrf); ?>">
+            <input type="hidden" name="action" value="start">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <span style="font-size:24px;">🇹🇭</span>
+                <strong>ยืนยันตัวตนด้วยแอป ThaiD</strong>
+            </div>
+            <p style="font-size:13px;color:#555;margin:0 0 12px;">
+                เร็วที่สุด — ใช้ข้อมูลทะเบียนราษฎรจากกรมการปกครองโดยตรง ไม่ต้องอัปโหลดบัตรหรือถ่ายรูปใบหน้า
+            </p>
+            <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;cursor:pointer;">
+                <input type="checkbox" name="consent_kyc" value="1" required style="margin-top:4px;">
+                <span style="font-size:13px;">ยินยอมให้จัดเก็บข้อมูล KYC ตาม <a href="privacy_policy.php" target="_blank">นโยบายความเป็นส่วนตัว</a> (v<?php echo safeText(KYC_CONSENT_VERSION); ?>)</span>
+            </label>
+            <button type="submit" class="ripple-btn" style="width:100%;padding:12px;background:#1565c0;color:#fff;border:none;border-radius:50px;cursor:pointer;">
+                ดำเนินการต่อด้วย ThaiD
+            </button>
+        </form>
+        <div class="kyc-divider"><span>หรือยืนยันด้วยเอกสาร</span></div>
     <?php endif; ?>
 
     <?php if ($awaitingManualReview): ?>

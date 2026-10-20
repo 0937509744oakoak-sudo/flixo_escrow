@@ -32,6 +32,21 @@ function markOrderPaidFromOmise(mysqli $conn, int $orderId, array $chargeData, s
         return false;
     }
 
+    // A charge can legitimately carry an order_id while being for the wrong
+    // amount (retry with a stale source, tampered client). Escrow must never be
+    // funded for less than the order is worth.
+    $expectedSatang = OmiseService::toSatang((float) $order['amount']);
+    $paidSatang = (int) ($chargeData['amount'] ?? 0);
+    if ($paidSatang < $expectedSatang) {
+        ErrorLogger::write('error', 'Omise charge underpays order — not marking as paid', [
+            'order_id' => $orderId,
+            'charge_id' => $chargeId,
+            'paid_satang' => $paidSatang,
+            'expected_satang' => $expectedSatang,
+        ]);
+        return false;
+    }
+
     $systemAdmin = ['username' => 'Omise', 'role' => 'admin'];
     $oldStatus = $order['status'];
     if ($oldStatus === OrderStateMachine::PENDING_PAYMENT) {

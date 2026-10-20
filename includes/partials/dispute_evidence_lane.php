@@ -22,8 +22,8 @@
         <div class="dispute-evidence-grid">
             <?php foreach ($laneItems as $evidence):
                 $ext = strtolower(pathinfo($evidence['file_path'], PATHINFO_EXTENSION));
-                $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif'], true);
-                $fileUrl = htmlspecialchars($evidence['file_path'], ENT_QUOTES, 'UTF-8');
+                $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true);
+                $fileUrl = safeText(disputeEvidenceUrl((int) $evidence['id']));
             ?>
                 <a href="<?php echo $fileUrl; ?>" target="_blank" rel="noopener" class="dispute-evidence-item">
                     <div class="dispute-evidence-thumb">
@@ -56,7 +56,7 @@
             <input type="hidden" name="csrf_token" value="<?php echo safeText($csrf_token); ?>">
             <label class="dispute-form-label">อัปโหลดหลักฐานของคุณ</label>
             <div class="dispute-file-wrap">
-                <input type="file" name="evidence_file" accept="image/*,.pdf,.doc,.docx" required>
+                <input type="file" name="evidence_file" accept="image/jpeg,image/png,image/webp,image/gif,application/pdf" required>
             </div>
             <textarea name="evidence_description" class="dispute-textarea" rows="2" placeholder="<?php echo $laneRole === 'buyer' ? 'เช่น รูปสินค้าที่ได้รับ, สินค้าชำรุด...' : 'เช่น รูปหลักฐานจัดส่ง, ใบขนส่ง, ภาพแพ็กสินค้...'; ?>"></textarea>
             <button type="submit" class="dispute-btn-submit">

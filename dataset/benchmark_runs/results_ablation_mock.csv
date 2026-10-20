@@ -1,0 +1,334 @@
+﻿message_id,ground_truth,text_preview,regex_verdict,regex_score,regex_ms,cascade_verdict,cascade_score,cascade_tier,cascade_provider,cascade_ms,cascade_cost,soft_verdict,soft_score,soft_tier,soft_provider,soft_cues,soft_ms,soft_cost
+FRAUD_001_INQUIRY,ALLOW,"ครับพี่ถ้าส่งแล้วผมจะแจ้งเลข ให้นะครับ",ALLOW,0,0.693,ALLOW,0,TIER_1_REGEX,none,0.117,0,ALLOW,0,TIER_1_REGEX,none,,0.272,0
+FRAUD_001_PAYMENT,BLOCK,"โอนแล้วแจ้งสลิป พร้อมที่อยู่ นะครับ",ALLOW,0,0.09,ALLOW,0,TIER_1_REGEX,none,0.084,0,BLOCK,52,TIER_2_LLM,groq,soft_payment_confirm,217.703,0.0003045
+FRAUD_002_INQUIRY,ALLOW,"พึ่งหมดประกันไปอาทิตย์ กว่าๆครับพี่",ALLOW,0,0.122,ALLOW,0,TIER_1_REGEX,none,0.133,0,ALLOW,0,TIER_1_REGEX,none,,0.105,0
+FRAUD_002_INQUIRY_2,ALLOW,"รวมส่งก็3800ครับพี่ไม่บวก เพิ่มครับ",ALLOW,0,0.191,ALLOW,0,TIER_1_REGEX,none,0.119,0,ALLOW,0,TIER_1_REGEX,none,,0.082,0
+FRAUD_002_INQUIRY_3,ALLOW,ราคารวมส่งเท่าไหร่,ALLOW,0,0.105,ALLOW,0,TIER_1_REGEX,none,0.084,0,ALLOW,0,TIER_1_REGEX,none,,0.07,0
+FRAUD_002_INQUIRY_4,ALLOW,ขายเท่าไหร่,ALLOW,0,0.066,ALLOW,0,TIER_1_REGEX,none,0.086,0,ALLOW,0,TIER_1_REGEX,none,,0.065,0
+FRAUD_003_PAYMENT,BLOCK,"ธนาคาร : ไทยพาณิชย์ เลขบัญชี : [BANK_ACCOUNT] ชื่อบัญชี : น.ส.ณัฏฐพัชร์ จินระดา",BLOCK,75,0.101,BLOCK,88,TIER_2_LLM,groq,93.751,0.0003157,BLOCK,75,TIER_2_LLM,groq,anonymized_pii_token|account_holder_name,95.029,0.0003157
+FRAUD_003_PAYMENT_2,BLOCK,"015214100054COR09512 ค่าธรรมเนียม: ติ่ง ว่าคุณชำระเงิน",BLOCK,70,0.114,BLOCK,88,TIER_2_LLM,groq,125.023,0.0003087,BLOCK,70,TIER_2_LLM,groq,,145.457,0.0003087
+FRAUD_003_PAYMENT_3,BLOCK,"โอนเสร็จแล้วแจ้งสลิปมาด้วยนะคะ * ขอบคุณค่ะ",ALLOW,0,0.129,ALLOW,0,TIER_1_REGEX,none,0.142,0,BLOCK,59,TIER_2_LLM,groq,soft_payment_confirm,94.519,0.0003052
+FRAUD_003_PAYMENT_4,BLOCK,"โอนเข้าบัญชีนี้แทนนะคะ ยอดโอน 420 บาทค่ะ",BLOCK,65,0.124,BLOCK,81,TIER_2_LLM,groq,174.96,0.0003066,BLOCK,76,TIER_2_LLM,groq,,203.889,0.0003066
+FRAUD_003_INQUIRY,ALLOW,"พี่คะขอ QR Code หน่อยได้ไหมสแกนไม่",ALLOW,0,0.165,ALLOW,0,TIER_1_REGEX,none,0.127,0,ALLOW,0,TIER_1_REGEX,none,,0.12,0
+FRAUD_004_INQUIRY,ALLOW,"พี่ยังไม่ส่งหนูขอยกเลิกได้ไหม ไม่เป็นไรค่ะ อา. 22:09 อ้าวทำไมเงียบขนาดนี้ล่ะพี่",ALLOW,0,0.109,ALLOW,0,TIER_1_REGEX,none,0.112,0,ALLOW,0,TIER_1_REGEX,none,,0.107,0
+FRAUD_004_INQUIRY_2,ALLOW,"ค่ะ อา. 15:44 ขนมมาตอนไน่ค่ะ อา. 16:35 อา. 17:31 อา. 20:12",ALLOW,0,0.087,ALLOW,0,TIER_2_LLM,groq,124.583,0.000308,ALLOW,11,TIER_2_LLM,groq,,220.136,0.000308
+FRAUD_004_INQUIRY_3,ALLOW,"Aa อ้าวพี่ขนมนี่ยังไงเนี่ย ไม่สามารถส่งได้",ALLOW,0,0.156,ALLOW,0,TIER_1_REGEX,none,0.11,0,ALLOW,0,TIER_1_REGEX,none,,0.11,0
+FRAUD_004_INQUIRY_4,ALLOW,พี่คะสรุปแล้วเค้กได้เมื่อไหร่เนี่ย,ALLOW,0,0.136,ALLOW,0,TIER_1_REGEX,none,0.086,0,ALLOW,0,TIER_1_REGEX,none,,0.087,0
+FRAUD_004_INQUIRY_5,ALLOW,"ส่งเมื่อ 19 ชม. ที่แล้ว",ALLOW,0,0.073,ALLOW,0,TIER_1_REGEX,none,0.071,0,ALLOW,0,TIER_1_REGEX,none,,0.071,0
+FRAUD_004_INQUIRY_6,ALLOW,พี่เช็คให้หน่อยได้ไหม,ALLOW,0,0.072,ALLOW,0,TIER_1_REGEX,none,0.09,0,ALLOW,0,TIER_1_REGEX,none,,0.072,0
+FRAUD_005_INQUIRY,ALLOW,"ขอเอารูปไปรับออเดอร์ได้ไหมคะ เค้กหน้านิ่มชิ้นละเท่าไหร่คะ เค้กหน้านิ่ม สุดลง) ส้มมงคล สตรอว์เบอร์รี่แอนด์ครีม บลูเบอร์รี่ไวท์ช็อก เรนโบว์มาชเมลโล่ บิก ฟริตแอน ค",ALLOW,0,0.181,ALLOW,0,TIER_1_REGEX,none,0.185,0,ALLOW,0,TIER_1_REGEX,none,,0.254,0
+FRAUD_005_INQUIRY_2,ALLOW,"เรนโบว์ฟลาเวอร์ ดับเบิ้ลโอริโอ้ สตรอว์เบอร์รี่ ช็อกชิพแอนด์ครีม ลอดช่อง ไวท์ช็อกแอนด์ครีบ สกายมาชเมลโล่ กล้วยหอบโอริโอ้ เผือกแอนด์ครับ ช็อกโกบานาน่า ชา กบุกบราว",ALLOW,0,0.197,ALLOW,0,TIER_1_REGEX,none,0.178,0,ALLOW,0,TIER_1_REGEX,none,,0.179,0
+FRAUD_005_INQUIRY_3,ALLOW,"ร้านเบเกอรี่ สุดติ่ง แชทธุรกิจ 36 ร้านเบเกอรี่ สุดติ่ง 1.3 หมื่น คนถูกใจสิ่งนี้ ร้านอาหาร แชทธุรกิจและความเป็นส่วนตัวของคุณ ดูโปรไฟล์ ช็อกโกแลต",ALLOW,0,0.141,ALLOW,0,TIER_1_REGEX,none,0.138,0,ALLOW,0,TIER_1_REGEX,none,,0.138,0
+FRAUD_006_INQUIRY,ALLOW,"เลือกไม่ถูก แบบไหนคะ จะซื้อให้ลูกสาววันเกิด",ALLOW,0,0.086,ALLOW,0,TIER_1_REGEX,none,0.083,0,ALLOW,0,TIER_1_REGEX,none,,0.083,0
+FRAUD_007_PAYMENT,BLOCK,"โอนคืนค่าประกันกีต้า พร้อมเพล [PHONE_NUM]จีรวัฒน์ รอดคล้ายขลิบ",BLOCK,65,0.093,BLOCK,66,TIER_2_LLM,groq,153.334,0.0003101,BLOCK,72,TIER_2_LLM,groq,anonymized_pii_token|promptpay_ocr_variant,230.9,0.0003101
+FRAUD_007_INQUIRY,ALLOW,"ส่งแล้วรบกวนขอเลขพัสดุ ด้วยนะครับ",ALLOW,0,0.271,ALLOW,0,TIER_1_REGEX,none,0.203,0,ALLOW,0,TIER_1_REGEX,none,,0.191,0
+FRAUD_007_INQUIRY_2,ALLOW,"ยอดเข้าแล้วค่ะ เรียบร้อยครับ",ALLOW,0,0.221,ALLOW,0,TIER_1_REGEX,none,0.096,0,ALLOW,0,TIER_1_REGEX,none,,0.11,0
+FRAUD_007_INQUIRY_3,ALLOW,รอบส่งของกี่โมงอ่ะครับ,ALLOW,0,0.077,ALLOW,0,TIER_1_REGEX,none,0.078,0,ALLOW,0,TIER_1_REGEX,none,,0.075,0
+FRAUD_008_PAYMENT,BLOCK,"Guitar auction 9 (ie Guitar แชทธุรกิจ พรอมเพล [PHONE_NUM]] จีรวัฒน์ รอดคล้ายขลิบ",BLOCK,65,0.096,BLOCK,72,TIER_2_LLM,groq,108.366,0.0003136,BLOCK,76,TIER_2_LLM,groq,anonymized_pii_token|promptpay_ocr_variant,130.107,0.0003136
+FRAUD_008_INQUIRY,ALLOW,"ส่งแล้วรบกวนขอเลขพัสดุ ด้วยนะครับ",ALLOW,0,0.221,ALLOW,0,TIER_1_REGEX,none,0.091,0,ALLOW,0,TIER_1_REGEX,none,,0.085,0
+FRAUD_008_INQUIRY_2,ALLOW,รอบส่งของกี่โมงอ่ะครับ,ALLOW,0,0.077,ALLOW,0,TIER_1_REGEX,none,0.072,0,ALLOW,0,TIER_1_REGEX,none,,0.097,0
+FRAUD_008_INQUIRY_3,ALLOW,"อ่าว ไม่สามารถส่งได้",ALLOW,0,0.072,ALLOW,0,TIER_1_REGEX,none,0.07,0,ALLOW,0,TIER_1_REGEX,none,,0.07,0
+FRAUD_008_INQUIRY_4,ALLOW,"ค่ะล | Gates",ALLOW,0,0.064,ALLOW,0,TIER_1_REGEX,none,0.062,0,ALLOW,0,TIER_1_REGEX,none,,0.062,0
+FRAUD_009_PAYMENT,BLOCK,"เลขที่รายการ: 015238172011APP14796 จำนวน: 2,100.00 บาท ค่าธรรมเนียม: 0.00 บาท สแกนตรวจสอบสลิป บันทึกช่วยจำ: ประมูลกีต้า Takla แตะ ""ยืนยันการชำระเงิน"" เพื่อตรวจส",BLOCK,70,0.132,BLOCK,70,TIER_2_LLM,groq,110.242,0.000329,BLOCK,100,TIER_2_LLM,groq,,210.222,0.000329
+FRAUD_009_INQUIRY,ALLOW,"(ie GGuitar auction Guitar auction แชทธุรกิจ เฉพาะ Meta เท่านั้นที่ดูความเห็นของคุณได้ และจะไม่ส่งความเห็นดังกล่าวให้กับธุรกิจนี้ ใช่",ALLOW,0,0.17,ALLOW,0,TIER_1_REGEX,none,0.212,0,ALLOW,0,TIER_1_REGEX,none,,0.222,0
+FRAUD_009_INQUIRY_2,ALLOW,"ได้ค่ะ ไม่ใช่",ALLOW,0,0.139,ALLOW,0,TIER_1_REGEX,none,0.088,0,ALLOW,0,TIER_1_REGEX,none,,0.146,0
+FRAUD_010_PAYMENT,BLOCK,"รายการ MT 0032373319523510836124 หมายเลข อลเล็ก จํานวนเงิน ค่าธรรมเนียบ นางสาว อุไร คันทอง สา XXXXXXXX6852 นพดล ดัสคุ้ม XXXXXXXXXXX1621 140000826761621 1,070.00",BLOCK,70,0.139,BLOCK,76,TIER_2_LLM,groq,88.171,0.0003283,BLOCK,70,TIER_2_LLM,groq,,148.248,0.0003283
+FRAUD_010_INQUIRY,ALLOW,"จํา แบบนะค่ะ *90 จาก ไปยัง เติมเงินสําเร็จ",ALLOW,0,0.219,ALLOW,0,TIER_1_REGEX,none,0.105,0,ALLOW,0,TIER_1_REGEX,none,,0.09,0
+FRAUD_010_INQUIRY_2,ALLOW,"แจ้งที่อยู่ด้วยน่ะคะร้านตัดยอดส่ง ให้ค่ะ",ALLOW,0,0.09,ALLOW,0,TIER_1_REGEX,none,0.084,0,ALLOW,0,TIER_1_REGEX,none,,0.083,0
+FRAUD_010_INQUIRY_3,ALLOW,สรุปยอดไปแล้วน่ะคะด้านบน,ALLOW,0,0.096,ALLOW,0,TIER_1_REGEX,none,0.073,0,ALLOW,0,TIER_1_REGEX,none,,0.073,0
+FRAUD_011_PAYMENT,BLOCK,"โอนแล้วแจ้งสลิปพร้อมที่ อยู่ ที่ให้จัด ง, ชื่อ นาม...เล Aa วยนะคะ ......",ALLOW,0,0.096,ALLOW,0,TIER_1_REGEX,none,0.094,0,BLOCK,60,TIER_2_LLM,groq,soft_payment_confirm,124.579,0.0003108
+FRAUD_011_PAYMENT_2,BLOCK,"พร้อมเพย์ Prompt Pay | Gutter ชัยวิทย์ สุพรรณทอง 140-*********-319",BLOCK,75,0.159,BLOCK,93,TIER_2_LLM,groq,199.266,0.0003136,BLOCK,75,TIER_2_LLM,groq,,204.231,0.0003136
+FRAUD_011_INQUIRY,ALLOW,"QR บันทึกคิวอาร์โค้ดลงในรูปภาพ ของคุณ บันทึกคิวอาร์โค้ด",ALLOW,0,0.132,ALLOW,0,TIER_1_REGEX,none,0.101,0,ALLOW,0,TIER_1_REGEX,none,,0.099,0
+FRAUD_011_PAYMENT_3,BLOCK,"ขอเลขบัญชีไว้เลยครับ THAI QR PAYMENT",BLOCK,75,0.086,BLOCK,84,TIER_2_LLM,groq,144.515,0.000308,BLOCK,93,TIER_2_LLM,groq,,89.635,0.000308
+FRAUD_012_INQUIRY,ALLOW,"Guitar Guitar auction แชทธุรกิจ ลูกค้าคะขอโทษลืมแจ้งค่า ประกันสินค้า400 บาทค่ะ สินค้าถึงแม่ค้าโอนคืนค่ะ | Grass",ALLOW,0,0.277,ALLOW,0,TIER_1_REGEX,none,0.197,0,ALLOW,0,TIER_1_REGEX,none,,0.118,0
+FRAUD_012_PAYMENT,BLOCK,"แจ้งเลขบัญชีมาไว้ได้ เลยนะคะ 400 ค่ะ ต้องโอนเพิ่มหรอครับ ประกันสินค้าแตกมีปัญหา ทางร้านจะได้เปลี่ยนให้ได้",BLOCK,75,0.122,BLOCK,75,TIER_2_LLM,groq,140.354,0.0003206,BLOCK,86,TIER_2_LLM,groq,,177.776,0.0003206
+FRAUD_012_INQUIRY_2,ALLOW,"ค่ะ สินค้าถึงแล้วโอนคืนทัน ทีนะคะ",ALLOW,0,0.26,ALLOW,0,TIER_1_REGEX,none,0.202,0,ALLOW,0,TIER_1_REGEX,none,,0.21,0
+FRAUD_012_INQUIRY_3,ALLOW,"ค่ะ สินค้าถึงแ♥นคืนทัน",ALLOW,0,0.18,ALLOW,0,TIER_1_REGEX,none,0.194,0,ALLOW,0,TIER_1_REGEX,none,,0.178,0
+FRAUD_013_INQUIRY,ALLOW,"สลิปและแจ้ง Guitar auction ว่าคุณชำระเงินแล้ว ยืนยันการชำระเงิน Guitar แชร์ที่อยู่ Guitar auction ทราบว่า ต้องจัดส่งสินค้าของคุณไป ที่ใด ป้อนที่อยู่ คุณส่งการแจ",ALLOW,0,0.341,ALLOW,0,TIER_1_REGEX,none,0.473,0,ALLOW,0,TIER_1_REGEX,none,,0.928,0
+FRAUD_013_PAYMENT,BLOCK,"เลขที่รายการ: 015238172348CPP03266 จำนวน: 400.00 บาท ค่าธรรมเนียม: 0.00 บาท สแกนตรวจสอบสลิป บันทึกช่วยจํา: ค่าประกันกีต้า แตะ ""ยืนยันการชำระเงิน"" เพื่อตรวจสอบยื",BLOCK,70,0.214,BLOCK,84,TIER_2_LLM,groq,205.997,0.0003283,BLOCK,72,TIER_2_LLM,groq,,172.957,0.0003283
+FRAUD_014_INQUIRY,ALLOW,"<4 ตัง' เม'ม'ม ประจําร้านใช้นี้เลยค่ะ แก้ไขแล้ว แห้งไว ลดได้เหลือตัวละ170",ALLOW,0,0.151,ALLOW,0,TIER_1_REGEX,none,0.106,0,ALLOW,0,TIER_1_REGEX,none,,0.113,0
+FRAUD_014_INQUIRY_2,ALLOW,"พอดีหนูจะเอามาอบเองเล่นเล่นที่ บ้านค่ะ Aa 170 รวมส่งไหมคะ กี่วัตต์คะ",ALLOW,0,0.101,ALLOW,0,TIER_1_REGEX,none,0.099,0,ALLOW,0,TIER_1_REGEX,none,,0.099,0
+FRAUD_014_INQUIRY_3,ALLOW,"จ้า รวมส่งค่ะ",ALLOW,0,0.069,ALLOW,0,TIER_1_REGEX,none,0.067,0,ALLOW,0,TIER_1_REGEX,none,,0.085,0
+FRAUD_015_PAYMENT,BLOCK,"เลขที่รายการ: นาย ธ.กสิกรไทย ธ.กสิกรไทย XXX-) 014267135704CTF01900 จํานวน: 1,300.00 บาท ค่าธรรมเนียม: K+ Vo",BLOCK,80,0.106,BLOCK,80,TIER_1_REGEX,none,0.099,0,BLOCK,80,TIER_1_REGEX,none,,0.099,0
+FRAUD_015_INQUIRY,ALLOW,"ยอดของอาทิตย์ที่แล้วล่ะครับ ยัง ไม่ได้จ่ายเลย",ALLOW,0,0.089,ALLOW,0,TIER_1_REGEX,none,0.087,0,ALLOW,0,TIER_1_REGEX,none,,0.091,0
+FRAUD_015_INQUIRY_2,ALLOW,ครับผมขอเวลารวมอีกทีครับ,ALLOW,0,0.075,ALLOW,0,TIER_1_REGEX,none,0.074,0,ALLOW,0,TIER_1_REGEX,none,,0.074,0
+FRAUD_016_INQUIRY,ALLOW,พี่ฟรีส่งให้,ALLOW,0,0.081,ALLOW,0,TIER_1_REGEX,none,0.067,0,ALLOW,0,TIER_1_REGEX,none,,0.067,0
+FRAUD_017_INQUIRY,ALLOW,"แจ้งยอดพี่ก่อน20:50 นะค่ะ แกร้ปจะได้ไม่เสียเวลาไปที่อื่นอีก ตอนนี้ไม่มีเงินโอนค่ะเดี๋ยวเก็บปลาย ทางมั้ยคะ ไม่ได้เก็บปลายทางค่ะผ้า ตัวเองออกมาฝากได้เลยค่ะ บอยอดเ",ALLOW,0,0.16,ALLOW,0,TIER_1_REGEX,none,0.16,0,ALLOW,0,TIER_1_REGEX,none,,0.161,0
+FRAUD_017_INQUIRY_2,ALLOW,"พี่เอาของให้แกรับถ่ายมาได้มั้ยแฟน หนูมันกลัว กลัวไรค่ะเครดิต ||| เดี๋ยวมันจะโอนให้แต่ต้องมีรูป ข้อความ",ALLOW,0,0.119,ALLOW,0,TIER_1_REGEX,none,0.119,0,ALLOW,0,TIER_1_REGEX,none,,0.133,0
+FRAUD_017_INQUIRY_3,ALLOW,"พี่อยุ่แถวไหนคะพอดีจะเรียกรถไผ เอาหนูว่าจะเาเพิ่มแต่มีเงินสด",ALLOW,0,0.096,ALLOW,0,TIER_1_REGEX,none,0.121,0,ALLOW,0,TIER_1_REGEX,none,,0.107,0
+FRAUD_017_INQUIRY_4,ALLOW,"พี่ไม่ารับสดค่ะ อีกอย่างพี่เรียกแกร้ปละ รอยอดตัวเองยุค่ะ",ALLOW,0,0.094,ALLOW,0,TIER_1_REGEX,none,0.099,0,ALLOW,0,TIER_1_REGEX,none,,0.095,0
+FRAUD_018_INQUIRY,ALLOW,"ค่ะแฟนหนูมันประสาท อย่ามาพูดหลายทีค่ะ อุตส่าจะไม่พูดละ คือไรคะนี่ก็โอน140แล้ว",ALLOW,0,0.105,ALLOW,0,TIER_1_REGEX,none,0.105,0,ALLOW,0,TIER_1_REGEX,none,,0.12,0
+FRAUD_018_INQUIRY_2,ALLOW,"ยังต้องให้พูด 40มันโอนไม่ได้ ก็จะเอาเพิ่ม เซเว่นค่ะ แต่แฟนหนูมันเป็นแบบนี้",ALLOW,0,0.106,ALLOW,0,TIER_1_REGEX,none,0.102,0,ALLOW,0,TIER_1_REGEX,none,,0.102,0
+FRAUD_018_INQUIRY_3,ALLOW,"ค่ะตังค์โอนมี ||| ข้อความ",ALLOW,0,0.078,ALLOW,0,TIER_1_REGEX,none,0.073,0,ALLOW,0,TIER_1_REGEX,none,,0.073,0
+FRAUD_019_PAYMENT,BLOCK,"Bangkok Bank รายการล่า ว 053.ค. 68, 2018 จวบจน 140.00 THB น.ส. มารวิ 977-5-xxx103 สมากางกง เทพ กรบ วอเท Save Code TMMTOPUP โทลคีน แจกล [PHONE_NUM]hassudu 6.00 T",ALLOW,0,0.113,BLOCK,72,TIER_2_LLM,groq,185.412,0.0003262,BLOCK,70,TIER_2_LLM,groq,anonymized_pii_token,105.381,0.0003262
+FRAUD_019_PAYMENT_2,BLOCK,"ธนาคารกรุงเทพ เลขบัญชี [PHONE_NUM]ดูลักษณะการทำงานของการโอน ... 43%E all40 E ONED OK ปภัสรา แคร์ [PHONE_NUM] ่14 ต.สาวพร้าว อ.เมือง จ.อุด. .อยศาลปู่ย่า ข้อความ",BLOCK,75,3.337,BLOCK,88,TIER_2_LLM,groq,166.623,0.0003297,BLOCK,75,TIER_2_LLM,groq,anonymized_pii_token,110.91,0.0003297
+FRAUD_019_PAYMENT_3,BLOCK,"โอนแล้วแจ้งสลิป ชื่อ เบอร์โทรศัพท์ ให้ชัดเจน โบ ได้ตั้งชื่อเล่นของคุณเป็น ปิดเสื้อ 1 X",BLOCK,65,0.253,BLOCK,83,TIER_2_LLM,groq,140.318,0.0003143,BLOCK,65,TIER_2_LLM,groq,soft_payment_confirm,217.141,0.0003143
+FRAUD_019_INQUIRY,ALLOW,ส่งคำขอให้โอนแล้ว,ALLOW,0,0.104,ALLOW,0,TIER_1_REGEX,none,0.081,0,BLOCK,61,TIER_2_LLM,groq,soft_payment_confirm,110.531,0.000301
+FRAUD_020_INQUIRY,ALLOW,"ได้หมูกีโล เดี๋ยวแม่ค้าให้เต็มเลยนะคะไม่ต้อง ประกันก็ได้ค่ะเดี๋ยวทางร้านจัดการ ให้เองค่ะ",ALLOW,0,0.154,ALLOW,0,TIER_1_REGEX,none,0.119,0,ALLOW,0,TIER_1_REGEX,none,,0.116,0
+FRAUD_020_INQUIRY_2,ALLOW,"ได้เลยค่ะลูกค้าทางร้านจัดการ 09",ALLOW,0,0.081,ALLOW,0,TIER_1_REGEX,none,0.082,0,ALLOW,0,TIER_1_REGEX,none,,0.123,0
+FRAUD_020_INQUIRY_3,ALLOW,"Aa ขอบคุณค่ะ",ALLOW,0,0.07,ALLOW,0,TIER_1_REGEX,none,0.065,0,ALLOW,0,TIER_1_REGEX,none,,0.065,0
+FRAUD_021_INQUIRY,ALLOW,"ส่งฟรี - XX#อ่านก่อนห้ามข้าม X สินค้าเป็น เนื้อสด ไม่มีปลาย ทางนะ X X มีแต่บริการโอนชำระขออภัยใน ความไม่สะดวก ณ ที่นี้ด้วยนะคะ สนใจรับรายการไหนบ้างค่ะ",ALLOW,0,0.14,ALLOW,0,TIER_1_REGEX,none,0.141,0,ALLOW,0,TIER_1_REGEX,none,,0.142,0
+FRAUD_021_INQUIRY_2,ALLOW,"* จังส่งลังโฟมทั่วประเทศ = จัง",ALLOW,0,0.076,ALLOW,0,TIER_1_REGEX,none,0.074,0,ALLOW,0,TIER_1_REGEX,none,,0.097,0
+FRAUD_021_INQUIRY_3,ALLOW,"ล่ะ10บาทจ้า สั่งคละรวมได้ค่ะ *",ALLOW,0,0.077,ALLOW,0,TIER_1_REGEX,none,0.111,0,ALLOW,0,TIER_1_REGEX,none,,0.109,0
+FRAUD_021_INQUIRY_4,ALLOW,"* รับ10กิโลขึ้นไป ลดทันทีโล",ALLOW,0,0.128,ALLOW,0,TIER_1_REGEX,none,0.086,0,ALLOW,0,TIER_1_REGEX,none,,0.1,0
+FRAUD_021_INQUIRY_5,ALLOW,รับออเดอร์ค่ะ,ALLOW,0,0.068,ALLOW,0,TIER_1_REGEX,none,0.066,0,ALLOW,0,TIER_1_REGEX,none,,0.123,0
+FRAUD_021_INQUIRY_6,ALLOW,มคาลงไหมคะ,ALLOW,0,0.066,ALLOW,0,TIER_1_REGEX,none,0.081,0,ALLOW,0,TIER_1_REGEX,none,,0.078,0
+FRAUD_022_PAYMENT,BLOCK,"คะโอนแล้วรบกวนแจ้งสลิปให้แม่ค้า ด้วยนะคะ ทําไหมไม่แจ้งตั้งแต่แรก ก็ถามไป แล้ว ว่ามีค่าส่งหรืออะไรไหม ทําไหม บอกส่งฟรี นี่สั่งของสดตลอด มีปลายทาง ยังไม่ ต้องมีค่",ALLOW,0,0.163,ALLOW,0,TIER_1_REGEX,none,0.166,0,BLOCK,59,TIER_2_LLM,groq,soft_payment_confirm,124.297,0.0003304
+FRAUD_022_INQUIRY,ALLOW,"เจ๊ ทราย แชทธุรกิจ สั่งซื้อวันนี้ของถึงพรุ่งนี้จ้า ลูกค้าต้องโอนค่าลังโฟมอีก 200 บาทนะคะ + ค่าประกันสินค้าเน่าเสีย เสียหายระหว่างทางอีก 405 บาท รวมทั้งหมดเป็น 6",ALLOW,0,0.208,ALLOW,13,TIER_2_LLM,groq,202.729,0.0003276,ALLOW,3,TIER_2_LLM,groq,,152.451,0.0003276
+FRAUD_022_INQUIRY_2,ALLOW,"จ้า เงินในขั้นขั้นตอนนี้ทางเราจะ คืนให้อยู่หลังหลัง, สินค้าถึงมือ ลูกค้าแล้วนะคะ Aa",ALLOW,0,0.146,ALLOW,0,TIER_1_REGEX,none,0.118,0,ALLOW,0,TIER_1_REGEX,none,,0.117,0
+FRAUD_022_INQUIRY_3,ALLOW,"เลยนะ แชร์ที่อยู่ เจ๊ ทราย ทราบว่าต้องจัดส่งสินค้า ของคุณไปที่ใด ป้อนที่อยู่",ALLOW,0,0.144,ALLOW,0,TIER_1_REGEX,none,0.105,0,ALLOW,0,TIER_1_REGEX,none,,0.11,0
+FRAUD_023_INQUIRY,ALLOW,"เจ๊ ทราย แชทธุรกิจ เจ๊ ทราย 5.2 ห น คนถูกใจสิ่งนี้ บริการด้านธุรกิจ แซทธุรกิจและความเป็นส่วนตัวของคุณ ดูโปรไฟล์ ดูโฆษณา สวัสดี Panisara! มีอะไรให้เรา 0 ช่วยใหม ",ALLOW,0,0.156,ALLOW,0,TIER_1_REGEX,none,0.155,0,ALLOW,0,TIER_1_REGEX,none,,0.156,0
+FRAUD_023_INQUIRY_2,ALLOW,"ส่งต่างจังหวัดไหมค่ะ มีค่าส่งไหมค่ะ 100 บาท 100 บาท สันนอก โลละ 100 บาท เศษสันคอ โล. 30บาท โครง โค",ALLOW,0,0.11,ALLOW,4,TIER_2_LLM,groq,222.077,0.000315,ALLOW,12,TIER_2_LLM,groq,,189.547,0.000315
+FRAUD_024_INQUIRY,ALLOW,"เจ๊ ทราย แชทธุรกิจ รับออเดอร์ค่ะ สามชั้น3โล 300บาท เศษส้นคอ3กิโล 240บาท สันนอก3โล 300บาท ซี่โครง3กิโล 270บาท เล้ง2โล 50บาท",ALLOW,0,0.153,ALLOW,2,TIER_2_LLM,groq,148.466,0.0003192,ALLOW,0,TIER_2_LLM,groq,,109.306,0.0003192
+FRAUD_024_INQUIRY_2,ALLOW,"Linea ยอดรวมทั้งหมด 1160 บาทนะคะ ลดให้ 140 บาทเหลือ 1020 บาทนะ",ALLOW,0,0.12,ALLOW,12,TIER_2_LLM,groq,110.049,0.0003087,ALLOW,16,TIER_2_LLM,groq,,180.148,0.0003087
+FRAUD_024_INQUIRY_3,ALLOW,"THAI QR PAYMENT Prompt Pay 32 พร้อมโอนค่ะ",ALLOW,0,0.112,ALLOW,0,TIER_1_REGEX,none,0.079,0,ALLOW,0,TIER_1_REGEX,none,,0.076,0
+FRAUD_024_PAYMENT,BLOCK,"โอนแล้วรบกวนแจ้งสลิปพร้อมชื่อที่ Aa",ALLOW,0,0.084,ALLOW,0,TIER_1_REGEX,none,0.111,0,BLOCK,59,TIER_2_LLM,groq,soft_payment_confirm,204.717,0.0003045
+FRAUD_024_INQUIRY_4,ALLOW,คะยอดโอน,ALLOW,0,0.107,ALLOW,0,TIER_1_REGEX,none,0.081,0,ALLOW,0,TIER_1_REGEX,none,,0.123,0
+FRAUD_025_INQUIRY,ALLOW,"บัญชีของคุณดูเรียบร้อยดี ตรวจสอบสิ่งอื่นๆ ที่คุณจัดการ ฟีเจอร์พิเศษ หากต้องการใช้ฟีเจอร์เหล่านี้ คุณต้องมีสิทธิและหลีกเลี่ยงการละเมิดกฎใดๆ แนะนำ กําลังใช้งาน กา",ALLOW,0,0.201,ALLOW,0,TIER_1_REGEX,none,0.165,0,ALLOW,0,TIER_1_REGEX,none,,0.163,0
+FRAUD_025_INQUIRY_2,ALLOW,"กำลังใช้งาน เพิ่มเติมเกี่ยวกับเพจของคุณ จัดการผู้ดูแล ° ตัวช่วยการควบคุม การ พเดตอื่นๆ ปัญหาเหล่านี้ไม่สร้างความเสียหายต่อเพจของคุณ แต่คุณควรจะทราบถึงปัญหาดังกล",ALLOW,0,0.15,ALLOW,0,TIER_1_REGEX,none,0.153,0,ALLOW,0,TIER_1_REGEX,none,,0.174,0
+FRAUD_025_INQUIRY_3,ALLOW,"หากเนื้อหาในเพจขัดต่อมาตรฐานชุมชนของเรา อาจทำให้เพจเสี่ยงที่จะถูกจำกัดได้ ข่าวดี: ไม่มีการละเมิดให้แสดง สถานะบัญชี ไม่มีข้อจํากัด",ALLOW,0,0.147,ALLOW,0,TIER_1_REGEX,none,0.41,0,ALLOW,0,TIER_1_REGEX,none,,0.217,0
+FRAUD_025_INQUIRY_4,ALLOW,"เท่าไหร่น้อง 51 ) เขียวขจี ไหมครับ 80000 ไปดูละเมิดทีครับ เปลี่ยนชื่อได้ ถูกต้องไหมครับ Aa เขียวขจีครับ เขียวแทร้แน่นอนครับ",ALLOW,0,0.128,ALLOW,0,TIER_1_REGEX,none,0.159,0,ALLOW,0,TIER_1_REGEX,none,,0.166,0
+FRAUD_025_INQUIRY_5,ALLOW,"ดูข้อมูลเพิ่มเติม ถูกครับ เอาไปทําอะไรต่อครับ",ALLOW,0,0.119,ALLOW,0,TIER_1_REGEX,none,0.085,0,ALLOW,0,TIER_1_REGEX,none,,0.085,0
+FRAUD_026_INQUIRY,ALLOW,"ขอบคุณครับวิว / 15:54 อ่านแล้ว 15-55 มีอีกส่งให้พี่ดูทีนะ 15-55 เดี่ยวเทสเปลี่ยนชื่อก่อนซื้อเลย 1. ภานุวัชญ์ ศิริลักษณ์ + O",ALLOW,0,0.12,ALLOW,0,TIER_2_LLM,groq,169.871,0.0003199,ALLOW,17,TIER_2_LLM,groq,,105.861,0.0003199
+FRAUD_026_PAYMENT,BLOCK,"โอนเงิน า จ 30 WA 68 1554 www mapen 5.00ulu 35 015150155426804744 109,733.00 unn hassude อ่านแล้ว",BLOCK,70,0.119,BLOCK,86,TIER_2_LLM,groq,100.157,0.0003164,BLOCK,70,TIER_2_LLM,groq,,155.56,0.0003164
+FRAUD_026_PAYMENT_2,BLOCK,"<99+ kimyong kimyong 6 75 Q & = 833,000 wm 7.591111111111111= 109,733 บาท ครับ อะเครได้ๆ อ่านจา",BLOCK,70,0.177,BLOCK,70,TIER_2_LLM,groq,197.736,0.0003164,BLOCK,79,TIER_2_LLM,groq,,178.36,0.0003164
+FRAUD_026_INQUIRY_2,ALLOW,"ครับ K+ อ่านแล้ว",ALLOW,0,0.168,ALLOW,0,TIER_1_REGEX,none,0.081,0,ALLOW,0,TIER_1_REGEX,none,,0.072,0
+FRAUD_027_INQUIRY,ALLOW,"Wize Khotwongthong ใช้งานเมื่อ 8 นาทีที่แล้ว ยับไม่นอนหรอครับ (50) เล่นเกมคระบ655 อัสวิน555 อัสวิน อัสวิน พนันหรอ ช่ายพี่555 ไม่รู้จัก เคเตรียมเพจนะตอนเช้า Aa ป",ALLOW,0,0.143,ALLOW,0,TIER_2_LLM,groq,219.034,0.0003283,ALLOW,7,TIER_2_LLM,groq,,141.159,0.0003283
+FRAUD_027_PAYMENT,BLOCK,"191 เพิ่มสดมากที่สุด ชนะบาดที่สุด 741 1464 924 โรบ้อกครับพี่",BLOCK,70,0.15,BLOCK,75,TIER_2_LLM,groq,123.084,0.0003101,BLOCK,78,TIER_2_LLM,groq,,218.889,0.0003101
+FRAUD_028_PAYMENT,BLOCK,"ตอนนี้คุณสามารถส่งข้อความ โทรหากันและกัน และดูข้อมูลบางอย่างได้ เช่น สถานะกำลังใช้งานของคุณและเวลาที่คุณอ่านข้อความ สวัส คะบ เขียวไหมเพจ OCCORRE เพจ5แสนติดแดงยุ",BLOCK,65,0.26,BLOCK,83,TIER_2_LLM,groq,120.288,0.0003276,BLOCK,78,TIER_2_LLM,groq,,195.234,0.0003276
+FRAUD_028_INQUIRY,ALLOW,"เช้าขายหมูปิ้ง 3 เป็นขับมอไซค์ส่งอาหาร - แดชบอร์ดมืออาชีพ ลงโฆษณา + เพิ่มลงในสตอรี่ โพสต์ เกี่ยวกับ Reels รูปภาพ รายละเอียด 0 เพจ · ครีเอเตอร์ดิจิทัล เพิ่มเติม ",ALLOW,0,0.265,ALLOW,0,TIER_1_REGEX,none,0.253,0,ALLOW,0,TIER_1_REGEX,none,,0.251,0
+FRAUD_029_INQUIRY,ALLOW,"ช่วยดึงทั้งหมด 4 คนนะครับ ดึงผมก่อนคนแรก จ่ายก่อน 25000 ดึงพี่อรุณคนที่ 2 จ่าย 25000 ป๊อปปี้ 3 25000 Sayamon 4",ALLOW,0,0.141,ALLOW,10,TIER_2_LLM,groq,151.637,0.0003171,ALLOW,0,TIER_2_LLM,groq,,99.879,0.0003171
+FRAUD_029_INQUIRY_2,ALLOW,"ครบ เขาหาผม ค่าบ แล้วพี่ไม่โอนมา ทีเดียวครับ555 เกร็งก๋าไรหรือป่าวผมเลย",ALLOW,0,0.143,ALLOW,0,TIER_1_REGEX,none,0.111,0,ALLOW,0,TIER_1_REGEX,none,,0.108,0
+FRAUD_029_INQUIRY_3,ALLOW,"ยังไม่ลบครับ รอพี่โอนแล้วค่อยเรื่ มลบครับ เห้อออเค",ALLOW,0,0.1,ALLOW,0,TIER_1_REGEX,none,0.091,0,BLOCK,57,TIER_2_LLM,groq,soft_payment_confirm,109.975,0.0003066
+FRAUD_030_INQUIRY,ALLOW,"ครับผมเลยไม่อยากให้ใครรู้ว่าเฟสไหน เป็นแอดมินครับ มันพยานามเข้าจังเลย ไม่กลัวเรื่องเพจกลัวคนรู้เรื่องเฟสครับ มันชอบพยายามเข้าครับ",ALLOW,0,0.208,ALLOW,0,TIER_1_REGEX,none,0.148,0,ALLOW,0,TIER_1_REGEX,none,,0.145,0
+FRAUD_030_INQUIRY_2,ALLOW,"Wize Khotwongthong ใช้งานเมื่อ 8 นาทีที่แล้ว แดเพลมนจะลอค 50 รำคาญครัล แอดมินพี่หรอครับ",ALLOW,0,0.113,ALLOW,0,TIER_1_REGEX,none,0.102,0,ALLOW,0,TIER_1_REGEX,none,,0.102,0
+FRAUD_030_INQUIRY_3,ALLOW,"ได้ครับๆ เข้าจะล็อคจนบิสเข้าไม่ได้มีมาแล้ว ผมเซฟให้ ไม่มีใครรู้ครับ งั้นจ่ายเงินแล้ว",ALLOW,0,0.128,ALLOW,0,TIER_1_REGEX,none,0.111,0,ALLOW,0,TIER_1_REGEX,none,,0.111,0
+FRAUD_030_INQUIRY_4,ALLOW,"น้องตั้งมันมาลบก่อนเลย ค่อยตั้งผม ตั้งคนรับจ้างไงครับ",ALLOW,0,0.092,ALLOW,0,TIER_1_REGEX,none,0.091,0,ALLOW,0,TIER_1_REGEX,none,,0.095,0
+FRAUD_030_INQUIRY_5,ALLOW,"น้องไม่ได้ลบเอง Aa ตั้งมันนี้คือตั้งใครครับ",ALLOW,0,0.085,ALLOW,0,TIER_1_REGEX,none,0.083,0,ALLOW,0,TIER_1_REGEX,none,,0.084,0
+FRAUD_031_INQUIRY,ALLOW,"โอนแล้วบอกนะครับ เฟสและชื่อใหม่ครับ ไม่เปลี่ยนครับ ผมจะเปลี่ยนเอว คิดยังไม่ยังไม่ออกแต่ขอมีเพจไว้สบายใจ ก่อนครับ เค",ALLOW,0,0.14,ALLOW,0,TIER_1_REGEX,none,0.13,0,BLOCK,61,TIER_2_LLM,groq,soft_payment_confirm,90.432,0.0003185
+FRAUD_031_INQUIRY_2,ALLOW,"50 เคพี ทุกอย่าง เยอะ 13 มิ.ย. 2564 22:12 ทักเฟสหลักอ้ายมา เห็นแล้ว Aa ผมก็บอกเพื่อนในเฟส ว่าสำรองหมดอ่ะดูแชทครับ",ALLOW,0,0.442,ALLOW,13,TIER_2_LLM,groq,145.857,0.0003178,ALLOW,0,TIER_2_LLM,groq,,205.73,0.0003178
+FRAUD_031_INQUIRY_3,ALLOW,"ขายแต่ครีมบ่พี่ ตอนนี้ขายไร ทาเค บ่เชาขายละ",ALLOW,0,0.148,ALLOW,0,TIER_1_REGEX,none,0.1,0,ALLOW,0,TIER_1_REGEX,none,,0.092,0
+FRAUD_031_INQUIRY_4,ALLOW,ได้ครับๆ,ALLOW,0,0.07,ALLOW,0,TIER_1_REGEX,none,0.065,0,ALLOW,0,TIER_1_REGEX,none,,0.065,0
+FRAUD_032_INQUIRY,ALLOW,"Wize Khotwongthong ใช้งานเมื่อ 7 นาทีที่แล้ว 50 ผมจะตั้งทีม ขอส่วนแบ่งครับ ตั้งให้ได้เลยครับ แต่ผมถือบิสไว้นะ เอาออกด้วยครับ ให้ทีมผมเห็นด้วยครับ ยอดที่เหลือผมก",ALLOW,0,0.155,ALLOW,0,TIER_1_REGEX,none,0.154,0,ALLOW,0,TIER_1_REGEX,none,,0.173,0
+FRAUD_032_INQUIRY_2,ALLOW,"เลยครับ ไม่ค้าง เอาที่ผมมีก่อน50000 อีก25000 ให้ทีมออก ใช้ๆ มันลบได้เลยครับ จ่ายไป50000แล้วคงไม่โกงหรอกครับ เงิน50000 ผมก็มาตรงๆมัดจำเกินครึ่งด้วย แต่ผมขอถอดบิส",ALLOW,0,0.16,ALLOW,0,TIER_2_LLM,groq,171.453,0.000329,ALLOW,0,TIER_2_LLM,groq,,189.977,0.000329
+FRAUD_032_INQUIRY_3,ALLOW,"ตั้งทีมยังไงนะครับ ที่เหลือให้ทีมผมจ่าย ทีมแอดมินลงทุนร่วมครับ บสเนส มัน7 วันถึงผูกได้นะครับ Aa",ALLOW,0,0.278,ALLOW,0,TIER_1_REGEX,none,0.28,0,ALLOW,0,TIER_1_REGEX,none,,0.245,0
+FRAUD_033_INQUIRY,ALLOW,"น้องพูดกลาวกว่าอีก กลาง* ผมบอกทีม ว่า 1แสน ถ้าชาระเรียบร้อย คืนทุนให้ผมด้วย 5555 ครับ ยิงแอดได้ปกตินะ ถามเยอะหน่อยครับ (50) 5555555 ไม่เก่งภาษากลางเลยครับ555",ALLOW,0,0.297,ALLOW,0,TIER_2_LLM,groq,122.847,0.0003255,ALLOW,8,TIER_2_LLM,groq,,169.691,0.0003255
+FRAUD_033_INQUIRY_2,ALLOW,"ได้ครับถามได้เลยครับ เปลี่ยนเป็น สัตว์ได้ ถูกต้องไหม Aa",ALLOW,0,0.135,ALLOW,0,TIER_1_REGEX,none,0.095,0,ALLOW,0,TIER_1_REGEX,none,,0.117,0
+FRAUD_033_INQUIRY_3,ALLOW,"ครับ รับทราบครับ",ALLOW,0,0.074,ALLOW,0,TIER_1_REGEX,none,0.069,0,ALLOW,0,TIER_1_REGEX,none,,0.069,0
+FRAUD_033_INQUIRY_4,ALLOW,ได้ปกติครับ,ALLOW,0,0.068,ALLOW,0,TIER_1_REGEX,none,0.065,0,ALLOW,0,TIER_1_REGEX,none,,0.065,0
+FRAUD_034_PAYMENT,BLOCK,"Wize Khotwongthong ใช้งานเมื่อ 7 นาทีที่แล้ว 75 เมียบอกแพงแน่เลย หุ้ยๆๆ ห้ยๆๆ (50) [BANK_ACCOUNT] ธนาคาร กรุงเทพ ภานุ วิชญ์ ศิริลักษณ์ คุณตอบกลับ Wize 75 เมียบอ",BLOCK,45,0.137,BLOCK,73,TIER_2_LLM,groq,172.038,0.000329,BLOCK,72,TIER_2_LLM,groq,anonymized_pii_token,209.763,0.000329
+FRAUD_034_INQUIRY,ALLOW,"17TVEUYrqw/?mibextid=wwXlfr เมียเรื่องเยอะครับ โอเค จอง เดี๋ยวมาเอา ไม่ปลอมนะ ใครบอกปลอมครับ เฟสจริง หมู่ไวน์ แล้วเอาเฟสปลอมมาซื้อ555 เอาเฟสจริงทักมา555 ผมไม่เห",ALLOW,0,0.196,ALLOW,14,TIER_2_LLM,groq,102.129,0.0003269,ALLOW,14,TIER_2_LLM,groq,,152.852,0.0003269
+FRAUD_034_INQUIRY_2,ALLOW,เมียผมบอกลดเยอะไป555,ALLOW,0,0.316,ALLOW,0,TIER_1_REGEX,none,0.163,0,ALLOW,0,TIER_1_REGEX,none,,0.169,0
+FRAUD_035_INQUIRY,ALLOW,"ขายแต่ครีมบ ตอนนี้ขายไร เคพี ทําได้ บ่เขาขายละ ทุกอย่าง เยอะ 13 มิ.ย. 2564 22:12 ทักเฟสหลักอ้ายมา เห็นแล้ว Aa ^ คุณตอบกลับ Wize",ALLOW,0,0.292,ALLOW,0,TIER_2_LLM,groq,173.738,0.0003206,ALLOW,6,TIER_2_LLM,groq,,93.098,0.0003206
+FRAUD_035_INQUIRY_2,ALLOW,"share/1CYUVUZPRU/? mibextid=wwXlfr อันนี้จริง5555 เห็นไม่ค่อยโพสครับ",ALLOW,0,0.274,ALLOW,0,TIER_1_REGEX,none,0.334,0,ALLOW,0,TIER_1_REGEX,none,,0.294,0
+FRAUD_035_INQUIRY_3,ALLOW,"รวยเลย 2 อาทิย์ /ทมิน 3เดือนจะเอารถ ดีใจด้วยครับพี่",ALLOW,0,0.19,ALLOW,0,TIER_1_REGEX,none,0.228,0,ALLOW,0,TIER_1_REGEX,none,,0.202,0
+FRAUD_035_INQUIRY_4,ALLOW,"ผมก็บอกเพื่อนในเฟส ว่าสำรองหมดอ่ะดูแชทครับ ปี 64 Aa",ALLOW,0,0.183,ALLOW,0,TIER_1_REGEX,none,0.185,0,ALLOW,0,TIER_1_REGEX,none,,0.185,0
+FRAUD_036_INQUIRY,ALLOW,"Wize Khotwongthong ใช้งานเมื่อ 7 นาทีที่แล้ว ถ้าผมเปลี่ยนเองไม่ได้ ผมจะมาขอควาทช่วยเหลือยินดีช่วย นะครับ ตังไม่พอ 50 * คุณตอบกลับ Wize ผมจะมาขอควาทช่วยเหลือยินด",ALLOW,0,0.346,ALLOW,0,TIER_1_REGEX,none,0.242,0,ALLOW,0,TIER_1_REGEX,none,,0.228,0
+FRAUD_036_INQUIRY_2,ALLOW,"มีแค่ 50000 มัดจําก่อนได้ไหม เต็มทีครับ ทักมาได้ตลอดครับ จ่าย 50000 แล้วสามารถตั้งแอดมินให้ เลยได้ไหม ผมจะตั้งทีม ขอส่วนแบ่งครับ",ALLOW,0,0.193,ALLOW,0,TIER_2_LLM,groq,120.8,0.0003206,ALLOW,13,TIER_2_LLM,groq,,199.596,0.0003206
+FRAUD_036_INQUIRY_3,ALLOW,"ได้ครับ ตั้งให้ได้เลยครับ Aa",ALLOW,0,0.111,ALLOW,0,TIER_1_REGEX,none,0.081,0,ALLOW,0,TIER_1_REGEX,none,,0.079,0
+FRAUD_037_INQUIRY,ALLOW,"ตั้งรับเพจ 3แสน++ งบ 50000-100,000 ขอเปลี่ยนชื่อได้ ขอคนพร้อมส่งเพจไม่ ต้องรอ ขอผ่านกลางได้ มีครับ พร้อมผ่านกลาง นัดรับได้ครับ",ALLOW,0,0.126,ALLOW,0,TIER_2_LLM,groq,155.638,0.0003199,ALLOW,4,TIER_2_LLM,groq,,131.094,0.0003199
+FRAUD_037_INQUIRY_2,ALLOW,"status and when you have read messages. พึ่งเห็นครับ เพจไหนครับ 16 ... 07:00 Aa",ALLOW,0,0.109,ALLOW,0,TIER_1_REGEX,none,0.089,0,ALLOW,0,TIER_1_REGEX,none,,0.087,0
+FRAUD_038_PAYMENT,BLOCK,"Wize Khotwongthong ใช้งานเมื่อ 7 นาทีที่แล้ว 50 เอาไว้ซือ อาหารแมวหน่อย ไม่ต้อวเล่าผมไม่อยากรับรู้55555 75 นะเดี๋ยวมาเอา [BANK_ACCOUNT] ผ่านกลางนะครับ ชื่อบัญชี",BLOCK,45,0.153,BLOCK,71,TIER_2_LLM,groq,92.361,0.0003332,BLOCK,71,TIER_2_LLM,groq,anonymized_pii_token|account_holder_name,94.093,0.0003332
+FRAUD_038_INQUIRY,ALLOW,"มันนานๆไม่กี่คนหรอกครับ ♣ คุณตอบกลับ Wize ดลขไว้เลย ชื่อบัญชี ตามชื่อเฟสเลยไหมถ้าใช้ ทิ้ง ตามเฟสหลักครับ เครดิต ฝากคอมเม้นรีวิว ให้หน่อยครับเพื่อใช้เป็นส่วนลด ค",BLOCK,45,0.232,BLOCK,59,TIER_2_LLM,groq,124.984,0.0003318,BLOCK,58,TIER_2_LLM,groq,account_holder_name,122.667,0.0003318
+FRAUD_038_INQUIRY_2,ALLOW,"ไว้เลย หรือจะนัดรับผมบินไปหา555 ไม่ต้องกลางผมเห็นน้องมานานละ",ALLOW,0,0.217,ALLOW,0,TIER_1_REGEX,none,0.2,0,ALLOW,0,TIER_1_REGEX,none,,0.202,0
+FRAUD_039_PAYMENT,BLOCK,"Wize Khotwongthong ใช้งานเมื่อ 8 นาทีที่แล้ว + เพิ่มลงในสตอรี่ โพสต์ เกี่ยวกับ Reels รูปภาพ เพิ่มเติม รายละเอียด 0 เพจ · ครีเอเตอร์ดิจิทัล โปรโมทเทจ [LINE_ID]",ALLOW,0,0.283,ALLOW,0,TIER_1_REGEX,none,0.444,0,BLOCK,67,TIER_2_LLM,groq,anonymized_pii_token,142.269,0.0003255
+FRAUD_039_INQUIRY,ALLOW,"ครับทีมชำระเงินกำลังจัดการ ถามเพิ่ม เติม ลงคลิปไป มีโอกาศเปิดสร้างรายจาก เนื้อ ไหมครับ ลงเรื่อยๆ มันขึ้นมาให้ตั้งค่าครับ",ALLOW,0,0.314,ALLOW,0,TIER_1_REGEX,none,0.259,0,ALLOW,0,TIER_1_REGEX,none,,0.265,0
+FRAUD_039_INQUIRY_2,ALLOW,"50 เสียดายเงิน ^ คุณตอบกลับ Wize กำลัวจัดการให้",ALLOW,0,0.169,ALLOW,0,TIER_1_REGEX,none,0.186,0,ALLOW,0,TIER_1_REGEX,none,,0.17,0
+FRAUD_039_INQUIRY_3,ALLOW,"ไม่ได้รับสายการโทรด้วยเสียง แตะเพื่อโทรกลับ Aa",ALLOW,0,0.174,ALLOW,0,TIER_1_REGEX,none,0.176,0,ALLOW,0,TIER_1_REGEX,none,,0.185,0
+FRAUD_040_INQUIRY,ALLOW,"ครับ เอ้า คนอื่นมันจะขโมยครับ ไม่ต้องตั้งใคร ลบเองเลย ผมเสียว ลบได้ครับ ถ้าผมลบอาจจะต้องจ้างเขา ผมลบนาน ไว้ใจผมได้ครับ ไม่มีใครขโมยได้ ผมสอนตั้งค่าให้ครั ปลอดภั",ALLOW,0,0.314,ALLOW,0,TIER_1_REGEX,none,0.332,0,ALLOW,0,TIER_1_REGEX,none,,0.321,0
+FRAUD_040_INQUIRY_2,ALLOW,"ผุกบิสเชี่ออมอะไรให้ครบครับ แมร่งเห็นแอดมินมันจะพยายามเอาเฟส ผมครับผมกลัวตรงนั้น เพจเอาไม่ได้หรอก แต่เฟสมันจะล็อค Aa",ALLOW,0,0.264,ALLOW,0,TIER_1_REGEX,none,0.257,0,ALLOW,0,TIER_1_REGEX,none,,0.256,0
+FRAUD_040_INQUIRY_3,ALLOW,"Wize Khotwongthong ใช้งานเมื่อ 8 นาทีที่แล้ว ลบโพสได้ หมดให้พี่ด้วบนะครับ หลังชำระเงิน 50",ALLOW,0,0.201,ALLOW,0,TIER_1_REGEX,none,0.214,0,ALLOW,0,TIER_1_REGEX,none,,0.203,0
+FRAUD_041_INQUIRY,ALLOW,"Wize Khotwongthong ใช้งานเมื่อ 8 นาทีที่แล้ว (50) บิสเนส มัน7 วันถึงผูกได้นะครับ เขาไม่จ่ายจนกว่าจะเป็นแอดมินกลัวโดน หลอกอธิบายไปแล้วเขาไม่ได้อยุ่ในสังคม แบบเรา",ALLOW,0,0.273,ALLOW,0,TIER_1_REGEX,none,0.288,0,ALLOW,0,TIER_1_REGEX,none,,0.299,0
+FRAUD_041_INQUIRY_2,ALLOW,"เพราะฉนั้น โอเครครับได้เลย ผมมารักษาน้าใจด้วยการจอง50000 ด้วยเงินผมก่อน ผมไม่บิดพี่แน่นอน555 ตามได้สบายๆครับ",ALLOW,0,0.238,ALLOW,5,TIER_2_LLM,groq,147.755,0.0003171,ALLOW,5,TIER_2_LLM,groq,,155.528,0.0003171
+FRAUD_041_INQUIRY_3,ALLOW,"ได้ๆครับ จัดไปเลยครับโอนละบอกนะครับ และเพจสะอาดก็พอ",ALLOW,0,0.13,ALLOW,0,TIER_1_REGEX,none,0.108,0,ALLOW,0,TIER_1_REGEX,none,,0.127,0
+FRAUD_041_INQUIRY_4,ALLOW,"ครับผมไม่ผูกอยุ่แล้ว เพียงแต่อย่าให้มีบิสเนตติด",ALLOW,0,0.17,ALLOW,0,TIER_1_REGEX,none,0.159,0,ALLOW,0,TIER_1_REGEX,none,,0.13,0
+FRAUD_041_INQUIRY_5,ALLOW,"Aa สะอาดแน่นอนครับพี่ชาย",ALLOW,0,0.089,ALLOW,0,TIER_1_REGEX,none,0.072,0,ALLOW,0,TIER_1_REGEX,none,,0.092,0
+FRAUD_042_INQUIRY,ALLOW,"Wize Khotwongthong ใช้งานเมื่อ 7 นาทีที่แล้ว ถูกต้องไหมครบ ฟาร์มไก่ครับ 51 ) ถูกครับ เอาไปทําอะไรต่อครับ ผมอยากให้ฟาร์มยืน 1 ต้องการยอดเยอะ คนไทย แต่เพจร้าง ไม่",ALLOW,0,0.18,ALLOW,0,TIER_1_REGEX,none,0.146,0,ALLOW,0,TIER_1_REGEX,none,,0.143,0
+FRAUD_042_INQUIRY_2,ALLOW,"ลูกค้าผมยิงหาใหม่ได้ ครบผม แต่ยอดต้องไม่ลด ผมหาซื้อเพจรายได้เด็กหลอกหล ลายคนละ อัพเดทบัญชียื่นเอกสารไม่ผ่านสักที",ALLOW,0,0.123,ALLOW,0,TIER_1_REGEX,none,0.157,0,ALLOW,0,TIER_1_REGEX,none,,0.128,0
+FRAUD_042_PAYMENT,BLOCK,"สรุปที่มันอัพเดทได้คือเลขบัญชี แต่ชื่อบัญชีอัพเดทไม่ได้ ซวย Aa ไม่ลดครับ ผมไม่ได้ปั๊มมา55 อ่อ ถ้าตั้งค่าแล้ว",BLOCK,75,0.123,BLOCK,89,TIER_2_LLM,groq,188.206,0.0003206,BLOCK,83,TIER_2_LLM,groq,account_holder_name,218.8,0.0003206
+FRAUD_043_PAYMENT,BLOCK,"ราคา 95,000 ฿ เพจปี 2020 แนว คําคม ยิงโฆษณาได้ เปลี่ยนชื่อ - แนวเพจได้ 2.8 แสน การกดถูกใจ + ผู้ติดตาม 3.2 แสน คน id: [LINE_ID]",ALLOW,0,0.156,BLOCK,74,TIER_2_LLM,groq,106.856,0.0003199,BLOCK,70,TIER_2_LLM,groq,anonymized_pii_token,219.585,0.0003199
+FRAUD_043_INQUIRY,ALLOW,"ลดได้เท่าไหร่เลยครับ เอาสุดขีดลงไม่ได้อีก - ดๆเลยให้ จบๆเลย Aa ลดได้ครับ",ALLOW,0,0.155,ALLOW,0,TIER_1_REGEX,none,0.114,0,ALLOW,0,TIER_1_REGEX,none,,0.106,0
+FRAUD_043_INQUIRY_2,ALLOW,"ได้ยังครับ *ขออนุญาตแอดมินกลุ่ม ช่อบาย เบ สหายโพธิ์ด่า",ALLOW,0,0.094,ALLOW,0,TIER_1_REGEX,none,0.089,0,ALLOW,0,TIER_1_REGEX,none,,0.09,0
+FRAUD_043_INQUIRY_3,ALLOW,"ยังครับ เพจไหนครับ ว่าลดได้",ALLOW,0,0.077,ALLOW,0,TIER_1_REGEX,none,0.074,0,ALLOW,0,TIER_1_REGEX,none,,0.074,0
+FRAUD_044_INQUIRY,ALLOW,"ผมได้เงินคืนแล้ว ตื่นเช้าวันนี้เจอกันครับ รับงานแต่ไม่มีคิว เห้อเอาแต่ซีเรปดารา ลากหญ้าแบบเราโอนแล้วไม่สนใจ ยับไม่นอนหรอครับ Aa คระบ",ALLOW,0,0.148,ALLOW,0,TIER_1_REGEX,none,0.136,0,BLOCK,62,TIER_2_LLM,groq,soft_payment_confirm,170.995,0.0003213
+FRAUD_044_INQUIRY_2,ALLOW,"Wize Khotwongthong ใช้งานเมื่อ 8 นาทีที่แล้ว วันนี้มันครับ โอ้ยเสียคำพูด วันนี้ครับจบแน่นอนครับ 50",ALLOW,0,0.237,ALLOW,0,TIER_1_REGEX,none,0.203,0,ALLOW,0,TIER_1_REGEX,none,,0.222,0
+FRAUD_044_INQUIRY_3,ALLOW,"K BIZ Aa ขอบคุณครับผม ไม่ๆผมบอกเฉยๆครับ5555",ALLOW,0,0.183,ALLOW,0,TIER_1_REGEX,none,0.215,0,ALLOW,0,TIER_1_REGEX,none,,0.198,0
+FRAUD_044_INQUIRY_4,ALLOW,"+ คุณตอบกลับ รัชนก ขอบคุณครับ",ALLOW,0,0.195,ALLOW,0,TIER_1_REGEX,none,0.195,0,ALLOW,0,TIER_1_REGEX,none,,0.224,0
+FRAUD_044_INQUIRY_5,ALLOW,"ส่งเมื่อ 5 นาที แล้ว",ALLOW,0,0.169,ALLOW,0,TIER_1_REGEX,none,0.258,0,ALLOW,0,TIER_1_REGEX,none,,0.25,0
+FRAUD_045_INQUIRY,ALLOW,"ขวย Wize Khotwongthong ใช้งานเมื่อ 7 นาทีที่แล้ว ชื่อวันเดือนปีเกิดไม่ตรงถอนไม่ได้ครับ เฟสบุ๊ก ไม่เหมือนติ๊กต๊อก ผมจองนะ 70000 51 ) หลายเรื่องครับ ต้องใช้เอกสาร",ALLOW,0,0.336,ALLOW,0,TIER_2_LLM,groq,183.487,0.0003262,ALLOW,3,TIER_2_LLM,groq,,124.561,0.0003262
+FRAUD_045_PAYMENT,BLOCK,"งบแสน ใช่ๆครับ + คุณตอบกลับ Wize 70000 80000 เถอะพี่555 อีก 30000ขอฟื้นเพจเถอะ เอามาผมต้องให้น้องลบโพสทั้งหมดเลย โอ้โหน้องอ่ะช่วยพี่ป๊าดดดด",BLOCK,70,0.182,BLOCK,70,TIER_2_LLM,groq,195.246,0.0003241,BLOCK,70,TIER_2_LLM,groq,,140.996,0.0003241
+FRAUD_046_INQUIRY,ALLOW,"39 . 92 .. ประมูลเสื้อมือสอง แชทธุรกิจและความเป็นส่วนตัวของคุณ ดูโปรไฟล์ อา. เวลา 09:14 ประมูลเสื้อมือสอง กำลังตอบกลับแสดงความคิดเห็นที่คุณสร้าง บนเพจของพวกเขา ",ALLOW,0,0.191,ALLOW,7,TIER_2_LLM,groq,93.067,0.0003283,ALLOW,7,TIER_2_LLM,groq,,198.826,0.0003283
+FRAUD_047_INQUIRY,ALLOW,"โดม'ม ครับ'บบ 78 ตามข้อตกลง ถ้าไม่ผ่านต้องเอามา คืน โดมรู้ใช่ไหม 17.38 คาปูชิโน่ หวาน... จ่ายทุกวันที่ 20 บ จ่ายช้า 15 วันปรับ 500 30 เครื่อง นน เปิด ให้ลูกพิมพ",ALLOW,0,0.173,ALLOW,17,TIER_2_LLM,groq,93.801,0.0003276,ALLOW,11,TIER_2_LLM,groq,,141.44,0.0003276
+FRAUD_047_PAYMENT,BLOCK,"เบอร์ [PHONE_NUM]รู้ครับแต่เอาที่ตกลงกันที่ผมเสนอ ไปถ้าไม่เอาก็แล้วแต่ งั้นค่อยไปคุยที่โรงพักนะคะ จบค่ะ",ALLOW,0,0.412,ALLOW,0,TIER_1_REGEX,none,0.363,0,BLOCK,69,TIER_2_LLM,groq,anonymized_pii_token|soft_phone_contact,157.768,0.0003164
+FRAUD_047_INQUIRY_2,ALLOW,"ส่งถึงแล้ว วันอาทิตย์ที่ 11 มกราคม,",ALLOW,0,0.305,ALLOW,0,TIER_1_REGEX,none,0.264,0,ALLOW,0,TIER_1_REGEX,none,,0.267,0
+FRAUD_047_PAYMENT_2,BLOCK,"เคครับ [PHONE_NUM]ให้เขาโทรหาผม",BLOCK,65,0.262,BLOCK,80,TIER_2_LLM,groq,105.064,0.0003052,BLOCK,68,TIER_2_LLM,groq,anonymized_pii_token|soft_phone_contact,234.882,0.0003052
+FRAUD_047_INQUIRY_3,ALLOW,"ปหน้าจอส่งมา )",ALLOW,0,0.223,ALLOW,0,TIER_1_REGEX,none,0.102,0,ALLOW,0,TIER_1_REGEX,none,,0.089,0
+FRAUD_048_PAYMENT,BLOCK,"Ins: C mall.com J26022753817000354 เวลา ง อ : 27/02/2560 12:01:21 น. เวลาชาระเงิน : 27/02/2569 12:01:58 น. ช่องทางการชาระเงิน : พร้อมเพย์ 1 : ห ง ก ง (83.995-17",BLOCK,80,0.136,BLOCK,80,TIER_1_REGEX,none,0.109,0,BLOCK,80,TIER_1_REGEX,none,,0.126,0
+FRAUD_048_INQUIRY,ALLOW,"การโทรด้วยเสียงที่ไม่ได้ รับสาย แตะเพื่อโทรกลับ",ALLOW,0,0.107,ALLOW,0,TIER_1_REGEX,none,0.088,0,ALLOW,0,TIER_1_REGEX,none,,0.088,0
+FRAUD_048_INQUIRY_2,ALLOW,"ส่งหลักฐานไปแต่ √",ALLOW,0,0.078,ALLOW,0,TIER_1_REGEX,none,0.103,0,ALLOW,0,TIER_1_REGEX,none,,0.068,0
+FRAUD_049_PAYMENT,BLOCK,"Kannika N... O ฟ...ล 33 + คุณได้ตอบกลับ Kannika THAI QR PAYMENT Prompt Pay ขอเลขบัญชีได้ไหมคะ เอารูปไปแสกนแล้วแอพเด้งออก [BANK_ACCOUNT] Kkp",BLOCK,75,0.112,BLOCK,75,TIER_2_LLM,groq,142.67,0.0003262,BLOCK,75,TIER_2_LLM,groq,anonymized_pii_token,165.856,0.0003262
+FRAUD_050_INQUIRY,ALLOW,"การโทรด้วยเสียง Aa แตะเพื่อโทรอีกครั้ง ตอบด้วยค่ะ คุณลบข้อความแล้ว ลคะ (:) or",ALLOW,0,0.139,ALLOW,0,TIER_1_REGEX,none,0.113,0,ALLOW,0,TIER_1_REGEX,none,,0.112,0
+FRAUD_050_INQUIRY_2,ALLOW,"ส่งยังคะ การโทรด้วยเสียง แตะเพื่อโทรอีกครั้ง อ้าว",ALLOW,0,0.096,ALLOW,0,TIER_1_REGEX,none,0.094,0,ALLOW,0,TIER_1_REGEX,none,,0.093,0
+FRAUD_050_INQUIRY_3,ALLOW,"54 การโทรด้วยเสียง แตะเพื่อโทรอีกครั้ง",ALLOW,0,0.108,ALLOW,0,TIER_1_REGEX,none,0.084,0,ALLOW,0,TIER_1_REGEX,none,,0.084,0
+FRAUD_050_INQUIRY_4,ALLOW,"สรุปส่งยังคะ ถ้าโกงจะได้ประจาน",ALLOW,0,0.081,ALLOW,0,TIER_1_REGEX,none,0.079,0,ALLOW,0,TIER_1_REGEX,none,,0.08,0
+FRAUD_051_PAYMENT,BLOCK,"รหัสอ้างอิง: 2026022745Ki4MonWDXgyhBkf 0 นางสาว อนุชสรา แสงสังข์ XXX-XXX574-7 Aa",BLOCK,70,0.092,BLOCK,70,TIER_2_LLM,groq,121.228,0.0003136,BLOCK,70,TIER_2_LLM,groq,,93.722,0.0003136
+FRAUD_052_PAYMENT,BLOCK,"รหัสอ้างอิง: 2026022745Ki4MonWDXgyhBkf 54 0 นางสาว อนุชศรา แสงสังข์ XXX-XXX574-7 3. นางสาว กรรณิกา เกียรติรุ่งวิไลกุล",BLOCK,70,0.159,BLOCK,70,TIER_2_LLM,groq,181.452,0.0003199,BLOCK,70,TIER_2_LLM,groq,,220.469,0.0003199
+FRAUD_052_PAYMENT_2,BLOCK,"โอนแล้วค่ะ การโทรด้วยเสียง 5 วินาที [PHONE_NUM]อนุศราค่ะ anutsaraploy[LINE_ID]",ALLOW,0,0.631,ALLOW,0,TIER_1_REGEX,none,0.304,0,BLOCK,73,TIER_2_LLM,groq,soft_payment_confirm|anonymized_pii_token|soft_phone_contact,183.676,0.0003115
+FRAUD_052_INQUIRY,ALLOW,"ส่งมายังคะ Aa ขอดูหน้าส่งหน่อยค่",ALLOW,0,0.12,ALLOW,0,TIER_1_REGEX,none,0.101,0,ALLOW,0,TIER_1_REGEX,none,,0.089,0
+FRAUD_053_INQUIRY,ALLOW,"ได้ครับ แต่ตามที่แจ้งนะครับใครรับ ก่อนผมให้เขาก่อนเพราะคนทักมา เยอะอยู่ครับ ถ้าไม่ได้ไม่เป็นไรค่า ถ้าพนยังไมีมีใคร เอา เราเอา โอเคค้าบ ค่า ยังไงบอกด้วยนะคะตอนเช",ALLOW,0,0.161,ALLOW,0,TIER_1_REGEX,none,0.183,0,ALLOW,0,TIER_1_REGEX,none,,0.161,0
+FRAUD_053_INQUIRY_2,ALLOW,"ครับ นาย มาวิน ล้ำเลิศ โอเคพี่ งั้นเดี่ยวโอนให้ 5555 (Prompt",ALLOW,0,0.089,ALLOW,0,TIER_1_REGEX,none,0.087,0,ALLOW,0,TIER_1_REGEX,none,,0.088,0
+FRAUD_053_INQUIRY_3,ALLOW,"มัดจำก่อนได้ไหมคะ คุณตอบกลับ Ka",ALLOW,0,0.077,ALLOW,0,TIER_1_REGEX,none,0.075,0,ALLOW,0,TIER_1_REGEX,none,,0.075,0
+FRAUD_054_PAYMENT,BLOCK,"พร้อมเพย์ นาย มาวิน + คุณตอบกลับ Ka เอาหน้าตัวเองเจนเอไอครับ ตอนแรกก็ตกใจอยู่ พิมคับ พอดู อุ้ย สวย นอกเรื่อง ละ สรุป พน ตอนเช้าโอนให้ นะคะ ยอด150บาท เอฟจริงๆนะไ",BLOCK,75,0.15,BLOCK,81,TIER_2_LLM,groq,82.995,0.0003304,BLOCK,78,TIER_2_LLM,groq,,115.035,0.0003304
+FRAUD_054_INQUIRY,ALLOW,"เพราะอยากได้ ทักไปนานมากจนลืม อ่ะ + Ka ตอบกลับคุณ พร้อมส่ง พร้อมโอนให้ค่ะ พน โอนให้ตอนเช้ พร้อมส่ง พร้อม",ALLOW,0,0.152,ALLOW,0,TIER_1_REGEX,none,0.126,0,ALLOW,0,TIER_1_REGEX,none,,0.125,0
+FRAUD_054_INQUIRY_2,ALLOW,"+ Ka ตอบกลับคุณ อ่อ เป็น กท ที่สวยมาหก เอาหน้าตัวเองเจนเอไอครับ 8 3 . || 98% 5555",ALLOW,0,0.104,ALLOW,14,TIER_2_LLM,groq,218.594,0.0003122,ALLOW,0,TIER_2_LLM,groq,,205.099,0.0003122
+FRAUD_054_PAYMENT_2,BLOCK,"[PHONE_NUM]คุณตอบกลับตัวเอง [PHONE_NUM]",ALLOW,0,0.23,ALLOW,0,TIER_1_REGEX,none,0.154,0,BLOCK,73,TIER_2_LLM,groq,anonymized_pii_token,204.105,0.0003052
+FRAUD_055_PAYMENT,BLOCK,"ดีครับ ตอนนี้คุณสามารถส่ง อความ โทรหากันและกัน และดู ข้อมูลบางอย่างได้ เช่น สถานะกำลังใช้งานของคุณและ เวลาที่คุณอ่านข้อความ กทครับ 98% 0",BLOCK,65,0.335,BLOCK,65,TIER_2_LLM,groq,189.804,0.0003234,BLOCK,74,TIER_2_LLM,groq,,198.851,0.0003234
+FRAUD_055_INQUIRY,ALLOW,"พี่เป็นผู้หญิงหรื โอเคค่าสรุปยอดให้หน่อย พน โอนให้ตอนเช้าค่า พร้อมส่ง พร้อม",ALLOW,0,0.13,ALLOW,0,TIER_1_REGEX,none,0.114,0,ALLOW,0,TIER_1_REGEX,none,,0.107,0
+FRAUD_055_INQUIRY_2,ALLOW,"โอนค่ะ - คุณตอบกลับ K ทครับ อ่อ เป็น กท ที่สวยมาหก",ALLOW,0,0.103,ALLOW,0,TIER_1_REGEX,none,0.086,0,ALLOW,0,TIER_1_REGEX,none,,0.086,0
+FRAUD_055_PAYMENT_2,BLOCK,[LINE_ID],ALLOW,0,0.082,ALLOW,0,TIER_1_REGEX,none,0.063,0,BLOCK,73,TIER_2_LLM,groq,anonymized_pii_token,202.995,0.0002996
+FRAUD_056_INQUIRY,ALLOW,"บัญชีครับ นัดรับเอื้ออาทรนาจอม เทียนตึก95 สิ้นสุดการแชร์ตำแหน่งแล้ว อัพเดตครั้งสุดท้ายเมื่อ 00:41",ALLOW,0,0.14,ALLOW,0,TIER_1_REGEX,none,0.138,0,ALLOW,0,TIER_1_REGEX,none,,0.118,0
+FRAUD_056_INQUIRY_2,ALLOW,"ราคา100ได้อะไรบ้ง นัดรับได้ ส่งแมสได้ พัสดุได้ไม่รับ ปลายทาง ยินดีให้บัตรปชชตรงเลข",ALLOW,0,0.105,ALLOW,0,TIER_1_REGEX,none,0.102,0,ALLOW,0,TIER_1_REGEX,none,,0.104,0
+FRAUD_056_INQUIRY_3,ALLOW,"ผมขายเทโดนนัด เดือนก็รอจนวันนี้. นัดอีก นัดสิ้น ข้อความ",ALLOW,0,0.091,ALLOW,0,TIER_1_REGEX,none,0.094,0,ALLOW,0,TIER_1_REGEX,none,,0.134,0
+FRAUD_056_INQUIRY_4,ALLOW,"ราคา100หรอคะ ที่ลดจาก500",ALLOW,0,0.088,ALLOW,0,TIER_1_REGEX,none,0.072,0,ALLOW,0,TIER_1_REGEX,none,,0.071,0
+FRAUD_056_INQUIRY_5,ALLOW,ได้ตามแจ้งเลยครับ,ALLOW,0,0.07,ALLOW,0,TIER_1_REGEX,none,0.071,0,ALLOW,0,TIER_1_REGEX,none,,0.069,0
+FRAUD_056_INQUIRY_6,ALLOW,"สนใจค่ะ แถวไหนคะ",ALLOW,0,0.068,ALLOW,0,TIER_1_REGEX,none,0.067,0,ALLOW,0,TIER_1_REGEX,none,,0.067,0
+FRAUD_056_INQUIRY_7,ALLOW,กำลังดาวน์โหลด,ALLOW,0,0.068,ALLOW,0,TIER_1_REGEX,none,0.066,0,ALLOW,0,TIER_1_REGEX,none,,0.071,0
+FRAUD_057_INQUIRY,ALLOW,"ได้ครับ แต่ตามที่แจ้งนะครับใครรับ ก่อนผมให้เขาก่อนเพราะคนทักมา เยอะอยู่ครับ มัดจำก่อนได้ไหม",ALLOW,0,0.123,ALLOW,0,TIER_1_REGEX,none,0.112,0,ALLOW,0,TIER_1_REGEX,none,,0.114,0
+FRAUD_057_INQUIRY_2,ALLOW,"Ka ตอบกลับคุณ พร้อมส่ง พร้อมโอนให้ค่ะ พน โอนให้ตอนเช้าค่า พร้อมส่ง พร้อม",ALLOW,0,0.097,ALLOW,0,TIER_1_REGEX,none,0.096,0,ALLOW,0,TIER_1_REGEX,none,,0.098,0
+FRAUD_058_INQUIRY,ALLOW,"กัญญนันทน์ ดีกาลกล 140.*********720 แนบสลิปพร้อมที่อยู่จัดส่งให้แม่ค้า ด้วยนะคะขอบคุณค่ะ 23",ALLOW,0,0.104,ALLOW,10,TIER_2_LLM,groq,216.443,0.0003143,ALLOW,12,TIER_2_LLM,groq,,153.711,0.0003143
+FRAUD_058_PAYMENT,BLOCK,"เลขทีรายการ: จํานว 016193131829APP11757",BLOCK,70,0.193,BLOCK,70,TIER_2_LLM,groq,94.37,0.0003066,BLOCK,78,TIER_2_LLM,groq,,173.366,0.0003066
+FRAUD_059_INQUIRY,ALLOW,"ไม่สามารถส่งได้ ข้อความ ไม่สามารถส่งได้",ALLOW,0,0.228,ALLOW,0,TIER_1_REGEX,none,0.173,0,ALLOW,0,TIER_1_REGEX,none,,0.17,0
+FRAUD_060_INQUIRY,ALLOW,"ส่งต่างจังหวัดมั้ยคะ รับแค่เครื่องเจียรค่า 300+60=360 THAI QR PAYMENT Prompt Pay กัญญนันทน์ จากกล 140-** แนปสลิปพร้อมที่อยู่จัดส่งให้แม่ค้า ข้อความ",ALLOW,0,0.278,ALLOW,0,TIER_2_LLM,groq,186.534,0.0003241,ALLOW,17,TIER_2_LLM,groq,,209.225,0.0003241
+FRAUD_060_INQUIRY_2,ALLOW,ขอดูก่อนนะคะ,ALLOW,0,0.104,ALLOW,0,TIER_1_REGEX,none,0.087,0,ALLOW,0,TIER_1_REGEX,none,,0.084,0
+FRAUD_061_INQUIRY,ALLOW,"Thirapon Kh... ขอดูหัวหน่อยได้มั้ยคะ FOR LUCX Magney แต่เค้าแนะนําตัวนี้ดีกว่า เพิ่ม 100 ใช้งานน้อย รับค่ะ เอาตัวสีชมใช่ไหม",ALLOW,0,0.125,ALLOW,0,TIER_1_REGEX,none,0.118,0,ALLOW,0,TIER_1_REGEX,none,,0.117,0
+FRAUD_062_PAYMENT,BLOCK,"108 8H สแกนคิวอาโค้ดนี้!! ทํารายการขายเสื้อผ้าได้เลยค่ะ แอดไลน์มาได้เลยนะคะ ส่งรูปประเมิน ฟรี มีผู้รับซื้อพร้อมให้ราคาทันทีค่ะ เมื่อเข้ากลุ่มแล้ว ส่งรูปสินค้า 7",BLOCK,65,0.19,BLOCK,65,TIER_2_LLM,groq,219.158,0.0003283,BLOCK,79,TIER_2_LLM,groq,,204.883,0.0003283
+FRAUD_062_PAYMENT_2,BLOCK,"อยากขายเสื้อผ้าให้ได้ราคาดี? แอดไลน์ด้านล่าง ส่งรูปประเมินฟรี มี ผู้รับซื้อพร้อมดูสินค้าทุกวัน ขายง่าย เริ่ม",BLOCK,65,0.161,BLOCK,71,TIER_2_LLM,groq,187.785,0.0003185,BLOCK,77,TIER_2_LLM,groq,,204.092,0.0003185
+FRAUD_062_INQUIRY,ALLOW,"แอดไปแล้วนะคะ คุณพึงพอใจกับแชทนี้หรือไม่ เพา Meta เท่านั้นเพื่อความเย็นตลอดได้ และจะ Aa (:)",ALLOW,0,0.255,ALLOW,0,TIER_1_REGEX,none,0.243,0,ALLOW,0,TIER_1_REGEX,none,,0.236,0
+FRAUD_062_INQUIRY_2,ALLOW,"ได้ทันทีค่ะ ช่องทาง ติดต่อขายเสื้อผ้ามือ2-3",ALLOW,0,0.192,ALLOW,0,TIER_1_REGEX,none,0.178,0,ALLOW,0,TIER_1_REGEX,none,,0.177,0
+FRAUD_062_INQUIRY_3,ALLOW,พร้อมแจ้งราคาที่ต้องการได้เลยนะคะ,ALLOW,0,0.16,ALLOW,0,TIER_1_REGEX,none,0.161,0,ALLOW,0,TIER_1_REGEX,none,,0.177,0
+FRAUD_063_INQUIRY,ALLOW,"Loomora 853 คนติดตามเพจนี้ ผู้ประกอบการ แชทธุรกิจและความเป็นส่วนตัวของคุณ สวัสดีค่ะ ติดตามเพจ ดูโปรไฟล์ ข้อมูล คุณเปิดแชทนี้ผ่านโฆษณา ดูโฆษณา รับซื้อผ้ามือสองทุ",ALLOW,0,0.163,ALLOW,0,TIER_1_REGEX,none,0.212,0,ALLOW,0,TIER_1_REGEX,none,,0.273,0
+FRAUD_063_PAYMENT,BLOCK,"เลยนะคะ สนใจ จํากัดแนวเสื้อผ้าไหมคะ อยากขายเสื้อผ้าให้ได้ราคาดี? แอดไลน์ด้านล่าง ส่งรูปประเมินฟรี มี ผู้รับซื้อพร้อมดูสิน, วัน ขายง่าย เริ่ม",BLOCK,65,0.155,BLOCK,65,TIER_2_LLM,groq,177.223,0.0003241,BLOCK,66,TIER_2_LLM,groq,,199.807,0.0003241
+FRAUD_063_INQUIRY_2,ALLOW,"LM Loomora แซทธุรกิจ IM Loomors รับซื้อเสื้อผ้ามือ2สภาพดี",ALLOW,0,0.123,ALLOW,0,TIER_1_REGEX,none,0.094,0,ALLOW,0,TIER_1_REGEX,none,,0.103,0
+FRAUD_063_INQUIRY_3,ALLOW,ได้ทันทีค่ะ,ALLOW,0,0.075,ALLOW,0,TIER_1_REGEX,none,0.069,0,ALLOW,0,TIER_1_REGEX,none,,0.07,0
+FRAUD_064_INQUIRY,ALLOW,"น้องสะดวก ไหนว่าเท่าไหร่ก็ได้คะ ต่ำสุด 300 บาทครับ แล้วมันรวมกับค่าเครื่องไหมคะ พอดีคุยกับพ่อเมื่อกี้เลยค่ะว่าเอาจริงๆ รวมกับค่าเครื่องเลยครับ",ALLOW,0,0.172,ALLOW,0,TIER_1_REGEX,none,0.144,0,ALLOW,0,TIER_1_REGEX,none,,0.141,0
+FRAUD_064_INQUIRY_2,ALLOW,"ครบ หนูก็มองหามือถืออยู่พอดีมาเห็นโพส งั้นรอสักครู่ได้ไหมคะหนูมีแต่เงินสดเดี่ยวหา ก่อนนะคะ พร้อมโอนตอนนี้เลยไหมครับ",ALLOW,0,0.124,ALLOW,0,TIER_1_REGEX,none,0.126,0,ALLOW,0,TIER_1_REGEX,none,,0.127,0
+FRAUD_064_INQUIRY_3,ALLOW,"ส่งมาไว้ก่อนก็ได้ค่ะ พร้อมโอนแล้วทักมาขอได้เลยครับ พร้อมโอนค่ะ แต่อยากสอบถามเรื่องที่พี่โพสขายอีกรอ",ALLOW,0,0.128,ALLOW,0,TIER_1_REGEX,none,0.118,0,BLOCK,56,TIER_2_LLM,groq,soft_payment_confirm,137.547,0.0003157
+FRAUD_064_INQUIRY_4,ALLOW,"ส่งคิวอามาเลยค่ะ เดี๋ยวโอนให้นะคะ",ALLOW,0,0.163,ALLOW,0,TIER_1_REGEX,none,0.085,0,ALLOW,0,TIER_1_REGEX,none,,0.083,0
+FRAUD_064_INQUIRY_5,ALLOW,เท่าไหร่ก็ได้ครับเอาที,ALLOW,0,0.076,ALLOW,0,TIER_1_REGEX,none,0.072,0,ALLOW,0,TIER_1_REGEX,none,,0.073,0
+FRAUD_065_PAYMENT,BLOCK,"เย็นตัวเองถ่ายคลิปมาให้เค้าดูแล้วเค้าก็ จะโอนให้เลยทันทีค่ะ มีคิวถามอยู่ค่ะ แต่พี่เขาบอกถ้ามีคน สะดวกรับก่อนก็ให้ก่อนค่ะ เค้าขอมัดจําไว้สัก 200 ได้ไหมคะแล้วที่ ",BLOCK,65,0.172,BLOCK,67,TIER_2_LLM,groq,210.116,0.0003339,BLOCK,76,TIER_2_LLM,groq,,150.14,0.0003339
+FRAUD_065_INQUIRY,ALLOW,"- 21นาที 16 Nunedlp Mpy ใช้งานเมื่อ 5 ชม. ที่แล้ว เค้ารับแน่ๆค่ะแต่กลัวตัวเองปล่อยให้คน อื่นก่อน 3G หรือมีคิวก่อนหน้าเค้ามั้ยคะ เค้าเลยอยากลองถามดูก่อนแล้วพอตอน",ALLOW,0,0.173,ALLOW,0,TIER_1_REGEX,none,0.147,0,ALLOW,0,TIER_1_REGEX,none,,0.145,0
+FRAUD_065_INQUIRY_2,ALLOW,"ได้ค่ะ จิงๆตอนเย็นทีเดียวก็ได้นะคะ เดี๋ยว เค้าเก็บไว้ให้ ฮือ ขอบคุณมากค่ะพี่สาวคนสวย 68",ALLOW,0,0.111,ALLOW,0,TIER_1_REGEX,none,0.113,0,ALLOW,0,TIER_1_REGEX,none,,0.108,0
+FRAUD_065_INQUIRY_3,ALLOW,"โอเคสรุปโกงเนาะ... 4",ALLOW,0,0.072,ALLOW,0,TIER_1_REGEX,none,0.069,0,ALLOW,0,TIER_1_REGEX,none,,0.069,0
+FRAUD_066_PAYMENT,BLOCK,"โอ้ ขอบคุณนะคะพี่สาว อุปกรณ์กล้อง ถ่าน เมม กระเป๋าใช่ไหมงับ ใช่ค่ะ สายดึงรูป โอเคค่ะเดี๋ยวน้องโอนให้ พี่สาวส่งให้ได้ พรุ่งนี้ใช่ไหมคะ ใช่ค่ะ เป็นพรุ่งนี้นะคะ [B",BLOCK,45,0.163,BLOCK,78,TIER_2_LLM,groq,93.115,0.0003332,BLOCK,73,TIER_2_LLM,groq,anonymized_pii_token,160.037,0.0003332
+FRAUD_066_INQUIRY,ALLOW,"ส่งชื่อที่อยู่ไว้ให้เค้าหน่อยนะคะ วันนี้ถ้า เค้าเลิกไวเค้าจะไปส่งให้เลย ถ้าเลิกช้าขอ เป็นพรุ่งนี้งับ",ALLOW,0,0.15,ALLOW,0,TIER_1_REGEX,none,0.128,0,ALLOW,0,TIER_1_REGEX,none,,0.16,0
+FRAUD_066_INQUIRY_2,ALLOW,"พุธ 15:21 โอเคสรุปโกงเนาะ... @",ALLOW,0,0.096,ALLOW,0,TIER_1_REGEX,none,0.077,0,ALLOW,0,TIER_1_REGEX,none,,0.074,0
+FRAUD_067_INQUIRY,ALLOW,"พร้อมโอนค่ะ แต่อยากสอบถามเรื่องที่พี่โพสขายอีกรอ บอะค่ะ พอดีหนูกำลังจะมัดจำสรุปพี่จะขายต่อหรอคะ ถ้าน้องมัดจําแล้ว ปิดการขายให้เลยครับ หนูไม่เคยซื้อกับเฟสจริงๆค่",ALLOW,0,0.16,ALLOW,0,TIER_1_REGEX,none,0.163,0,ALLOW,0,TIER_1_REGEX,none,,0.185,0
+FRAUD_068_INQUIRY,ALLOW,"ได้ค่ะ ช่วงเย็นๆค่ำๆเค้าส่งไปค่ะ ยินดีค่า ขอบคุณมากค่า (0.8) ขออนุญาตสอบถามนะคะคืออันนี้หนูพิมพ์ ว่ารับแล้วล็อคคิวให้หนูเลยจะไม่ปล่อยให้ คนอื่นใช่ไหมคะ พอดีว่าเ",ALLOW,0,0.157,ALLOW,0,TIER_1_REGEX,none,0.161,0,ALLOW,0,TIER_1_REGEX,none,,0.158,0
+FRAUD_068_INQUIRY_2,ALLOW,"- 21นาที 16 Nunedlp Mpy ใช้งานเมื่อ 5 ชม. ที่แล้ว + คุณตอบกลับตัวเอง ขอดูคลิปซูมสุดทุกระยะทีนะคะรบกวน ถ่ายที่ผนังสีขาวให้หน่อยนะงับ โอเคงับ ยังไงรบกวนหน่อยนะคะพ",ALLOW,0,0.144,ALLOW,0,TIER_1_REGEX,none,0.143,0,ALLOW,0,TIER_1_REGEX,none,,0.156,0
+FRAUD_068_INQUIRY_3,ALLOW,"บอกว่ารับแล้วก็ไปปล่อยให้คนอื่นก่อนค่ะ ปกติแล้วเราไม่ได้รีบใช้เงินค่ะ ถ้ารับแน่ เราก็ไม่ได้ปล่อยค่ะ หรือตัวเองสะดวก มัดจำไว้ได้ค่ะถ้ากลัวหลุด",ALLOW,0,0.14,ALLOW,0,TIER_1_REGEX,none,0.141,0,ALLOW,0,TIER_1_REGEX,none,,0.142,0
+FRAUD_068_INQUIRY_4,ALLOW,"แล้วเราก็รับผ่อนค่ะ เค้ารับแน่ๆค่ะแต่กลัวตัวเองปล่อยให้คน อื่นก่อน โอเคสรุปโกงเนาะ... 4",ALLOW,0,0.106,ALLOW,0,TIER_1_REGEX,none,0.107,0,ALLOW,0,TIER_1_REGEX,none,,0.107,0
+FRAUD_069_INQUIRY,ALLOW,"โอนตามนี้ได้เลยครับ Supachok Cham ตอบกลับคุณแล้ว หนูไม่เคยซื้อกับเฟสจริงๆค่ะทีแรกก็ กลัวด้วย ไม่ต้องกลัวนะครับ ชื่ออะไรคะ บอกชื่อมาหน่อยค่ะ พอดีมันคือบริษัทอะค่",ALLOW,0,0.164,ALLOW,0,TIER_1_REGEX,none,0.157,0,ALLOW,0,TIER_1_REGEX,none,,0.164,0
+FRAUD_069_INQUIRY_2,ALLOW,"1. เลือกแอพธนาคารที่คุณต้องการใช้งาน ด้านบน 2. แอพธนาคารจะเปิดขึ้นมาโดยมีราย ละเอียดบัญชีของผู้รับกรอกไว้ให้คุณแล้ว 3. หลังโอนเงินเสร็จ สลิปของคุณจะ อัพโหลดไว้ใ",ALLOW,0,0.149,ALLOW,0,TIER_1_REGEX,none,0.15,0,ALLOW,0,TIER_1_REGEX,none,,0.152,0
+FRAUD_069_INQUIRY_3,ALLOW,"Supachok Cham ตอบกลับตัวเอง สแกนโอนตามนี้ได้เลยนะครับผม Supachok Cham ตอบกลับตัวเอง",ALLOW,0,0.096,ALLOW,0,TIER_1_REGEX,none,0.106,0,ALLOW,0,TIER_1_REGEX,none,,0.097,0
+FRAUD_070_INQUIRY,ALLOW,"ได้ค่ะพี่ ขนส่งกี่วันค่ะ ขออนุญาตีเช็คเครดิตร้านนะค่ะ เช็คได้ ทุกช่องทางเลยนะค่ะ ร้านอยู่มหาชัยค่ะพี่ ตลาดสด ตอนนี้พี่ยูไหน คุณตอบกลับ อาหารทะเลหมึกเสียบไม้ราคา",ALLOW,0,0.156,ALLOW,0,TIER_1_REGEX,none,0.16,0,ALLOW,0,TIER_1_REGEX,none,,0.162,0
+FRAUD_070_INQUIRY_2,ALLOW,"อาหารทะเลหมึกเสียบไม้ราคา-ปลีกส่งทั่วไ... แชทธุรกิจ น้ำจิ้มมี 5 รสชาต สามารถเลือกรสชาตได้ นะคะ ของเสียของไม่สด ของไม่ตรงปก เคลมให้ทุก กรณีค่ะ ..",ALLOW,0,0.136,ALLOW,0,TIER_1_REGEX,none,0.147,0,ALLOW,0,TIER_1_REGEX,none,,0.14,0
+FRAUD_070_INQUIRY_3,ALLOW,"เช็คได้ ทุกช่องทางเลยนะค่ะ โอเคร ข้อความ",ALLOW,0,0.086,ALLOW,0,TIER_1_REGEX,none,0.081,0,ALLOW,0,TIER_1_REGEX,none,,0.081,0
+FRAUD_070_INQUIRY_4,ALLOW,พี่สนใจรับเป็นแบบไหนสอบถามได้เลยนะค่ะ,ALLOW,0,0.081,ALLOW,0,TIER_1_REGEX,none,0.079,0,ALLOW,0,TIER_1_REGEX,none,,0.08,0
+FRAUD_070_INQUIRY_5,ALLOW,"ส่งแล้ว อีหน้าด้าน ไม่สามารถส่งได้",ALLOW,0,0.078,ALLOW,0,TIER_1_REGEX,none,0.077,0,ALLOW,0,TIER_1_REGEX,none,,0.078,0
+FRAUD_070_INQUIRY_6,ALLOW,พี่อยู่จังหวัดอะไรคะ,ALLOW,0,0.123,ALLOW,0,TIER_1_REGEX,none,0.106,0,ALLOW,0,TIER_1_REGEX,none,,0.161,0
+FRAUD_071_INQUIRY,ALLOW,"พี่ให้ราคาไหนคะ ดาวน์ 5000 บาท ผ่อน 2000 บาท 6งวด สนใจไหมครับ โอเคค่า สนใจนะคะ แต่หนูขอคุยกับพ่อก่อนนะคะ",ALLOW,0,0.154,ALLOW,4,TIER_2_LLM,groq,195.603,0.0003164,ALLOW,17,TIER_2_LLM,groq,,118.758,0.0003164
+FRAUD_071_INQUIRY_2,ALLOW,"คะพอดีเห็นพี่ขายราคาดีมากๆเลย เลยอยากทราบหากผ่อนละคะ วางดาวน์แล้วค่อยผ่อนนะครับ",ALLOW,0,0.17,ALLOW,0,TIER_1_REGEX,none,0.134,0,ALLOW,0,TIER_1_REGEX,none,,0.13,0
+FRAUD_071_INQUIRY_3,ALLOW,อยากสอบถามก่อนนะคะว่าถ้าหากจะผ่อนละ,ALLOW,0,0.125,ALLOW,0,TIER_1_REGEX,none,0.127,0,ALLOW,0,TIER_1_REGEX,none,,0.097,0
+FRAUD_072_INQUIRY,ALLOW,"โอนแล้วเรียบร้อยงับพี่สาว ขอบคุณค่า ไม่เกินพรุ่งนี้เค้าจัดส่งให้ แล้ว จะแจ้งเลขไปนะคะ พฤหัส 04:15 ตัวเองนอนยังคะ พอดีเค้านัดแฟลชมารับ ของ เขาจะเข้ามาวันศุกร์ช่ว",ALLOW,0,0.178,ALLOW,0,TIER_1_REGEX,none,0.187,0,BLOCK,52,TIER_2_LLM,groq,soft_payment_confirm,91.77,0.0003283
+FRAUD_072_INQUIRY_2,ALLOW,"เองรอได้มั้ยคะ หรือว่ายังไงดี บอกเค้าได้ นะคะ พฤหัส 07:40",ALLOW,0,0.121,ALLOW,0,TIER_1_REGEX,none,0.096,0,ALLOW,0,TIER_1_REGEX,none,,0.096,0
+FRAUD_072_INQUIRY_3,ALLOW,"โอเคสรุปโกงเนาะ... @",ALLOW,0,0.075,ALLOW,0,TIER_1_REGEX,none,0.072,0,ALLOW,0,TIER_1_REGEX,none,,0.071,0
+FRAUD_072_INQUIRY_4,ALLOW,"ได้ค่ะ พฤหัส 09:21",ALLOW,0,0.07,ALLOW,0,TIER_1_REGEX,none,0.068,0,ALLOW,0,TIER_1_REGEX,none,,0.068,0
+FRAUD_073_INQUIRY,ALLOW,"ขอดูคลิปซูมสุดทุกระยะทีนะคะรบกวน ถ่ายที่ผนังสีขาวให้หน่อยนะงับ 1000รสได้ไหมคะพร้อมโอน",ALLOW,0,0.127,ALLOW,0,TIER_1_REGEX,none,0.11,0,ALLOW,0,TIER_1_REGEX,none,,0.11,0
+FRAUD_073_INQUIRY_2,ALLOW,"พี่สาวพร้อมส่งเลยไหมคะ หรือว่ารอบส่งพรุ่งนี้งับ เค้าส่งได้พรุ่งนี้ค่ะ วันนี้ทำงานงับ",ALLOW,0,0.109,ALLOW,0,TIER_1_REGEX,none,0.109,0,ALLOW,0,TIER_1_REGEX,none,,0.111,0
+FRAUD_073_INQUIRY_3,ALLOW,"ได้ค่ะ เป็นช่วงเย็นๆหร่อยนะคะ เลิกงาน เค้าถ่ายส่งไป เค้ารับค่า",ALLOW,0,0.095,ALLOW,0,TIER_1_REGEX,none,0.095,0,ALLOW,0,TIER_1_REGEX,none,,0.096,0
+FRAUD_073_INQUIRY_4,ALLOW,"คุณตอบกลับตัวเอง ขอ คลิปซูมสุดทุกระยะทีนะคะรบกวน",ALLOW,0,0.101,ALLOW,0,TIER_1_REGEX,none,0.089,0,ALLOW,0,TIER_1_REGEX,none,,0.088,0
+FRAUD_073_INQUIRY_5,ALLOW,"โอเคสรุปโกงเนาะ... 4",ALLOW,0,0.072,ALLOW,0,TIER_1_REGEX,none,0.074,0,ALLOW,0,TIER_1_REGEX,none,,0.071,0
+FRAUD_074_PAYMENT,BLOCK,"สแกนคิวอาโค้ดนี้! ทํารายการขายเสื้อผ้าได้เลยค่ะ แอดไลน์มาได้เลยนะคะ ส่งรูปประเมิน ฟรี มีผู้รับซื้อพร้อมให้ราคาทันทีค่ะ เมื่อเข้ากลุ่มแล้ว ส่งรูปสินค้า 7-8 รูป พ",BLOCK,65,0.172,BLOCK,66,TIER_2_LLM,groq,120.565,0.0003332,BLOCK,76,TIER_2_LLM,groq,,93.119,0.0003332
+FRAUD_074_INQUIRY,ALLOW,"แอดไปแล้วนะคะ คุณพึงพอใจกับแชทนี้หรือไม่ เฉพาะ Meta เท่านั้นที่ดูความเห็นของคุณได้ และจะ ไม่ส่งความเห็นดังกล่าวให้กับธุรกิจ ใช่ ไม่ใช่ LM",ALLOW,0,0.224,ALLOW,0,TIER_1_REGEX,none,0.232,0,ALLOW,0,TIER_1_REGEX,none,,0.183,0
+FRAUD_074_INQUIRY_2,ALLOW,"ค่ะพี่ พี่อยากจะขายเสื้อผ้าแบบไหนพี่คุย กับแอดมินในไลน์ได้เลยนะคะ",ALLOW,0,0.099,ALLOW,0,TIER_1_REGEX,none,0.146,0,ALLOW,0,TIER_1_REGEX,none,,0.126,0
+FRAUD_074_INQUIRY_3,ALLOW,"ส่งเมื่อ 3 ชม. ที่แล้ว",ALLOW,0,0.113,ALLOW,0,TIER_1_REGEX,none,0.074,0,ALLOW,0,TIER_1_REGEX,none,,0.071,0
+FRAUD_074_INQUIRY_4,ALLOW,"Aa ขอบคุณมากค่ะ",ALLOW,0,0.083,ALLOW,0,TIER_1_REGEX,none,0.071,0,ALLOW,0,TIER_1_REGEX,none,,0.067,0
+FRAUD_075_INQUIRY,ALLOW,"NUIM. NUIM Clothing แชทธุรกิจ เอผ้าสวย คุณภาพด่ ราคา ใส่แล้ว จทุกลุค สินค้าคุณภาพ เลือกๆๆอย่าง สินค้าจริง ถ่ายจากสินค้าจริง พักสิบล่า อย่าง จัดส่งไว บริการประทั",ALLOW,0,0.153,ALLOW,0,TIER_1_REGEX,none,0.164,0,ALLOW,0,TIER_1_REGEX,none,,0.157,0
+FRAUD_075_INQUIRY_2,ALLOW,"ขอบคุณที่อุดหนุนค่ะ FRUITS NUIM Clothing ผู้ติดตาม 1.4 พัน คน ติดตาม SHOP NOW O สแกนเพื่อดูสินค้า คุณเปิดแชทนี้ผ่านโฆษณา ดูโฆษณา สวัสดี Parinya มีอะไรให้เราช่วย",ALLOW,0,0.131,ALLOW,0,TIER_1_REGEX,none,0.131,0,ALLOW,0,TIER_1_REGEX,none,,0.134,0
+FRAUD_075_INQUIRY_3,ALLOW,"ยอดว่าไงค่ะ คุณไลฟ์ขายของ แต่คุณไม่อ่านแชท เอาไงดีค่ะ ข้อความ ไม่สามารถส่งได้",ALLOW,0,0.102,ALLOW,0,TIER_1_REGEX,none,0.113,0,ALLOW,0,TIER_1_REGEX,none,,0.104,0
+FRAUD_076_PAYMENT,BLOCK,"งานจริงค่ะ ทะเบียนเลขที 1452248543552 แบบ พค. 03 10 กรมพัฒนาธุระกิจการค้า ใบสำคัญแสดงการจดทะเบียนห้างหุ้นส่วนบริษัท ใบสำคัญนี้ออกให้เพื่อแสดงว่า งานแพ็คสบู่ - ท",BLOCK,70,0.141,BLOCK,70,TIER_2_LLM,groq,118.173,0.0003283,BLOCK,87,TIER_2_LLM,groq,,217.215,0.0003283
+FRAUD_076_INQUIRY,ALLOW,"ได้จดทะเบียนแปรสภาพเป็นบริษัทจำกัด เมื่อวันที่ 19 สิงหาคม พศ. 2564 นี่คือใบสำคัญของทางบริษัทเรานะค่ะ... งานถูกกฎหมายค่ะ",ALLOW,0,0.187,ALLOW,0,TIER_1_REGEX,none,0.145,0,ALLOW,0,TIER_1_REGEX,none,,0.143,0
+FRAUD_076_PAYMENT_2,BLOCK,"(นางสาว ปาลชาด หมจัตุรัส) นายทะเบียน มายเหตุ ธุระกิจงาน สบู่ ชาโคล สมุนไพร เลขทะเบียน 1452248543552",BLOCK,70,0.133,BLOCK,82,TIER_2_LLM,groq,224.995,0.0003171,BLOCK,71,TIER_2_LLM,groq,,111.48,0.0003171
+FRAUD_078_INQUIRY,ALLOW,"ทำไมมันขึ้นว่ายังไม่พบข้อมูลค่ะ สวัสดี ขอขอบคุณที่ติดต่อเรา เราได้ รับข้อความของคุณแล้ว",ALLOW,0,0.171,ALLOW,0,TIER_1_REGEX,none,0.119,0,ALLOW,0,TIER_1_REGEX,none,,0.115,0
+FRAUD_078_INQUIRY_2,ALLOW,"สวัสดีค่ะส่งของหรือยังค่ะ ทำไมมันขึ้นว่ายังไม่พบข้อมูลค่ะ",ALLOW,0,0.096,ALLOW,0,TIER_1_REGEX,none,0.092,0,ALLOW,0,TIER_1_REGEX,none,,0.114,0
+FRAUD_078_INQUIRY_3,ALLOW,"ส่งมาให้ทางร้านพรุงน์ลูกค้ายังรับอยู่ ข้อความ",ALLOW,0,0.087,ALLOW,0,TIER_1_REGEX,none,0.086,0,ALLOW,0,TIER_1_REGEX,none,,0.086,0
+FRAUD_078_INQUIRY_4,ALLOW,"ต้องขอโทษลูกค้า ง, นะคะสินค้า",ALLOW,0,0.076,ALLOW,0,TIER_1_REGEX,none,0.074,0,ALLOW,0,TIER_1_REGEX,none,,0.079,0
+FRAUD_079_INQUIRY,ALLOW,"3ชุดมี 1.500ก้อน มีกำหนดส่งของคืน 25 วันค่ะ ค่าแรง 18,000 บาท 4ชุดมี 2.000ก้อน มีกำหนดส่งของคืน 35 วันค่ะ ค่าแรง 24,000 บาท 5ชุดมี 2.500ก้อน มีกำหนดส่งของคืน 40",ALLOW,0,0.143,ALLOW,13,TIER_2_LLM,groq,92.206,0.0003304,ALLOW,8,TIER_2_LLM,groq,,218.763,0.0003304
+FRAUD_079_INQUIRY_2,ALLOW,"สนใจรับงานไปทำที่บ้านกี่ชุดดีค่ะ สนใจครับ 2ชุดมี 1.000ก้อน มีกำหนดส่งของคืน 15 วันค่ะ ค่าแรง 12,000 บาท ค่าแรงตามนี้นะคะ หากแพ็คเสร็จก่อนกำหนดทางโรงงานจะ มีโบนั",ALLOW,0,0.196,ALLOW,9,TIER_2_LLM,groq,186.779,0.0003283,ALLOW,0,TIER_2_LLM,groq,,126.474,0.0003283
+FRAUD_079_INQUIRY_3,ALLOW,"สวัสดีค่ะ ทางเราเป็นงานรับแพ็คสบูรับ ไปทำที่บ้านนะคะ 1ชุดมี 500ก้อน กำหนดส่งของคืน 12 วันค่ะ ค่าแรง 6,000 บาท 2ชุดมี 1.000ก้อน มีกำหนดส่งของคืน 15 วันค่ะ ค่าแรง",ALLOW,0,0.195,ALLOW,0,TIER_2_LLM,groq,92.865,0.0003283,ALLOW,0,TIER_2_LLM,groq,,213.05,0.0003283
+FRAUD_079_INQUIRY_4,ALLOW,"ทำไม่ทันไม่เป็นไรค่ะ ซึ่งเราไม่ปรับนะ 2ชุดครับ",ALLOW,0,0.124,ALLOW,0,TIER_1_REGEX,none,0.098,0,ALLOW,0,TIER_1_REGEX,none,,0.113,0
+FRAUD_080_INQUIRY,ALLOW,"เนื่องจากที่ผ่านมามีปัญหาสินค้าติด ด่าน ทำให้เงินหนูจมหนูขออนุญาตเลื่อน วันคืนเงินนะคะเป็นไม่เกินวันที่ 31นี้ ต้องขอโทษลูกค้าที่ปล่อยให้รอนาน นะคะ แต่ทางนุ่มยิน",ALLOW,0,0.234,ALLOW,0,TIER_1_REGEX,none,0.225,0,ALLOW,0,TIER_1_REGEX,none,,0.177,0
+FRAUD_080_PAYMENT,BLOCK,"นะคะ แต่ทางนุ่มยินดีรับผิดชอบทุก เคสจริงๆค่ะ . คืนยอด 559 K Bank [BANK_ACCOUNT] ทัตพงศ์ ทัพพิมล",ALLOW,0,0.108,ALLOW,0,TIER_1_REGEX,none,0.105,0,BLOCK,67,TIER_2_LLM,groq,anonymized_pii_token|bank_label_variant,187.518,0.000315
+FRAUD_080_INQUIRY_2,ALLOW,"เคสจริงๆค่ะ .. คืนยอด 289",ALLOW,0,0.111,ALLOW,0,TIER_1_REGEX,none,0.085,0,ALLOW,0,TIER_1_REGEX,none,,0.08,0
+FRAUD_081_INQUIRY,ALLOW,"เลขพัสดุเช็คตรงไหนค่ะ สวัสดี ขอขอบคุณที่ติดต่อเรา เราได้ รับข้อความของคุณแล้ว",ALLOW,0,0.157,ALLOW,0,TIER_1_REGEX,none,0.112,0,ALLOW,0,TIER_1_REGEX,none,,0.105,0
+FRAUD_081_INQUIRY_2,ALLOW,"กำลังรอจัดส่ง ไม่ได้ระบุวันที่จัดส่ง",ALLOW,0,0.082,ALLOW,0,TIER_1_REGEX,none,0.079,0,ALLOW,0,TIER_1_REGEX,none,,0.08,0
+FRAUD_082_INQUIRY,ALLOW,"ค่ะ.สินค้ามีราคาค่ะ.เข้าใจด้วยนะคะ ทางเราเป็นโรงงานใหญ่โดยตรงค่ะ .เงิน ค่าประกันระหว่างทาง ของถึงบ้านจะรับ คืนอยู่นะคะ ค่ามัดจำกับค่าประกันพี่จะได้รับคืนตอน รับ",ALLOW,0,0.166,ALLOW,0,TIER_1_REGEX,none,0.177,0,ALLOW,0,TIER_1_REGEX,none,,0.191,0
+FRAUD_082_INQUIRY_2,ALLOW,"ทำไหมทางเราถึงมีค่าประกันระหว่างทาง กลัวของหาย เพราะมันเคยมีคนรับไปทำ แล้วไม่เอาค่ะทำให้ค่าของเสียหาย เลยต้องตั้งกฎแบบนี้กับลูกค้าท่านใหม่",ALLOW,0,0.138,ALLOW,0,TIER_1_REGEX,none,0.14,0,ALLOW,0,TIER_1_REGEX,none,,0.14,0
+FRAUD_082_INQUIRY_3,ALLOW,"หรือเงินโอนก็ได้ค่ะ ของมาถึงค่อยเอาอีก1890ได้ไหม ค่าประกัน1890บาทต้องโอนก่อนค่ะ ของถึงบ้านพี่จะได้คืนพร้อมมัดจำเลยนะ",ALLOW,0,0.157,ALLOW,6,TIER_2_LLM,groq,123.144,0.0003185,ALLOW,3,TIER_2_LLM,groq,,126.129,0.0003185
+FRAUD_082_INQUIRY_4,ALLOW,"ค่ะ แล้วเงินส่วนนี่จะได้คืนน่ะค่ะ เพราะสินค้าที่ส่งไปให้เกือบ 20,000 บาท",ALLOW,0,0.341,ALLOW,0,TIER_1_REGEX,none,0.218,0,ALLOW,0,TIER_1_REGEX,none,,0.18,0
+FRAUD_082_INQUIRY_5,ALLOW,"คะ ยื่นหมูยื่นแมวดกว่าครับพี่ผมก็ยังไม่แน่ใจ",ALLOW,0,0.16,ALLOW,0,TIER_1_REGEX,none,0.149,0,ALLOW,0,TIER_1_REGEX,none,,0.217,0
+FRAUD_082_INQUIRY_6,ALLOW,"ค่ะ เลยต้องเก็บค่าประกันไว้ก่อน",ALLOW,0,0.196,ALLOW,0,TIER_1_REGEX,none,0.182,0,ALLOW,0,TIER_1_REGEX,none,,0.086,0
+FRAUD_083_INQUIRY,ALLOW,"สวัสดีค่ะ ลืมแจ้งเลขพัสดุรึเปล่าคะ รบกวนตอบแชททีค่ะ",ALLOW,0,0.205,ALLOW,0,TIER_1_REGEX,none,0.152,0,ALLOW,0,TIER_1_REGEX,none,,0.153,0
+FRAUD_083_INQUIRY_2,ALLOW,"ส่งรึยังแม่ค้า Couldn't send. MR. ee",ALLOW,0,0.209,ALLOW,0,TIER_1_REGEX,none,0.211,0,ALLOW,0,TIER_1_REGEX,none,,0.183,0
+FRAUD_083_INQUIRY_3,ALLOW,ขอเลขพัสดุค่ะ,ALLOW,0,0.192,ALLOW,0,TIER_1_REGEX,none,0.145,0,ALLOW,0,TIER_1_REGEX,none,,0.122,0
+FRAUD_084_INQUIRY,ALLOW,"ราคาขึ้นหรอคับ ตอนนี้เรทยังไงบ้างครับ ปรับขึ้น เรทละ3บาท",ALLOW,0,0.236,ALLOW,0,TIER_1_REGEX,none,0.141,0,ALLOW,0,TIER_1_REGEX,none,,0.209,0
+FRAUD_084_INQUIRY_2,ALLOW,"เคคับโอนแล้วส่งสลิปให้ เค จันทร์ 15:44",ALLOW,0,0.135,ALLOW,0,TIER_1_REGEX,none,0.145,0,BLOCK,57,TIER_2_LLM,groq,soft_payment_confirm,167.195,0.0003045
+FRAUD_085_INQUIRY,ALLOW,"ส่งมาให้ทางร้านพรุ่งนี้ลูกค้ายังรับอยู่ มั้ยคะถ้าหากไม่รับลูกค้าสามารถ",ALLOW,0,0.141,ALLOW,0,TIER_1_REGEX,none,0.129,0,ALLOW,0,TIER_1_REGEX,none,,0.11,0
+FRAUD_085_INQUIRY_2,ALLOW,ต้องขอโทษลูกค้าด้วยนะคะสินค้า,ALLOW,0,0.081,ALLOW,0,TIER_1_REGEX,none,0.078,0,ALLOW,0,TIER_1_REGEX,none,,0.078,0
+FRAUD_085_PAYMENT,BLOCK,แจ้งเลขบัญชีได้เลยค่ะ,BLOCK,75,0.077,BLOCK,87,TIER_2_LLM,groq,172.174,0.0003059,BLOCK,88,TIER_2_LLM,groq,,126.046,0.0003059
+FRAUD_086_INQUIRY,ALLOW,"แป๊บนึงนะคะ เค้าถามที่บ้านก่อนว่ารถมา รับของยัง เค้ามาทํางานงับ หยุดงานวัน เสาร์ง่ะ",ALLOW,0,0.151,ALLOW,0,TIER_1_REGEX,none,0.113,0,ALLOW,0,TIER_1_REGEX,none,,0.111,0
+FRAUD_086_INQUIRY_2,ALLOW,"ศุกร์ 21:49 ถามให้หน่อยนะคะตัวเอง เค้าไม่เห็นตัวเองทักมาเลยเค้าใจไม่ดี",ALLOW,0,0.099,ALLOW,0,TIER_1_REGEX,none,0.096,0,ALLOW,0,TIER_1_REGEX,none,,0.098,0
+FRAUD_086_INQUIRY_3,ALLOW,"ขอเลขพัสดุหน่อยค่ะ ตอบหน่อยค่ะ ถ้ายังไงก็โอนเงินคืนมาได้เลยนะคะ",ALLOW,0,0.122,ALLOW,0,TIER_1_REGEX,none,0.096,0,ALLOW,0,TIER_1_REGEX,none,,0.096,0
+FRAUD_086_INQUIRY_4,ALLOW,"ศุกร์ 21:10 ตัวเองส่งกล้องให้เค้ายังคะ",ALLOW,0,0.08,ALLOW,0,TIER_1_REGEX,none,0.077,0,ALLOW,0,TIER_1_REGEX,none,,0.078,0
+FRAUD_086_INQUIRY_5,ALLOW,"โอเคสรุปโกงเนาะ... 4",ALLOW,0,0.07,ALLOW,0,TIER_1_REGEX,none,0.068,0,ALLOW,0,TIER_1_REGEX,none,,0.069,0
+FRAUD_087_PAYMENT,BLOCK,"โอนยัง JUN 24, 12:19 ทําไมต้องตั้งโอน ทําไมไม่โอนมาเลย? คือยังไงสรุป ผ่านมาหลายวันแล้วนะเงินยังไม่ได้ เลย Message... JUN 24, 20:49",BLOCK,65,0.121,BLOCK,65,TIER_2_LLM,groq,138.648,0.000322,BLOCK,76,TIER_2_LLM,groq,,173.524,0.000322
+FRAUD_088_INQUIRY,ALLOW,"ลูกค้าชนะประมูลสินค้าชิ้นนี้ที่ราคา 250 บาทนะ ส. เวลา 18:54 ค่าจัดส่ง 60 บาท รวมเป็น 560 บาท ทนะคะ รบกวนลูกค้ากรอกชื่อ ที่อยู่กับ เบอร์ ให้ทางร้าน ได้เลยค่ะ",ALLOW,0,0.19,ALLOW,16,TIER_2_LLM,groq,207.412,0.0003255,ALLOW,13,TIER_2_LLM,groq,,220.966,0.0003255
+FRAUD_089_PAYMENT,BLOCK,"หล่มสัก จังหวัดเพชรบูรณ์ 67110 (วางไว้หน้าป้อมยาม) โทร [PHONE_NUM]",ALLOW,0,0.121,ALLOW,0,TIER_1_REGEX,none,0.193,0,BLOCK,74,TIER_2_LLM,groq,anonymized_pii_token|soft_phone_contact,107.919,0.0003094
+FRAUD_090_INQUIRY,ALLOW,"โอนเงินคืนกลับมาให้เราภายใน12:00น. ถ้าไม่โอนเราจะไปดำเนินคดีจนถึงที่สุดค่ะ ตอนนี้เราแจ้งความโดนโกงธุรกรรม ออนไลน์ไปแล้ว Aa",ALLOW,0,0.314,ALLOW,0,TIER_1_REGEX,none,0.294,0,ALLOW,0,TIER_1_REGEX,none,,0.316,0
+FRAUD_090_PAYMENT,BLOCK,"สรุปคือยังไงคะ ยังไม่ส่งเหรอคะ คุณตอบกลับตัวเอง — กรุงศรี [BANK_ACCOUNT] ชื่อบัญชี : วิชญาพร เสื้อติสอน",BLOCK,45,0.254,BLOCK,77,TIER_2_LLM,groq,146.003,0.0003178,BLOCK,71,TIER_2_LLM,groq,anonymized_pii_token|account_holder_name,156.215,0.0003178
+FRAUD_090_INQUIRY_2,ALLOW,"โอนเงินคืนได้เลยนะคะ เค้าไม่เอาของ แล้วค่ะ",ALLOW,0,0.194,ALLOW,0,TIER_1_REGEX,none,0.095,0,ALLOW,0,TIER_1_REGEX,none,,0.089,0
+FRAUD_091_PAYMENT,BLOCK,"สรุปคือยังไงคะ ยังไม่ส่งเหรอคะ คุณตอบกลับตัวเอง — กรุงศรี [BANK_ACCOUNT] ชื่อบัญชี : วิชญาพร เสื้อติสอน",BLOCK,45,0.118,BLOCK,75,TIER_2_LLM,groq,126.184,0.0003178,BLOCK,74,TIER_2_LLM,groq,anonymized_pii_token|account_holder_name,169.424,0.0003178
+FRAUD_091_PAYMENT_2,BLOCK,"- กรุงศรี [BANK_ACCOUNT] ชื่อบัญชี : วิชญาพร เสื้อติสอน",BLOCK,45,0.125,BLOCK,67,TIER_2_LLM,groq,94.825,0.0003094,BLOCK,65,TIER_2_LLM,groq,anonymized_pii_token|account_holder_name,191.642,0.0003094
+FRAUD_091_INQUIRY,ALLOW,"ตอบหน่อยค่ะ ถ้ายังไม่ส่งก็โอนเงินคืนมาได้เลยนะคะ",ALLOW,0,0.169,ALLOW,0,TIER_1_REGEX,none,0.26,0,ALLOW,0,TIER_1_REGEX,none,,0.187,0
+FRAUD_091_INQUIRY_2,ALLOW,"โอนเงินคืนได้เลยนะคะ เค้าไม่เอาของ แล้วค่ะ",ALLOW,0,0.179,ALLOW,0,TIER_1_REGEX,none,0.183,0,ALLOW,0,TIER_1_REGEX,none,,0.786,0
+FRAUD_091_INQUIRY_3,ALLOW,"โอเคสรุปโกงเนาะ.... 4",ALLOW,0,0.202,ALLOW,0,TIER_1_REGEX,none,1.046,0,ALLOW,0,TIER_1_REGEX,none,,0.445,0
+FRAUD_092_INQUIRY,ALLOW,"บอกชื่อมาหน่อยค่ะ พอดีมันคือบริษัทอะค่ะงั้นไม่เอาแล้วนะคะ ใช่ครับบัญชีบริษัท ขอบคุณค่ะ ทำไมคนขายไม่บอกชื่อละคะ พอดีสนใจจะซื้อและพร้อมโอนจริงๆค่ะ Supachok Cham ต",ALLOW,0,0.326,ALLOW,0,TIER_1_REGEX,none,0.309,0,ALLOW,0,TIER_1_REGEX,none,,0.311,0
+FRAUD_092_INQUIRY_2,ALLOW,"Supachok Cham แชทธุรกิจ เขน เมน เทเลขควบ Supachok Cham ตอบกลับคุณแล้ว หนูไม่เคยซื้อกับเฟสจริงๆค่ะทีแรกก็ กลัวด้วย ไม่ต้องกลัวนะครับ",ALLOW,0,0.257,ALLOW,0,TIER_1_REGEX,none,0.251,0,ALLOW,0,TIER_1_REGEX,none,,0.45,0
+FRAUD_092_INQUIRY_3,ALLOW,"ไม่อยากโดนหลอกค่ะ ถ้ารับจริงสแกนโอนตามนี้ได้เลยนะครับ งั้นไม่เอาแล้วนะคะ",ALLOW,0,0.207,ALLOW,0,TIER_1_REGEX,none,0.212,0,ALLOW,0,TIER_1_REGEX,none,,0.227,0
+FRAUD_092_INQUIRY_4,ALLOW,พี่ขายให้ลูกค้าคนอื่นได้เลยค่ะ,ALLOW,0,0.155,ALLOW,0,TIER_1_REGEX,none,0.162,0,ALLOW,0,TIER_1_REGEX,none,,0.162,0
+FRAUD_093_INQUIRY,ALLOW,"NEON SNAP Neon Snap 16K people follow this Musician/band Business chats and your privacy NEON SNAP 7 AUG AT 22:16 ขออภัยค่ะตัวเอง พอดีเพจแม่ค้ามีปัญหา ตอบแชทไม่",ALLOW,0,0.215,ALLOW,0,TIER_1_REGEX,none,0.238,0,ALLOW,0,TIER_1_REGEX,none,,0.957,0
+FRAUD_093_INQUIRY_2,ALLOW,"ค่ะ ขอเลข บช ค่ะ",ALLOW,0,0.158,ALLOW,0,TIER_1_REGEX,none,0.147,0,ALLOW,0,TIER_1_REGEX,none,,0.149,0
+FRAUD_094_INQUIRY,ALLOW,"NEON SNAP Neon Snap 16K people follow this Musician/band Business chats and your privacy NEON SNAP 7 AUG AT 22:16 ขออภัยค่ะตัวเอง พอดีเพจแม่ค้ามีปัญหา ตอบแชทไม่",ALLOW,0,0.22,ALLOW,0,TIER_1_REGEX,none,0.226,0,ALLOW,0,TIER_1_REGEX,none,,0.229,0
+FRAUD_094_INQUIRY_2,ALLOW,"ค่ะ ขอเลข บช ค่ะ",ALLOW,0,0.141,ALLOW,0,TIER_1_REGEX,none,0.142,0,ALLOW,0,TIER_1_REGEX,none,,0.143,0
+FRAUD_095_INQUIRY,ALLOW,"เท่าไหร่ก็ได้ครับเอาที่น้องสะดวก มัดจำเท่าไหร่คะ โอเคค่ะ สะดวกมัดจำเท่าไหร่ครับ สักครู่นะคะเดี๋ยวหนูคุยกับพ่อก่อน555",ALLOW,0,1.201,ALLOW,0,TIER_1_REGEX,none,0.27,0,ALLOW,0,TIER_1_REGEX,none,,0.806,0
+FRAUD_095_INQUIRY_2,ALLOW,"พี่คะ หนูจองไว้เลยได้ไหมคะดาวน์สิ้นเดือนนี้ เลยค่ะ 5000 เพราะตอนนี้ พ่อรอเงินออกด้วยค่ะ จองมัดจำไว้ก่อนได้ครับ",ALLOW,0,0.254,ALLOW,0,TIER_1_REGEX,none,0.247,0,ALLOW,0,TIER_1_REGEX,none,,0.36,0
+FRAUD_095_INQUIRY_3,ALLOW,"ได้ครับ 100ได้ไหมคะ 300 บาทได้ไหมครั าจะส่งที่สแกนให้",ALLOW,0,0.934,ALLOW,0,TIER_1_REGEX,none,0.2,0,ALLOW,0,TIER_1_REGEX,none,,0.188,0
+FRAUD_096_PAYMENT,BLOCK,โอนเสร็จแจ้งสลิปมายืนยันได้เลยนะ,ALLOW,0,0.163,ALLOW,0,TIER_1_REGEX,none,0.182,0,BLOCK,58,TIER_2_LLM,groq,soft_payment_confirm,106.948,0.0003038
+FRAUD_097_INQUIRY,ALLOW,"อำาเภอสันทราย, จังหวัดเชียงใหม่ 50290 โทร - รับยอดเรียบร้อยครับ จัดส่ง1-3วันหลังโอนและเลขจะได้หลัง",ALLOW,0,0.144,ALLOW,0,TIER_1_REGEX,none,0.121,0,ALLOW,0,TIER_1_REGEX,none,,0.12,0
+FRAUD_097_INQUIRY_2,ALLOW,"ตู้เสื้อผ้า 30 วัยรุ่น www. ตู้เสื้อผ้า วัยรุ่น ตู้เสื้อผ้าวัยรุ่น แบรนด์มือสอง แชทธุรกิจ",ALLOW,0,0.11,ALLOW,0,TIER_1_REGEX,none,0.108,0,ALLOW,0,TIER_1_REGEX,none,,0.127,0
+FRAUD_097_INQUIRY_3,ALLOW,"ส่งของนะะครับ ขอบคุณครับ | A ตู้เสื้อผ้า วัยรุ่น ตู้เสื้อผ้า วัยรุ่น รอรอบส่งนะคะ",ALLOW,0,0.106,ALLOW,0,TIER_1_REGEX,none,0.105,0,ALLOW,0,TIER_1_REGEX,none,,0.106,0
+FRAUD_097_INQUIRY_4,ALLOW,"ส่งของยังคะ แล้วรอยส่งคือวันไหนหรอคะ คุณแจ้ง ว่า1-3วันหลังจ่ายเงิน Aa",ALLOW,0,0.099,ALLOW,0,TIER_1_REGEX,none,0.098,0,ALLOW,0,TIER_1_REGEX,none,,0.099,0
+FRAUD_097_INQUIRY_5,ALLOW,ไม่สามารถส่งได้,ALLOW,0,0.07,ALLOW,0,TIER_1_REGEX,none,0.072,0,ALLOW,0,TIER_1_REGEX,none,,0.069,0
+FRAUD_098_INQUIRY,ALLOW,"จ. เวลา 18:13 Mellow Mood กำลังตอบกลับแสดงความคิดเห็นที่คุณสร้างบนเพจของ พวกเขา ดูความคิดเห็น คุณลูกค้าชนะการประมูลนะคะ ♥ ปิดประมูลยอดที่150 บาทนะคะ EDWIN",ALLOW,0,0.15,ALLOW,0,TIER_1_REGEX,none,0.137,0,ALLOW,0,TIER_1_REGEX,none,,0.138,0
+FRAUD_098_INQUIRY_2,ALLOW,"Mellow Mood แชทธุรกิจ Mood Fashion คัดพิเศษทุกตัว Mellow Mood แชทธุรกิจและความเป็นส่วนตัวของคุณ ดูโปรไฟล์ www. EDWIN CARGO PANTIES JAPANESE MATE",ALLOW,0,0.114,ALLOW,0,TIER_1_REGEX,none,0.116,0,ALLOW,0,TIER_1_REGEX,none,,0.117,0
+FRAUD_098_PAYMENT,BLOCK,"จ. เวลา 18:59 ชื่อ-ปานทิพย์ โนนโท เลขบัญชี-[BANK_ACCOUNT]",BLOCK,75,0.089,BLOCK,76,TIER_2_LLM,groq,176.528,0.0003122,BLOCK,75,TIER_2_LLM,groq,anonymized_pii_token,220.008,0.0003122
+FRAUD_098_PAYMENT_2,BLOCK,โอนแล้วแจ้งสลิปยืนยันการโอน,ALLOW,0,0.17,ALLOW,0,TIER_1_REGEX,none,0.083,0,BLOCK,52,TIER_2_LLM,groq,soft_payment_confirm,195.107,0.0003031
+FRAUD_098_PAYMENT_3,BLOCK,"* เบอร์โทร............",BLOCK,65,0.184,BLOCK,77,TIER_2_LLM,groq,155.352,0.0003031,BLOCK,77,TIER_2_LLM,groq,,204.267,0.0003031
+FRAUD_099_INQUIRY,ALLOW,"เรียบร้อยยังครับ ขอบคุณค่ะ ทางร้านจัดส่งให้พรุ่งนี้นะค่ะ ขอบคุณที่ช่วยอุดหนุนนะค่ะ เลขพัสดุส่งในแชทรีหน้าเพจครับ ก่อนจัดส่งร้าน จะถ่ายวีดีโอตอนแพ็ค สินค้าให้ลุก",ALLOW,0,0.237,ALLOW,0,TIER_1_REGEX,none,0.202,0,ALLOW,0,TIER_1_REGEX,none,,0.186,0
+FRAUD_099_INQUIRY_2,ALLOW,"โอเคครับ ขอบคุณครับไว้จะอุดหนุน เรื่อยๆครับ ขอบคุณมากค่ะ ยินดีให้บริการเสมอค่ะ",ALLOW,0,0.118,ALLOW,0,TIER_1_REGEX,none,0.11,0,ALLOW,0,TIER_1_REGEX,none,,0.11,0
+FRAUD_099_INQUIRY_3,ALLOW,"ยังไงเนี่ย ไม่สามารถส่งได้",ALLOW,0,0.079,ALLOW,0,TIER_1_REGEX,none,0.077,0,ALLOW,0,TIER_1_REGEX,none,,0.078,0
+FRAUD_100_INQUIRY,ALLOW,"ตู้เสื้อผ้าวัยรุ่น แบรนด์มือสอง 30 ตู้เสื้อผ้า วัยรุ่น แชทธุรกิจ Mach of tile O COTTON RNST DO NO 100 NASTAOR BLEAC Waist 23 IN TO 2TIN Inseam 2002 TO 32 12 IN ",ALLOW,0,0.122,ALLOW,0,TIER_2_LLM,groq,124.247,0.0003297,ALLOW,0,TIER_2_LLM,groq,,126.557,0.0003297
+FRAUD_100_INQUIRY_2,ALLOW,"ข้อกำหนดและนโยบายของแอพธ. บนมือถือและแอพวอลเล็ทจะมีผล ดับใช้กับการโอนเงินของคุณ เมื่อดำเนินการต่อ Meta จะแชร์ข้อมูลการ บังคับ",ALLOW,0,0.162,ALLOW,0,TIER_1_REGEX,none,0.137,0,ALLOW,0,TIER_1_REGEX,none,,0.136,0
+FRAUD_100_PAYMENT,BLOCK,"โอนแล้วแจ้งสลิปพร้อมที่อยู่ได้เลยครับ ขอบคุณครับ AA ตู้เสื้อผ้า วัยรุ่น",ALLOW,0,0.109,ALLOW,0,TIER_1_REGEX,none,0.159,0,BLOCK,61,TIER_2_LLM,groq,soft_payment_confirm,157.4,0.0003108
+FRAUD_100_PAYMENT_2,BLOCK,"ค่าส่ง50 ตัวต่อไปบวก10บาท E ชลลดา โนบาง [BANK_ACCOUNT]",ALLOW,0,0.33,ALLOW,0,TIER_1_REGEX,none,0.232,0,BLOCK,69,TIER_2_LLM,groq,anonymized_pii_token,139.871,0.0003073
+FRAUD_100_INQUIRY_3,ALLOW,"DO NOT REMOVE THIS LABEL ตู้เสื้อผ้า วัยรุ่น. CHIN",ALLOW,0,0.21,ALLOW,0,TIER_1_REGEX,none,0.177,0,ALLOW,0,TIER_1_REGEX,none,,0.176,0

@@ -1,0 +1,11 @@
+No.,Module,Failure,Expected,Actual,Pass,Note
+1,"AiGen eKYC","API exception → markAigenPending","kyc_status=pending, is_verified=0","{""kyc_status"":""pending"",""is_verified"":""0"",""ekyc_provider"":""aigen""}",1,"restored after test"
+2,Sumsub,"no webhook — call syncReviewFromSumsub","structured sync result (no crash)","{""synced"":true,""verified"":true,""status"":""approved"",""answer"":""GREEN""}",1,"poll path usable when webhook missed"
+3,"Cloud Vision (Image)","Vision key disabled/invalid","EXIF fallback flag ~55","{""risk"":55,""verdict"":""flag"",""provider"":""exif"",""raw_skip"":""API key not valid. Please pass a valid API key.""}",1,"MOCK off; Vision key stubbed → API error or skip → ~55"
+4,"Chat LLM","Groq/OR/Gemini keys disabled","Regex-only (no LLM provider in result)","{""provider"":""regex"",""verdict"":""reject"",""score"":75}",1,"keys stubbed to __RESILIENCE_DISABLED__"
+5,"Vision OCR in Chat","Vision key disabled","skip or mid-score flag, no crash","{""provider"":""cloud_vision"",""risk_score"":40,""verdict"":""flag"",""status"":""flagged"",""matched_patterns"":[""vision_error""],""reasons"":[""ไม่สามารถตรวจสอบรูปภาพด้วย AI ได้ชั่วคราว""],""raw"":{""tier"":2,""error"":""API key not valid. Please pass a valid API key.""}}",1,"code: not configured → skipped; error → flag~40"
+6,"Dispute AI","forceHeuristic=true (LLM down)","Heuristic recommendation","{""action"":""NEEDS_REVIEW"",""provider"":""heuristic"",""confidence"":30}",1,
+7,EasySlip,"empty key / API down","WAITING_VERIFY manual path exists","OrderController branch present",1,"aligned with easyslip S3/S4 fixture experiment"
+8,Omise,"empty secret / gate","constructor throws; UI uses isConfigured()","isConfigured=1; emptyCtorThrows=1",1,"when keys absent, Omise UI hidden via isConfigured()"
+9,Redis,"port 6399 closed / unavailable","connect=null; publish no-throw","connect=null; publish_ok=1",1,"ChatStream falls back to DB polling"
+10,"Object Storage","S3_* unset","isConfigured=false → local /uploads usable OR S3 configured","configured=0; uploads_writable=0; probe=1",1,"local fallback ready"

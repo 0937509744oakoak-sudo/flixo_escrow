@@ -1,0 +1,5 @@
+﻿No.,"Pair ID",Group,"GT Match (1/0)","OCR Pass (1/0)","Face Score","System Match (1/0)","KYC Status","OCR ms","Face ms","E2E ms","Correct (1/0)","ID file","Selfie file",Note
+1,a1,G1,1,1,99.98,1,approved,1802,2821,4639,1,a1_id.jpg,a1_selfie.jpg,ยืนยันตัวตนสำเร็จ
+2,b1,G1,1,1,98.34,1,approved,2002,3032,5050,1,b1_id.jpg,b1_selfie.jpg,ยืนยันตัวตนสำเร็จ
+3,i1,G2,0,1,0,0,rejected,1618,2515,4148,1,i1_id.jpg,i1_selfie.jpg,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 0)"
+4,i2,G2,0,1,0,0,rejected,1734,3040,4789,1,i2_id.jpg,i2_selfie.jpg,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 0)"

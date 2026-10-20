@@ -11,8 +11,13 @@ if (session_status() === PHP_SESSION_NONE) {
     $sessionLifetime = 60 * 60 * 24 * 30;
     ini_set('session.gc_maxlifetime', (string) $sessionLifetime);
 
-    // Prefer persistent volume path so sessions survive Railway redeploys.
-    $sessionPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'sessions';
+    // Session files are credentials: the filename is the session id. They used
+    // to live under uploads/, which is inside the document root and not
+    // git-ignored. storage/ is denied by the web server and ignored by git.
+    // Set SESSION_SAVE_PATH to a mounted volume if sessions must survive
+    // redeploys (Railway: point it at a path under the volume mount).
+    $sessionPath = getenv('SESSION_SAVE_PATH')
+        ?: dirname(__DIR__) . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'sessions';
     if (!is_dir($sessionPath)) {
         @mkdir($sessionPath, 0700, true);
     }

@@ -1,0 +1,61 @@
+%%{init: {
+  "flowchart": {
+    "nodeSpacing": 36,
+    "rankSpacing": 48,
+    "padding": 14,
+    "curve": "basis",
+    "htmlLabels": true
+  },
+  "themeVariables": {
+    "fontSize": "22px",
+    "fontFamily": "Arial, sans-serif",
+    "primaryTextColor": "#111111",
+    "lineColor": "#546E7A"
+  }
+}}%%
+flowchart TB
+  A(["เริ่ม · เปิดหน้า Login"]) --> B{"วิธีเข้าสู่ระบบ?"}
+
+  B -->|"Password"| P1
+  B -->|"Google"| G1
+
+  subgraph PW["ช่องทาง Password"]
+    direction TB
+    P1["กรอกอีเมล / รหัสผ่าน"] --> P2["PHP ตรวจกับ MySQL"]
+    P2 --> P3{"ผ่าน?"}
+    P3 -->|"ไม่"| Pf["แจ้งรหัสผิด"]
+  end
+
+  subgraph GG["ช่องทาง Google"]
+    direction TB
+    G1["รับ Google ID Token"] --> G2["PHP ตรวจโทเคนฝั่งเซิร์ฟเวอร์"]
+    G2 --> G3{"ถูกต้อง?"}
+    G3 -->|"ไม่"| Gf["แจ้งไม่สำเร็จ"]
+  end
+
+  P3 -->|"ใช่"| S["สร้าง PHP Session"]
+  G3 -->|"ใช่"| S
+
+  S --> K{"บังคับ KYC?"}
+  K -->|"ยังไม่ผ่าน"| E["ไปหน้า e-KYC"]
+  K -->|"ผ่าน / ยังไม่บังคับ"| H["หน้าหลัก"]
+
+  classDef start fill:#ECEFF1,stroke:#455A64,color:#111,stroke-width:2px
+  classDef decision fill:#FFF8E1,stroke:#F9A825,color:#111,stroke-width:2px
+  classDef pass fill:#E8F5E9,stroke:#2E7D32,color:#111,stroke-width:2px
+  classDef google fill:#E3F2FD,stroke:#1565C0,color:#111,stroke-width:2px
+  classDef fail fill:#FFEBEE,stroke:#C62828,color:#111,stroke-width:2px
+  classDef merge fill:#FFF3E0,stroke:#EF6C00,color:#111,stroke-width:2px
+  classDef endok fill:#E8F5E9,stroke:#2E7D32,color:#111,stroke-width:2px
+  classDef endkyc fill:#F3E5F5,stroke:#6A1B9A,color:#111,stroke-width:2px
+  classDef lane fill:#FAFAFA,stroke:#90A4AE,color:#111
+
+  class A start
+  class B,P3,G3,K decision
+  class P1,P2 pass
+  class G1,G2 google
+  class Pf,Gf fail
+  class S merge
+  class E endkyc
+  class H endok
+  class PW,GG lane

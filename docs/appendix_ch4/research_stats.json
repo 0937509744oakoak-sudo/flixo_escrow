@@ -1,0 +1,468 @@
+{
+  "modules": {
+    "ekyc": {
+      "n": 100,
+      "tp": 50,
+      "tn": 50,
+      "fp": 0,
+      "fn": 0,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "acc_ci95": [
+        0.963005192523998,
+        0.9999999999999998
+      ],
+      "latency": {
+        "n": 100,
+        "mean": 2428.68,
+        "std": 582.4627422081228,
+        "min": 1217.0,
+        "p50": 2457.0,
+        "p95": 3412.3999999999996,
+        "max": 3723.0
+      },
+      "mode": "mock_pipeline"
+    },
+    "chat": {
+      "n": 100,
+      "tp": 48,
+      "tn": 49,
+      "fp": 1,
+      "fn": 2,
+      "accuracy": 0.97,
+      "precision": 0.9795918367346939,
+      "recall": 0.96,
+      "f1": 0.9696969696969697,
+      "acc_ci95": [
+        0.915479219195973,
+        0.9897456617765852
+      ],
+      "latency": {
+        "n": 100,
+        "mean": 398.64,
+        "std": 610.3375869967457,
+        "min": 0.0,
+        "p50": 0.0,
+        "p95": 1678.0,
+        "max": 1977.0
+      },
+      "providers": {
+        "groq": 34,
+        "none": 66
+      },
+      "mode": "dataset_eval_mock_llm",
+      "cohen_kappa": 0.94,
+      "misses": [
+        {
+          "no": "43",
+          "group": "C2",
+          "gt": "1",
+          "verdict": "pass",
+          "note": "MISS | pred=0 | preview: Line ID sell_cash โอนสดรับของเร็ว"
+        },
+        {
+          "no": "52",
+          "group": "C2",
+          "gt": "1",
+          "verdict": "pass",
+          "note": "MISS | pred=0 | preview: ไลน์: escrow_skip คุยโอนเงินนอก"
+        },
+        {
+          "no": "84",
+          "group": "C1",
+          "gt": "0",
+          "verdict": "flag",
+          "note": "MISS | pred=1 | พบคำชักชวนโอน/ติดต่อนอกระบบ (ผ่านแอป); ข้อความมีลักษณะกำกวม ควรติดตาม (mock)"
+        }
+      ]
+    },
+    "image": {
+      "n": 100,
+      "tp": 50,
+      "tn": 50,
+      "fp": 0,
+      "fn": 0,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "acc_ci95": [
+        0.963005192523998,
+        0.9999999999999998
+      ],
+      "latency": {
+        "n": 100,
+        "mean": 1128.85,
+        "std": 563.4682172209732,
+        "min": 407.0,
+        "p50": 879.0,
+        "p95": 2137.75,
+        "max": 2436.0
+      },
+      "vision_call_rate": 0.5,
+      "mode": "mock_gt_driven"
+    },
+    "dispute": {
+      "n": 100,
+      "agree": 100,
+      "agreement": 1.0,
+      "acc_ci95": [
+        0.963005192523998,
+        0.9999999999999998
+      ],
+      "latency": {
+        "n": 100,
+        "mean": 1332.93,
+        "std": 418.4432007121423,
+        "min": 608.0,
+        "p50": 1317.0,
+        "p95": 1971.2,
+        "max": 2010.0
+      },
+      "avg_confidence": 65.47,
+      "mode": "mock_gt_forced"
+    },
+    "sumsub": {
+      "n": 100,
+      "match": 100,
+      "accuracy": 1.0,
+      "acc_ci95": [
+        0.963005192523998,
+        0.9999999999999998
+      ],
+      "latency": {
+        "n": 100,
+        "mean": 3063.23,
+        "std": 582.0692078501256,
+        "min": 1585.0,
+        "p50": 3123.0,
+        "p95": 4049.7999999999997,
+        "max": 4508.0
+      },
+      "mode": "mock_pipeline"
+    },
+    "easyslip": {
+      "n": 100,
+      "correct": 100,
+      "accuracy": 1.0,
+      "acc_ci95": [
+        0.963005192523998,
+        0.9999999999999998
+      ],
+      "latency": {
+        "n": 100,
+        "mean": 299.47,
+        "std": 108.81375572207513,
+        "min": 90.0,
+        "p50": 314.0,
+        "p95": 439.05,
+        "max": 456.0
+      },
+      "mode": "fixture_decision_logic"
+    },
+    "omise": {
+      "n": 100,
+      "pass": 100,
+      "pass_rate": 1.0,
+      "acc_ci95": [
+        0.963005192523998,
+        0.9999999999999998
+      ],
+      "latency": {
+        "n": 100,
+        "mean": 1032.83,
+        "std": 845.1893823399593,
+        "min": 31.0,
+        "p50": 581.5,
+        "p95": 2439.85,
+        "max": 2753.0
+      },
+      "pass_by_case": {
+        "O1": 30,
+        "O2": 20,
+        "O3": 30,
+        "O5": 10,
+        "O4": 10
+      },
+      "mode": "sandbox_live"
+    },
+    "google_auth": {
+      "n": 100,
+      "pass": 100,
+      "accuracy": 1.0,
+      "acc_ci95": [
+        0.963005192523998,
+        0.9999999999999998
+      ],
+      "latency": {
+        "n": 100,
+        "mean": 93.87,
+        "std": 185.4633103741802,
+        "min": 0.0,
+        "p50": 0.0,
+        "p95": 467.4499999999999,
+        "max": 645.0
+      },
+      "mode": "certs_live_plus_synthetic_negative"
+    },
+    "resilience": {
+      "n": 10,
+      "pass": 10,
+      "rate": 1.0,
+      "acc_ci95": [
+        0.7224598312333834,
+        1.0
+      ],
+      "mode": "forced_failure_injection"
+    },
+    "uat": {
+      "n": 12,
+      "pass": 12,
+      "rate": 1.0,
+      "acc_ci95": [
+        0.7574992425007574,
+        0.9999999999999998
+      ],
+      "mode": "automated_functional_evidence"
+    }
+  },
+  "figures": [
+    "docs/_ch4_research_figures/fig01_accuracy_ci.png",
+    "docs/_ch4_research_figures/fig02_latency_mean_p95.png",
+    "docs/_ch4_research_figures/fig03_chat_confusion.png",
+    "docs/_ch4_research_figures/fig04_chat_providers.png",
+    "docs/_ch4_research_figures/fig05_chat_latency_boxplot.png",
+    "docs/_ch4_research_figures/fig06_chat_approach_compare.png",
+    "docs/_ch4_research_figures/fig07_ekyc_sumsub_latency.png",
+    "docs/_ch4_research_figures/fig08_resilience_uat.png",
+    "docs/_ch4_research_figures/fig09_evidence_modes.png",
+    "docs/_ch4_research_figures/fig10_related_work_compare.png",
+    "docs/_ch4_research_figures/fig11_image_fraud_roc_pr.png",
+    "docs/_ch4_research_figures/fig12_mock_vs_live_overview.png"
+  ],
+  "notes": [],
+  "agreement_tests": {
+    "chat_hybrid_vs_gt_kappa": 0.94,
+    "chat_regex70_vs_gt": {
+      "tp": 32,
+      "tn": 50,
+      "fp": 0,
+      "fn": 18,
+      "accuracy": 0.82,
+      "precision": 1.0,
+      "recall": 0.64,
+      "f1": 0.7804878048780487,
+      "cohen_kappa": 0.64,
+      "threshold": 70
+    },
+    "mcnemar_regex70_vs_hybrid": {
+      "b": 16,
+      "c": 1,
+      "chi2": 11.5294,
+      "p_approx": 0.000685,
+      "significant_0_05": true,
+      "note": "b=Hybrid ถูกเมื่อ Regex ผิด; c=ตรงข้าม; continuity-corrected"
+    },
+    "mcnemar_mock_vs_live_hybrid": {
+      "b": 0,
+      "c": 0,
+      "chi2": 0.0,
+      "p_approx": 1.0,
+      "significant_0_05": false,
+      "live_accuracy": 0.97,
+      "live_cohen_kappa": 0.94,
+      "note": "คู่ข้อความเดียวกัน Mock LLM vs Live LLM"
+    }
+  },
+  "live_curves": {
+    "image_fraud_live_curves": {
+      "n": 58,
+      "positives": 42,
+      "negatives": 16,
+      "auc_roc": 0.7976,
+      "auc_pr": 0.9442,
+      "operating_points": {
+        "flag_threshold": {
+          "threshold": 50.0,
+          "tp": 21,
+          "fp": 0,
+          "tn": 16,
+          "fn": 21,
+          "precision": 1.0,
+          "recall": 0.5,
+          "fpr": 0.0,
+          "tpr": 0.5
+        },
+        "block_threshold": {
+          "threshold": 75.0,
+          "tp": 5,
+          "fp": 0,
+          "tn": 16,
+          "fn": 37,
+          "precision": 1.0,
+          "recall": 0.119,
+          "fpr": 0.0,
+          "tpr": 0.119
+        }
+      },
+      "table": [
+        {
+          "threshold": 95.0,
+          "tp": 0,
+          "fp": 0,
+          "tn": 16,
+          "fn": 42,
+          "tpr": 0.0,
+          "fpr": 0.0,
+          "precision": 1.0,
+          "recall": 0.0,
+          "fnr": 1.0
+        },
+        {
+          "threshold": 95.0,
+          "tp": 1,
+          "fp": 0,
+          "tn": 16,
+          "fn": 41,
+          "tpr": 0.0238,
+          "fpr": 0.0,
+          "precision": 1.0,
+          "recall": 0.0238,
+          "fnr": 0.9762
+        },
+        {
+          "threshold": 90.0,
+          "tp": 2,
+          "fp": 0,
+          "tn": 16,
+          "fn": 40,
+          "tpr": 0.0476,
+          "fpr": 0.0,
+          "precision": 1.0,
+          "recall": 0.0476,
+          "fnr": 0.9524
+        },
+        {
+          "threshold": 85.0,
+          "tp": 3,
+          "fp": 0,
+          "tn": 16,
+          "fn": 39,
+          "tpr": 0.0714,
+          "fpr": 0.0,
+          "precision": 1.0,
+          "recall": 0.0714,
+          "fnr": 0.9286
+        },
+        {
+          "threshold": 75.0,
+          "tp": 5,
+          "fp": 0,
+          "tn": 16,
+          "fn": 37,
+          "tpr": 0.119,
+          "fpr": 0.0,
+          "precision": 1.0,
+          "recall": 0.119,
+          "fnr": 0.881
+        },
+        {
+          "threshold": 55.0,
+          "tp": 21,
+          "fp": 0,
+          "tn": 16,
+          "fn": 21,
+          "tpr": 0.5,
+          "fpr": 0.0,
+          "precision": 1.0,
+          "recall": 0.5,
+          "fnr": 0.5
+        },
+        {
+          "threshold": 45.0,
+          "tp": 25,
+          "fp": 0,
+          "tn": 16,
+          "fn": 17,
+          "tpr": 0.5952,
+          "fpr": 0.0,
+          "precision": 1.0,
+          "recall": 0.5952,
+          "fnr": 0.4048
+        },
+        {
+          "threshold": 40.0,
+          "tp": 42,
+          "fp": 16,
+          "tn": 0,
+          "fn": 0,
+          "tpr": 1.0,
+          "fpr": 1.0,
+          "precision": 0.7241,
+          "recall": 1.0,
+          "fnr": 0.0
+        },
+        {
+          "threshold": 40.0,
+          "tp": 42,
+          "fp": 16,
+          "tn": 0,
+          "fn": 0,
+          "tpr": 1.0,
+          "fpr": 1.0,
+          "precision": 0.7241,
+          "recall": 1.0,
+          "fnr": 0.0
+        }
+      ]
+    },
+    "mock_vs_live": {
+      "modules": [
+        "eKYC",
+        "Chat",
+        "Image Fraud",
+        "Dispute",
+        "Sumsub"
+      ],
+      "mock_acc_pct": [
+        100.0,
+        97.0,
+        100.0,
+        100.0,
+        100.0
+      ],
+      "live_acc_pct": [
+        100.0,
+        97.0,
+        63.79,
+        null,
+        null
+      ],
+      "live_n": [
+        "N=4",
+        "N=100",
+        "N=58",
+        "—",
+        "—"
+      ],
+      "notes": [
+        "pairs",
+        "LLM",
+        "EXIF+Vision",
+        "no expert GT",
+        "no live"
+      ]
+    },
+    "figures": [
+      "docs/_ch4_research_figures/fig11_image_fraud_roc_pr.png",
+      "docs/_ch4_research_figures/fig12_mock_vs_live_overview.png"
+    ],
+    "gaps": [
+      "eKYC Live still small (N=4) — expand genuine/impostor pairs",
+      "Dispute AI has no real-case / expert-label evaluation yet",
+      "ROC/DET not yet built for Chat/eKYC (need score calibration sweeps on larger live sets)"
+    ]
+  }
+}

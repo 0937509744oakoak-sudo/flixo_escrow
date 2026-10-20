@@ -92,6 +92,42 @@ function orderSlipPath(?string $slipImage): ?string {
 }
 
 /**
+ * URL for viewing a dispute evidence file. Evidence contains ID documents,
+ * receipts and addresses, so it is never linked directly — the controller
+ * checks that the caller is a party to the dispute (or staff) first.
+ */
+function disputeEvidenceUrl(int $evidenceId): string {
+    if ($evidenceId <= 0) {
+        return '';
+    }
+    $base = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
+    return $base . '/controllers/DisputeEvidenceController.php?evidence_id=' . $evidenceId;
+}
+
+/**
+ * Absolute filesystem path for a stored dispute evidence file, or null.
+ * Accepts both the current bare filename and the legacy "uploads/disputes/x"
+ * relative path that older rows still hold.
+ */
+function disputeEvidencePath(?string $stored): ?string {
+    $filename = basename(trim((string) $stored));
+    if ($filename === '') {
+        return null;
+    }
+    $dir = rtrim(flixoUploadsSubdir('disputes'), "/\\");
+    $path = $dir . DIRECTORY_SEPARATOR . $filename;
+    if (!is_file($path)) {
+        return null;
+    }
+    $realDir = realpath($dir);
+    $realPath = realpath($path);
+    if ($realDir === false || $realPath === false || !str_starts_with($realPath, $realDir . DIRECTORY_SEPARATOR)) {
+        return null;
+    }
+    return $realPath;
+}
+
+/**
  * URL for viewing an admin payout slip on a withdrawal request.
  */
 function withdrawalSlipUrl(int $requestId): string {
@@ -268,17 +304,40 @@ function sendSystemMessage($conn, $sender, $receiver, $message) {
 /**
  * อัปโหลดไฟล์อย่างปลอดภัย
  */
-function secureUpload($fileArray, $targetDir, $maxSize = 5242880) {
+/**
+ * MIME type => extension for the file kinds the upload helpers accept. The
+ * extension always comes from the sniffed type, never from the client-supplied
+ * filename, so a stored name can never misrepresent its contents.
+ */
+const FLIXO_UPLOAD_IMAGE_TYPES = [
+    'image/jpeg' => 'jpg',
+    'image/png' => 'png',
+    'image/webp' => 'webp',
+];
+
+/** Dispute evidence additionally accepts screenshots and documents. */
+const FLIXO_UPLOAD_EVIDENCE_TYPES = FLIXO_UPLOAD_IMAGE_TYPES + [
+    'image/gif' => 'gif',
+    'application/pdf' => 'pdf',
+];
+
+/**
+ * @param array<string, string>|null $allowedTypes MIME => extension; defaults to images
+ */
+function secureUpload($fileArray, $targetDir, $maxSize = 5242880, ?array $allowedTypes = null) {
     if (!isset($fileArray['error']) || $fileArray['error'] !== UPLOAD_ERR_OK) {
         throw new Exception('เกิดข้อผิดพลาดในการอัปโหลดไฟล์');
     }
     if ($fileArray['size'] > $maxSize) {
         throw new Exception('ขนาดไฟล์ใหญ่เกินไป');
     }
+    if (empty($fileArray['tmp_name']) || !is_uploaded_file($fileArray['tmp_name'])) {
+        throw new Exception('ไฟล์อัปโหลดไม่ถูกต้อง');
+    }
 
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $mime = $finfo->file($fileArray['tmp_name']);
-    $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+    $allowed = $allowedTypes ?? FLIXO_UPLOAD_IMAGE_TYPES;
 
     if (!array_key_exists($mime, $allowed)) {
         throw new Exception('รูปแบบไฟล์ไม่ถูกต้อง');
@@ -318,7 +377,7 @@ function secureUpload($fileArray, $targetDir, $maxSize = 5242880) {
  * @return string public URL หรือ object key (cloud) — หรือ ชื่อไฟล์ (local fallback)
  * @throws Exception เมื่อ validation ไม่ผ่าน หรืออัปโหลดไม่สำเร็จ
  */
-function secureUploadCloud(array $fileArray, string $subdir, string $localTargetDir, int $maxSize = 5242880, bool $public = true): string
+function secureUploadCloud(array $fileArray, string $subdir, string $localTargetDir, int $maxSize = 5242880, bool $public = true, ?array $allowedTypes = null): string
 {
     // 1) Validation — ตรรกะเดียวกับ secureUpload() เพื่อพฤติกรรมที่สอดคล้องกัน
     if (!isset($fileArray['error']) || $fileArray['error'] !== UPLOAD_ERR_OK) {
@@ -334,7 +393,7 @@ function secureUploadCloud(array $fileArray, string $subdir, string $localTarget
     // ตรวจ MIME จากเนื้อไฟล์จริง ไม่เชื่อ extension/Content-Type ที่ client ส่งมา
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $mime  = $finfo->file($fileArray['tmp_name']);
-    $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+    $allowed = $allowedTypes ?? FLIXO_UPLOAD_IMAGE_TYPES;
     if (!array_key_exists($mime, $allowed)) {
         throw new Exception('รูปแบบไฟล์ไม่ถูกต้อง');
     }
@@ -355,7 +414,7 @@ function secureUploadCloud(array $fileArray, string $subdir, string $localTarget
 
     // 3) Fallback: เก็บ local ผ่าน secureUpload() เดิม (คืนชื่อไฟล์)
     $dir = rtrim($localTargetDir, "/\\") . DIRECTORY_SEPARATOR;
-    return secureUpload($fileArray, $dir, $maxSize);
+    return secureUpload($fileArray, $dir, $maxSize, $allowed);
 }
 
 /**

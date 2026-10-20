@@ -1,0 +1,140 @@
+{
+    "mode": "mock",
+    "mock_api_mode": true,
+    "dataset": "C:\\xampp\\htdocs\\flixo_escrow\\tests/benchmark/benchmark_dataset.json",
+    "n": 100,
+    "baseline_regex_lenient_flag45": {
+        "tp": 48,
+        "tn": 49,
+        "fp": 1,
+        "fn": 2,
+        "accuracy": 0.97,
+        "precision": 0.979592,
+        "recall": 0.96,
+        "f1": 0.969697,
+        "acc_ci95": [
+            0.915479,
+            0.989746
+        ],
+        "cohen_kappa": 0.94,
+        "latency": {
+            "n": 100,
+            "mean": 0.138,
+            "p50": 0.083,
+            "p95": 0.181,
+            "min": 0.068,
+            "max": 3.225
+        },
+        "estimated_cost_usd_total": 0,
+        "definition": "Risky if verdict in {flag,reject} using production thresholds (flag≥45)"
+    },
+    "baseline_regex": {
+        "tp": 32,
+        "tn": 50,
+        "fp": 0,
+        "fn": 18,
+        "accuracy": 0.82,
+        "precision": 1,
+        "recall": 0.64,
+        "f1": 0.780488,
+        "acc_ci95": [
+            0.733325,
+            0.882999
+        ],
+        "cohen_kappa": 0.64,
+        "latency": {
+            "n": 100,
+            "mean": 0.138,
+            "p50": 0.083,
+            "p95": 0.181,
+            "min": 0.068,
+            "max": 3.225
+        },
+        "estimated_cost_usd_total": 0,
+        "definition": "Paper baseline: risky if regex_score ≥ 70 (Chapter-4 comparable)"
+    },
+    "proposed_hybrid": {
+        "tp": 48,
+        "tn": 49,
+        "fp": 1,
+        "fn": 2,
+        "accuracy": 0.97,
+        "precision": 0.979592,
+        "recall": 0.96,
+        "f1": 0.969697,
+        "acc_ci95": [
+            0.915479,
+            0.989746
+        ],
+        "cohen_kappa": 0.94,
+        "latency": {
+            "n": 100,
+            "mean": 412.471,
+            "p50": 0.083,
+            "p95": 1678.907,
+            "min": 0.066,
+            "max": 1895.048
+        },
+        "estimated_cost_usd_total": 0.0104398,
+        "tier_counts": {
+            "TIER_2_LLM": 34,
+            "TIER_1_REGEX": 66
+        },
+        "provider_counts": {
+            "groq": 34,
+            "none": 66
+        },
+        "escalated_n": 34,
+        "tier1_only_n": 66,
+        "tier1_only_pct": 66
+    },
+    "comparisons": {
+        "mcnemar_regex70_vs_hybrid": {
+            "b": 16,
+            "c": 1,
+            "chi2": 13.235294,
+            "chi2_continuity_corrected": 11.529412,
+            "p_approx": 0.00068504,
+            "significant_0_05": true,
+            "note": "b=Hybrid correct when Regex wrong; c=opposite; p from chi2 df=1 continuity-corrected"
+        },
+        "mcnemar_regex_flag45_vs_hybrid": {
+            "b": 0,
+            "c": 0,
+            "chi2": 0,
+            "chi2_continuity_corrected": 0,
+            "p_approx": 1,
+            "significant_0_05": false,
+            "note": "b=Hybrid correct when Regex wrong; c=opposite; p from chi2 df=1 continuity-corrected"
+        },
+        "api_call_saving_pct_vs_llm_every_message": 66,
+        "cost_saving_pct_vs_llm_every_message": 21.9,
+        "hybrid_mean_latency_ms": 412.471,
+        "regex_mean_latency_ms": 0.138,
+        "llm_every_message_mean_latency_proxy_ms": 1212.983,
+        "latency_saving_pct_vs_llm_every_message": 66,
+        "llm_only_counterfactual_cost_usd_total": 0.0133679
+    },
+    "phase_breakdown": {
+        "normal_inquiry": {
+            "gold_block": 0,
+            "regex_tp": 0,
+            "regex_strict_tp": 0,
+            "hybrid_tp": 0,
+            "n": 50
+        },
+        "off_platform_circumvention": {
+            "gold_block": 50,
+            "regex_tp": 48,
+            "regex_strict_tp": 32,
+            "hybrid_tp": 48,
+            "n": 50
+        }
+    },
+    "empirical_context": {
+        "fraud_screenshot_pool_n": 100,
+        "observed_normal_looking_preamble_rate_approx": 0.85,
+        "implication": "Regex-only misses soft/evasive bait (FN risk); LLM-on-every-message is costly; cascaded hybrid escalates only ambiguous mid-score cases."
+    },
+    "generated_at": "2026-08-11T13:34:39+00:00"
+}

@@ -1,0 +1,112 @@
+{
+    "n": 20,
+    "tp": 3,
+    "tn": 7,
+    "fp": 3,
+    "fn": 7,
+    "accuracy_pct": 50.0,
+    "precision": 0.5,
+    "recall": 0.3,
+    "f1": 0.375,
+    "avg_ms": 201,
+    "p95_ms": 834,
+    "providers": {
+        "none": 15,
+        "groq": 5
+    },
+    "misses": [
+        {
+            "no": 101,
+            "group": "C2",
+            "gt": 1,
+            "verdict": "pass",
+            "provider": "none",
+            "text": "MISS | pred=0 | preview: Line ID cash_now99 โอนสดรับทันที",
+            "note": "MISS | pred=0 | preview: Line ID cash_now99 โอนสดรับทันที"
+        },
+        {
+            "no": 102,
+            "group": "C2",
+            "gt": 1,
+            "verdict": "pass",
+            "provider": "none",
+            "text": "MISS | pred=0 | preview: ไลน์: meet_out88 คุยโอนเงินนอกแพลต",
+            "note": "MISS | pred=0 | preview: ไลน์: meet_out88 คุยโอนเงินนอกแพลต"
+        },
+        {
+            "no": 103,
+            "group": "C2",
+            "gt": 1,
+            "verdict": "pass",
+            "provider": "none",
+            "text": "MISS | pred=0 | preview: ส่งไลน์มาได้มั้ย จะบอกราคาโอนสด",
+            "note": "MISS | pred=0 | preview: ส่งไลน์มาได้มั้ย จะบอกราคาโอนสด"
+        },
+        {
+            "no": 104,
+            "group": "C2",
+            "gt": 1,
+            "verdict": "pass",
+            "provider": "none",
+            "text": "MISS | pred=0 | preview: โอนเงินนอกแอปให้ ส่วนลดพิเศษ",
+            "note": "MISS | pred=0 | preview: โอนเงินนอกแอปให้ ส่วนลดพิเศษ"
+        },
+        {
+            "no": 105,
+            "group": "C2",
+            "gt": 1,
+            "verdict": "pass",
+            "provider": "none",
+            "text": "MISS | pred=0 | preview: line id: quickpay77 อย่ากดในระบบ",
+            "note": "MISS | pred=0 | preview: line id: quickpay77 อย่ากดในระบบ"
+        },
+        {
+            "no": 108,
+            "group": "C2",
+            "gt": 1,
+            "verdict": "pass",
+            "provider": "none",
+            "text": "MISS | pred=0 | preview: คุยทางไลน์แล้วโอนเงินนอกเลย",
+            "note": "MISS | pred=0 | preview: คุยทางไลน์แล้วโอนเงินนอกเลย"
+        },
+        {
+            "no": 110,
+            "group": "C2",
+            "gt": 1,
+            "verdict": "pass",
+            "provider": "none",
+            "text": "MISS | pred=0 | preview: อย่าใช้ระบบเลย โอนสดรับของไว",
+            "note": "MISS | pred=0 | preview: อย่าใช้ระบบเลย โอนสดรับของไว"
+        },
+        {
+            "no": 111,
+            "group": "C1",
+            "gt": 0,
+            "verdict": "flag",
+            "provider": "groq",
+            "text": "MISS | pred=1 | พบคำชักชวนโอน/ติดต่อนอกระบบ (ผ่านแอป); พูดถึงการซื้อผ่านแอปตามปก",
+            "note": "MISS | pred=1 | พบคำชักชวนโอน/ติดต่อนอกระบบ (ผ่านแอป); พูดถึงการซื้อผ่านแอปตามปกติ"
+        },
+        {
+            "no": 114,
+            "group": "C1",
+            "gt": 0,
+            "verdict": "flag",
+            "provider": "groq",
+            "text": "MISS | pred=1 | พบคำชักชวนโอน/ติดต่อนอกระบบ (ผ่านแอป); การชำระเงินผ่านแอป",
+            "note": "MISS | pred=1 | พบคำชักชวนโอน/ติดต่อนอกระบบ (ผ่านแอป); การชำระเงินผ่านแอป"
+        },
+        {
+            "no": 116,
+            "group": "C1",
+            "gt": 0,
+            "verdict": "flag",
+            "provider": "groq",
+            "text": "MISS | pred=1 | พบคำชักชวนโอน/ติดต่อนอกระบบ (ผ่านแอป); พูดคุยเกี่ยวกับราคาสินค้า",
+            "note": "MISS | pred=1 | พบคำชักชวนโอน/ติดต่อนอกระบบ (ผ่านแอป); พูดคุยเกี่ยวกับราคาสินค้า"
+        }
+    ],
+    "mock_api_mode": false,
+    "mode": "live",
+    "dataset": "tests/chat_moderation_dataset_plus20.csv (sliced from N=120 live)"
+}

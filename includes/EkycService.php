@@ -1,10 +1,17 @@
 <?php
-// includes/EkycService.php — eKYC provider abstraction (Sumsub + AiGen + Manual)
+// includes/EkycService.php — eKYC provider abstraction (Sumsub + AiGen + Manual + ThaiD)
+
+require_once __DIR__ . '/MockApiHelper.php';
 
 class EkycService {
     public const PROVIDER_MANUAL = 'manual';
     public const PROVIDER_SUMSUB = 'sumsub';
     public const PROVIDER_AIGEN = 'aigen';
+    /**
+     * ThaiD is never returned by activeProvider(): it is a parallel route the user
+     * opts into, not a competitor to the document-upload provider. See config.php.
+     */
+    public const PROVIDER_THAID = 'thaid';
 
     private mysqli $conn;
 
@@ -35,12 +42,26 @@ class EkycService {
     }
 
     public static function isSumsubConfigured(): bool {
+        if (MockApiHelper::isEnabled()) {
+            return true;
+        }
         return (defined('SUMSUB_APP_TOKEN') && SUMSUB_APP_TOKEN !== '')
             && (defined('SUMSUB_SECRET_KEY') && SUMSUB_SECRET_KEY !== '');
     }
 
     public static function isAigenConfigured(): bool {
+        if (MockApiHelper::isEnabled()) {
+            return true;
+        }
         return defined('AIGEN_API_KEY') && AIGEN_API_KEY !== '';
+    }
+
+    /**
+     * Unlike the other providers this one is never mocked — a fake redirect to a
+     * government IdP would prove nothing, and the flow needs real credentials.
+     */
+    public static function isThaiDConfigured(): bool {
+        return defined('THAID_ENABLED') && THAID_ENABLED;
     }
 
     public function getSumsubSdkToken(int $userId, string $username): array {
@@ -117,9 +138,10 @@ class EkycService {
      * Verify Thai ID card + selfie via AiGen OCR and Face Compare.
      * Call while image files are still readable (before PII encryption).
      *
-     * @return array{status:string,verified:bool,real_name:?string,message:string,score:?float}
+     * @param bool $persistResult When false (load tests), skip DB status updates / session logs.
+     * @return array{status:string,verified:bool,real_name:?string,message:string,score:?float,ocr_ms:int,face_ms:int,e2e_ms:int,ocr_pass:bool,system_match:int}
      */
-    public function verifyWithAigen(int $userId, string $idCardPath, string $selfiePath): array {
+    public function verifyWithAigen(int $userId, string $idCardPath, string $selfiePath, bool $persistResult = true): array {
         if (!self::isAigenConfigured()) {
             throw new RuntimeException('AiGen is not configured.');
         }
@@ -127,9 +149,11 @@ class EkycService {
             throw new RuntimeException('ไม่พบไฟล์เอกสารยืนยันตัวตน');
         }
 
+        $e2eStart = microtime(true);
         $idB64 = base64_encode((string) file_get_contents($idCardPath));
         $selfieB64 = base64_encode((string) file_get_contents($selfiePath));
 
+        $ocrStart = microtime(true);
         $ocr = $this->aigenRequest('POST', '/aiscript/idcard/v3', [
             'image' => $idB64,
             'option' => [
@@ -137,33 +161,54 @@ class EkycService {
                 'do_field_validation' => true,
             ],
         ]);
+        $ocrMs = (int) round((microtime(true) - $ocrStart) * 1000);
+
+        $timingBase = static function (array $row) use ($ocrMs, $e2eStart): array {
+            $row['ocr_ms'] = $ocrMs;
+            $row['face_ms'] = (int) ($row['face_ms'] ?? 0);
+            $row['e2e_ms'] = (int) round((microtime(true) - $e2eStart) * 1000);
+            $row['ocr_pass'] = !empty($row['ocr_pass']);
+            $row['system_match'] = (int) ($row['system_match'] ?? 0);
+            return $row;
+        };
 
         $ocrData = $ocr['data'][0] ?? null;
         if (!is_array($ocrData) || ($ocr['status'] ?? '') !== 'success') {
-            $this->applyAigenResult($userId, false, null, ['stage' => 'ocr_failed', 'ocr' => $this->sanitizeOcrForLog($ocr)]);
-            return [
+            if ($persistResult) {
+                $this->applyAigenResult($userId, false, null, ['stage' => 'ocr_failed', 'ocr' => $this->sanitizeOcrForLog($ocr)]);
+            }
+            return $timingBase([
                 'status' => 'rejected',
                 'verified' => false,
                 'real_name' => null,
                 'message' => 'อ่านบัตรประชาชนไม่สำเร็จ กรุณาถ่ายรูปบัตรให้ชัดเจน',
                 'score' => null,
-            ];
+                'ocr_pass' => false,
+                'system_match' => 0,
+                'face_ms' => 0,
+            ]);
         }
 
         $realName = $this->extractThaiNameFromOcr($ocrData);
         $idNumber = trim((string) ($ocrData['id_number']['value'] ?? ''));
         if ($realName === '' || $idNumber === '') {
-            $this->applyAigenResult($userId, false, null, ['stage' => 'ocr_incomplete', 'ocr' => $this->sanitizeOcrForLog($ocr)]);
-            return [
+            if ($persistResult) {
+                $this->applyAigenResult($userId, false, null, ['stage' => 'ocr_incomplete', 'ocr' => $this->sanitizeOcrForLog($ocr)]);
+            }
+            return $timingBase([
                 'status' => 'rejected',
                 'verified' => false,
                 'real_name' => null,
                 'message' => 'อ่านชื่อหรือเลขบัตรไม่ครบ กรุณาถ่ายใหม่',
                 'score' => null,
-            ];
+                'ocr_pass' => false,
+                'system_match' => 0,
+                'face_ms' => 0,
+            ]);
         }
 
         $threshold = defined('AIGEN_FACE_THRESHOLD') ? (int) AIGEN_FACE_THRESHOLD : 80;
+        $faceStart = microtime(true);
         $face = $this->aigenRequest('POST', '/aiface/face-compare/v3', [
             'image1' => $idB64,
             'image2' => $selfieB64,
@@ -171,21 +216,27 @@ class EkycService {
             'image1_is_document' => true,
             'verified_document' => true,
         ]);
+        $faceMs = (int) round((microtime(true) - $faceStart) * 1000);
 
         $errorMsg = (string) ($face['error_message'] ?? '');
         if ($errorMsg !== '') {
-            $this->applyAigenResult($userId, false, $realName, [
-                'stage' => 'face_error',
-                'ocr' => $this->sanitizeOcrForLog($ocr),
-                'face' => $face,
-            ]);
-            return [
+            if ($persistResult) {
+                $this->applyAigenResult($userId, false, $realName, [
+                    'stage' => 'face_error',
+                    'ocr' => $this->sanitizeOcrForLog($ocr),
+                    'face' => $face,
+                ]);
+            }
+            return $timingBase([
                 'status' => 'rejected',
                 'verified' => false,
                 'real_name' => $realName,
                 'message' => $this->aigenFaceErrorMessage($errorMsg),
                 'score' => null,
-            ];
+                'ocr_pass' => true,
+                'system_match' => 0,
+                'face_ms' => $faceMs,
+            ]);
         }
 
         $matched = !empty($face['match']);
@@ -198,24 +249,34 @@ class EkycService {
         ];
 
         if ($matched) {
-            $this->applyAigenResult($userId, true, $realName, $payload);
-            return [
+            if ($persistResult) {
+                $this->applyAigenResult($userId, true, $realName, $payload);
+            }
+            return $timingBase([
                 'status' => 'approved',
                 'verified' => true,
                 'real_name' => $realName,
                 'message' => 'ยืนยันตัวตนสำเร็จ',
                 'score' => $score,
-            ];
+                'ocr_pass' => true,
+                'system_match' => 1,
+                'face_ms' => $faceMs,
+            ]);
         }
 
-        $this->applyAigenResult($userId, false, $realName, $payload);
-        return [
+        if ($persistResult) {
+            $this->applyAigenResult($userId, false, $realName, $payload);
+        }
+        return $timingBase([
             'status' => 'rejected',
             'verified' => false,
             'real_name' => $realName,
             'message' => 'ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: ' . ($score !== null ? round($score, 1) : '-') . ')',
             'score' => $score,
-        ];
+            'ocr_pass' => true,
+            'system_match' => 0,
+            'face_ms' => $faceMs,
+        ]);
     }
 
     public function applyAigenResult(int $userId, bool $approved, ?string $realName, ?array $raw = null): void {
@@ -247,19 +308,88 @@ class EkycService {
         $this->logSession($userId, self::PROVIDER_AIGEN, null, 'pending_manual', 'pending', null, $raw);
     }
 
+    /**
+     * Keyed hash of a national ID, used as the lookup value that stops one person
+     * from verifying several accounts.
+     *
+     * A plain digest would be pointless here: a Thai PID is 13 digits, so an
+     * unkeyed hash could be reversed by brute force in seconds. The key is
+     * mandatory for the same reason.
+     */
+    public static function thaidPidIndex(string $pid): string {
+        $digits = preg_replace('/\D+/', '', $pid) ?? '';
+        if (strlen($digits) !== 13) {
+            throw new InvalidArgumentException('เลขประจำตัวประชาชนจาก ThaiD ไม่ถูกต้อง');
+        }
+        $key = defined('ENCRYPTION_KEY') ? (string) ENCRYPTION_KEY : '';
+        if ($key === '') {
+            throw new RuntimeException('ต้องตั้งค่า ENCRYPTION_KEY ก่อนใช้งาน ThaiD');
+        }
+        return hash_hmac('sha256', 'thaid-pid|' . $digits, $key);
+    }
+
+    /**
+     * @param array<string,mixed> $claims raw OIDC claims; the PID is stripped before storage
+     */
+    public function applyThaiDResult(int $userId, ?string $realName, string $pidIndex, array $claims): void {
+        if ($realName !== null && $realName !== '') {
+            $stmt = $this->conn->prepare("UPDATE users SET is_verified = 1, kyc_status = 'approved', kyc_verified_at = NOW(), ekyc_provider = 'thaid', real_name = ? WHERE id = ?");
+            $stmt->bind_param('si', $realName, $userId);
+        } else {
+            $stmt = $this->conn->prepare("UPDATE users SET is_verified = 1, kyc_status = 'approved', kyc_verified_at = NOW(), ekyc_provider = 'thaid' WHERE id = ?");
+            $stmt->bind_param('i', $userId);
+        }
+        $stmt->execute();
+        $this->logSession($userId, self::PROVIDER_THAID, $pidIndex, 'completed', 'completed', 'GREEN', $this->sanitizeThaiDClaims($claims));
+    }
+
+    /**
+     * ThaiD authenticated the person but below the assurance level we accept for
+     * money movement, so hand it to an admin rather than approving or rejecting.
+     */
+    public function markThaiDPending(int $userId, string $pidIndex, array $claims): void {
+        $stmt = $this->conn->prepare("UPDATE users SET kyc_status = 'pending', ekyc_provider = 'thaid', is_verified = 0 WHERE id = ?");
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $this->logSession($userId, self::PROVIDER_THAID, $pidIndex, 'pending_manual', 'pending', null, $this->sanitizeThaiDClaims($claims));
+    }
+
+    /**
+     * ThaiD returns the full national ID in the `pid` claim. The system has never
+     * stored one in the clear, and this is not the place to start, so the raw value
+     * is replaced by the same mask the AiGen OCR path uses.
+     *
+     * @param array<string,mixed> $claims
+     * @return array<string,mixed>
+     */
+    private function sanitizeThaiDClaims(array $claims): array {
+        unset($claims['at_hash'], $claims['c_hash'], $claims['nonce']);
+        if (isset($claims['pid'])) {
+            $claims['pid'] = $this->maskIdNumber((string) $claims['pid']);
+        }
+        return $claims;
+    }
+
     private function extractThaiNameFromOcr(array $ocrData): string {
         $name = trim((string) ($ocrData['name_th']['value'] ?? ''));
         $surname = trim((string) ($ocrData['surname_th']['value'] ?? ''));
         if ($name !== '' && $surname !== '') {
             return $name . ' ' . $surname;
         }
-        $full = trim((string) ($ocrData['title_name_surname_th']['value'] ?? ''));
-        if ($full === '') {
+        return self::stripThaiTitle((string) ($ocrData['title_name_surname_th']['value'] ?? ''));
+    }
+
+    /**
+     * real_name is matched against the bank account holder, which never carries a
+     * title, so strip it here rather than at every comparison site.
+     */
+    public static function stripThaiTitle(string $fullName): string {
+        $fullName = trim($fullName);
+        if ($fullName === '') {
             return '';
         }
-        // Strip common Thai titles for bank-name matching
-        $full = preg_replace('/^(นาย|นางสาว|นาง|เด็กชาย|เด็กหญิง)\s+/u', '', $full);
-        return trim((string) $full);
+        // Requires the space: without it "นางสาวิตรี" would lose its first syllable.
+        return trim((string) preg_replace('/^(นาย|นางสาว|นาง|เด็กชาย|เด็กหญิง)\s+/u', '', $fullName));
     }
 
     private function maskIdNumber(string $id): string {
@@ -382,6 +512,17 @@ class EkycService {
     }
 
     private function aigenRequest(string $method, string $path, array $payload = []): array {
+        if (MockApiHelper::isEnabled()) {
+            if (str_contains($path, '/aiscript/idcard')) {
+                return MockApiHelper::aigenIdCardOcr();
+            }
+            if (str_contains($path, '/aiface/face-compare')) {
+                return MockApiHelper::aigenFaceCompare($payload);
+            }
+            MockApiHelper::simulateLatency();
+            return ['status' => 'success', 'data' => [], 'mock' => true];
+        }
+
         $base = defined('AIGEN_API_BASE') ? rtrim(AIGEN_API_BASE, '/') : 'https://api.aigen.online';
         $body = $payload !== [] ? json_encode($payload) : '';
 
@@ -442,6 +583,10 @@ class EkycService {
     }
 
     private function sumsubRequest(string $method, string $path, string $body = ''): array {
+        if (MockApiHelper::isEnabled()) {
+            return MockApiHelper::sumsubResponse($method, $path);
+        }
+
         $base = defined('SUMSUB_API_BASE') ? SUMSUB_API_BASE : 'https://api.sumsub.com';
         $url = $path;
         $ts = (string)time();

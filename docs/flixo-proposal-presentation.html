@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FLIXO — สไลด์นำเสนอ + โพย</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #122033;
+    --muted: #5b6b7c;
+    --line: #d7e0ea;
+    --paper: #f6f8fb;
+    --white: #ffffff;
+    --navy: #12324f;
+    --accent: #0e7490;
+    --accent-soft: #e6f4f7;
+    --good: #047857;
+    --good-bg: #ecfdf5;
+    --bad: #b42318;
+    --bad-bg: #fef2f2;
+    --gold: #b45309;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    background: #0b1724;
+    color: var(--ink);
+    font-family: "Sarabun", "Segoe UI", sans-serif;
+    overflow: hidden;
+  }
+
+  .deck { height: 100%; }
+  .slide {
+    display: none;
+    height: 100%;
+    padding: 36px 48px 88px;
+    background: var(--paper);
+    position: relative;
+  }
+  .slide.active { display: grid; animation: fade .22s ease; }
+  .slide.cover {
+    background: var(--navy);
+    color: #fff;
+    align-content: center;
+    padding-left: 64px;
+    padding-right: 64px;
+  }
+  .slide.center { align-content: start; }
+  @keyframes fade {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .kicker {
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .cover .kicker { color: #7dd3e8; }
+  h1 { font-size: clamp(2.1rem, 4.2vw, 3.15rem); line-height: 1.22; font-weight: 800; }
+  h2 { font-size: clamp(1.55rem, 2.6vw, 2.05rem); line-height: 1.3; font-weight: 800; margin-bottom: 8px; }
+  .sub { color: var(--muted); font-size: 1.08rem; line-height: 1.6; max-width: 820px; }
+  .cover .sub { color: #c9d7e4; margin-top: 10px; max-width: 880px; }
+  .th-title { margin-top: 8px; font-size: 1.18rem; font-weight: 600; color: #d6eeff; }
+
+  .people {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 36px;
+    max-width: 860px;
+  }
+  .people .box {
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 14px;
+    padding: 16px 18px;
+  }
+  .people h3 {
+    font-size: .78rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #7dd3e8;
+    margin-bottom: 8px;
+  }
+  .people p { font-size: 1.02rem; line-height: 1.7; color: #f1f6fb; }
+
+  .agenda {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 22px;
+  }
+  .item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 18px;
+  }
+  .item.wide { grid-column: 1 / -1; }
+  .num {
+    flex: 0 0 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--navy);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 1.05rem;
+  }
+  .item strong { display: block; font-size: 1.08rem; }
+  .item span { color: var(--muted); font-size: .92rem; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 22px;
+  }
+  .stat {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px 16px;
+  }
+  .stat b {
+    display: block;
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    color: var(--navy);
+    line-height: 1.1;
+  }
+  .stat em { font-style: normal; color: var(--accent); }
+  .stat p { color: var(--muted); margin-top: 8px; font-size: .95rem; line-height: 1.45; }
+
+  .two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 18px;
+    min-height: 0;
+  }
+  .panel {
+    border-radius: 16px;
+    padding: 20px 20px 16px;
+    border: 1px solid var(--line);
+    background: var(--white);
+  }
+  .panel.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .panel.good { background: var(--good-bg); border-color: #a7f3d0; }
+  .panel h3 { font-size: 1.12rem; margin-bottom: 10px; }
+  .panel.bad h3 { color: var(--bad); }
+  .panel.good h3 { color: var(--good); }
+  .panel ol, .panel ul { padding-left: 18px; }
+  .panel li { margin: 8px 0; line-height: 1.5; font-size: 1.02rem; }
+  .result {
+    margin-top: 14px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-weight: 700;
+  }
+  .panel.bad .result { background: #fee2e2; color: var(--bad); }
+  .panel.good .result { background: #d1fae5; color: var(--good); }
+
+  .callout {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-left: 4px solid var(--accent);
+    background: var(--accent-soft);
+    border-radius: 0 12px 12px 0;
+    line-height: 1.55;
+  }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .pill {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 7px 12px;
+    font-size: .92rem;
+    font-weight: 600;
+  }
+  .obj {
+    display: grid;
+    gap: 12px;
+    margin-top: 18px;
+  }
+  .obj .row {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 14px;
+    align-items: start;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 18px;
+  }
+  .obj .n {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    background: var(--navy);
+    color: #fff;
+    display: grid; place-items: center;
+    font-size: 1.35rem; font-weight: 800;
+  }
+  .obj h3 { font-size: 1.05rem; margin-bottom: 4px; }
+  .obj p { color: var(--muted); line-height: 1.5; }
+
+  .footer {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 18px;
+    background: #0b1724;
+    color: #d7e3ee;
+    z-index: 40;
+  }
+  .progress {
+    position: absolute; left: 0; top: 0; height: 3px;
+    background: #22d3ee; width: 0;
+  }
+  .hint { font-size: .82rem; color: #93a4b5; }
+  .hint kbd {
+    background: #1c2d3f;
+    border: 1px solid #31455c;
+    border-radius: 5px;
+    padding: 1px 6px;
+    color: #e2e8f0;
+    font-family: inherit;
+  }
+  .nav { display: flex; gap: 8px; }
+  .nav button {
+    background: #1c2d3f; color: #fff;
+    border: 1px solid #31455c; border-radius: 8px;
+    padding: 7px 12px; cursor: pointer; font-family: inherit;
+  }
+  .nav button:hover { border-color: #22d3ee; color: #22d3ee; }
+  .nav button.on { background: #0e7490; border-color: #0e7490; }
+
+  .notes {
+    position: fixed;
+    left: 16px; right: 16px; bottom: 68px;
+    max-height: 34vh;
+    overflow: auto;
+    background: #111c29;
+    color: #e8eef4;
+    border: 1px solid #2a3e54;
+    border-radius: 14px;
+    padding: 14px 16px 12px;
+    z-index: 35;
+    display: none;
+  }
+  body.notes-on .notes { display: block; }
+  body.notes-on .slide { padding-bottom: calc(88px + 34vh); }
+  .notes .label {
+    color: #7dd3e8;
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .notes p { line-height: 1.65; font-size: 1.02rem; }
+  .notes .cue { color: #fbbf24; font-weight: 700; margin-bottom: 6px; }
+
+  .help {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(7,14,22,.55);
+    z-index: 50;
+    place-items: center;
+  }
+  .help.show { display: grid; }
+  .help .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 22px 24px;
+    width: min(460px, 92vw);
+  }
+  .help h3 { margin-bottom: 10px; }
+  .help li { margin: 6px 0; color: var(--muted); }
+
+  @media print {
+    html, body { overflow: visible; background: #fff; height: auto; }
+    .footer, .help { display: none !important; }
+    .slide {
+      display: grid !important;
+      page-break-after: always;
+      height: auto;
+      min-height: 70vh;
+      padding: 24px;
+      background: #fff;
+    }
+    .notes { display: block !important; position: static; max-height: none; color: #111; background: #f3f4f6; margin-top: 12px; }
+  }
+</style>
+</head>
+<body class="notes-on">
+<div class="deck" id="deck">
+
+  <section class="slide cover active" data-cue="ทักทาย → ชื่อโครงงาน → อาจารย์ → คณะผู้จัดทำ">
+    <p class="kicker">โครงงานวิศวกรรม · การนำเสนอ</p>
+    <h1>FLIXO</h1>
+    <p class="th-title">A Secure Online Marketplace Powered by Escrow and Artificial Intelligence</p>
+    <p class="sub">แพลตฟอร์มซื้อขายออนไลน์ระบบบัญชีตัวกลาง (Escrow) และการตรวจสอบด้วยปัญญาประดิษฐ์</p>
+    <div class="people">
+      <div class="box">
+        <h3>อาจารย์ที่ปรึกษา</h3>
+        <p>ผศ.ดร. รวิ อุตตมธนินทร์<br>ผศ.ดร. พรภวิษย์ บุญศรีเมือง</p>
+      </div>
+      <div class="box">
+        <h3>คณะผู้จัดทำ</h3>
+        <p>นางสาวณภัทร แซ่ตั้ง<br>นายธนพัตร ฉุยสุริฉาย<br>นางสาวอริษรา ราชนิยม</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide center" data-cue="บอกวาระ 5 ข้อ แล้วเข้าที่มา">
+    <p class="kicker">หัวข้อการนำเสนอ</p>
+    <h2>วันนี้จะนำเสนอ 5 ส่วนหลัก</h2>
+    <p class="sub">เรียงตามลำดับจากปัญหา → เป้าหมายของโครงงาน → ขอบเขต ประโยชน์ และการออกแบบ UX</p>
+    <div class="agenda">
+      <div class="item"><div class="num">1</div><div><strong>ที่มาและความสำคัญ</strong><span>ทำไมการซื้อขายบนโซเชียลถึงเสี่ยง</span></div></div>
+      <div class="item"><div class="num">2</div><div><strong>วัตถุประสงค์</strong><span>ศึกษา ออกแบบพัฒนา และประเมินระบบ</span></div></div>
+      <div class="item"><div class="num">3</div><div><strong>ขอบเขตของโครงงาน</strong><span>สิ่งที่ระบบครอบคลุมและไม่ครอบคลุม</span></div></div>
+      <div class="item"><div class="num">4</div><div><strong>ประโยชน์ที่คาดว่าจะได้รับ</strong><span>ต่อผู้ซื้อ ผู้ขาย และภาพรวมตลาด C2C</span></div></div>
+      <div class="item wide"><div class="num">5</div><div><strong>การออกแบบส่วนติดต่อผู้ใช้และประสบการณ์ผู้ใช้</strong><span>UI / UX ของแพลตฟอร์ม Flixo</span></div></div>
+    </div>
+  </section>
+
+  <section class="slide center" data-cue="e-commerce โต 12–13% → คนซื้อขายบน Facebook / IG / LINE">
+    <p class="kicker">01 · ที่มาและความสำคัญ</p>
+    <h2>พาณิชย์อิเล็กทรอนิกส์โตเร็ว แต่ช่องทางหลักยังไม่ปลอดภัยพอ</h2>
+    <p class="sub">ผู้บริโภคคุ้นชินกับการซื้อขายบุคคลกับบุคคลผ่านสื่อสังคมออนไลน์ เพราะสะดวกและเข้าถึงง่าย</p>
+    <div class="stats">
+      <div class="stat">
+        <b><em>12–13%</em></b>
+        <p>ยอดขายออนไลน์ไทยคาดว่าจะเติบโตเฉลี่ยต่อปี<br>แหล่ง: ศูนย์วิจัยกรุงศรี</p>
+      </div>
+      <div class="stat">
+        <b>C2C</b>
+        <p>ซื้อขายบุคคลกับบุคคลผ่าน Facebook, Instagram และ LINE ตามความเคยชิน</p>
+      </div>
+      <div class="stat">
+        <b>ช่องโหว่</b>
+        <p>แพลตฟอร์มเหล่านี้ไม่ได้ถูกออกแบบมาเพื่อยืนยันตัวตนและการควบคุมธุรกรรมมาตรฐาน</p>
+      </div>
+    </div>
+    <div class="callout">สะดวกและเข้าถึงง่าย — แต่กลายเป็นช่องทางให้เกิดคดีฉ้อโกงในวงกว้าง</div>
+  </section>
+
+  <section class="slide center" data-cue="ETDA: ร้องเรียนซื้อขายออนไลน์อันดับ 1 — 10,306 เรื่อง = 41.79%">
+    <p class="kicker">01 · ที่มาและความสำคัญ</p>
+    <h2>ปัญหาการซื้อขายออนไลน์ถูกอุทธรณ์มากที่สุด</h2>
+    <p class="sub">ศูนย์ช่วยเหลือและจัดการปัญหาออนไลน์ของ ETDA พบว่าการซื้อขายออนไลน์ถูกร้องเรียนเป็นอันดับ 1</p>
+    <div class="stats">
+      <div class="stat">
+        <b>อันดับ <em>1</em></b>
+        <p>ปัญหาการซื้อขายออนไลน์<br>สูงสุดในข้อร้องเรียนทั้งหมด</p>
+      </div>
+      <div class="stat">
+        <b>10,306</b>
+        <p>เรื่องร้องเรียน<br>เกี่ยวกับการซื้อขายออนไลน์</p>
+      </div>
+      <div class="stat">
+        <b><em>41.79%</em></b>
+        <p>สัดส่วนของข้อร้องเรียนทั้งหมด<br>แหล่ง: ETDA</p>
+      </div>
+    </div>
+    <div class="pills">
+      <span class="pill">หลอกโอนเงินแล้วไม่ได้รับสินค้า</span>
+      <span class="pill">ได้รับสินค้าไม่ตรงปก</span>
+      <span class="pill">ผู้ขายหนีหายหลังรับเงิน</span>
+    </div>
+  </section>
+
+  <section class="slide center" data-cue="ช่องว่างเชิงโครงสร้าง → คนยังซื้อบนโซเชียล → Flixo + PDPA">
+    <p class="kicker">01 · ที่มาและความสำคัญ</p>
+    <h2>ช่องว่างคือขาดทั้งความน่าเชื่อถือ และการควบคุมกระแสเงิน</h2>
+    <p class="sub">แพลตฟอร์มขนาดใหญ่มีบัญชีตัวกลางอยู่แล้ว แต่ผู้บริโภคจำนวนมากยังซื้อขายผ่านโซเชียลตามความเคยชิน</p>
+    <div class="two">
+      <div class="panel">
+        <h3>ปัญหาเชิงโครงสร้าง</h3>
+        <ul>
+          <li>ขาดระบบตรวจสอบความน่าเชื่อถือของผู้ใช้งาน</li>
+          <li>ขาดระบบควบคุมกระแสเงินที่มีประสิทธิภาพ</li>
+          <li>โอนเงินตรงถึงผู้ขาย — เมื่อของไม่มา เงินก็เสียไป</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>แนวทางของ Flixo</h3>
+        <ul>
+          <li>แพลตฟอร์มซื้อขายบุคคลต่อบุคคล</li>
+          <li>บัญชีตัวกลาง (Escrow) เป็นกลไกหลัก</li>
+          <li>ยืนยันตัวตน + AI คัดกรองข้อพิพาท</li>
+          <li>คุ้มครองข้อมูลตาม PDPA พ.ศ. 2562</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout">เก็บข้อมูลเท่าที่จำเป็น และขอความยินยอมโดยชัดแจ้ง — เพื่อลดข้อพิพาทและเพิ่มความน่าเชื่อถือของการซื้อขายระหว่างบุคคล</div>
+  </section>
+
+  <section class="slide center" data-cue="ชี้ซ้าย = ไม่มีระบบป้องกัน · ชี้ขวา = Flixo / Escrow Vault">
+    <p class="kicker">01 · หัวใจของระบบ</p>
+    <h2>เทียบให้เห็นภาพ: โอนตรง vs พักเงินกลาง</h2>
+    <p class="sub">เงินจะไม่ถึงผู้ขายทันที ต้องรอผู้ซื้อยืนยันรับสินค้าก่อนจึงปล่อยเงิน</p>
+    <div class="two">
+      <div class="panel bad">
+        <h3>ไม่มีระบบป้องกัน</h3>
+        <ol>
+          <li>ติดต่อผู้ขายผ่านโซเชียล</li>
+          <li>โอนเงินตรงให้ผู้ขายทันที</li>
+          <li>ถ้าไม่ส่งของหรือหนีหาย</li>
+        </ol>
+        <div class="result">ผู้ซื้อเสียเงินฟรี — ไม่มีกลไกกู้คืน</div>
+      </div>
+      <div class="panel good">
+        <h3>ระบบ Flixo</h3>
+        <ol>
+          <li>ผู้ซื้อ–ผู้ขายยืนยันตัวตนก่อน</li>
+          <li>เงินถูกล็อกใน Escrow Vault</li>
+          <li>ผู้ซื้อยืนยันรับสินค้า แล้วจึงปล่อยเงิน</li>
+        </ol>
+        <div class="result">ธุรกรรมถูกควบคุมจนกว่าของถึงมือ</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide center" data-cue="พูด 3 ข้อ: ศึกษา · ออกแบบพัฒนา · ประเมิน">
+    <p class="kicker">02 · วัตถุประสงค์</p>
+    <h2>วัตถุประสงค์ของโครงงานมี 3 ข้อ</h2>
+    <div class="obj">
+      <div class="row">
+        <div class="n">1</div>
+        <div>
+          <h3>ศึกษาแนวคิดและเทคโนโลยีที่เกี่ยวข้อง</h3>
+          <p>ระบบบัญชีตัวกลาง ระบบยืนยันตัวตนอิเล็กทรอนิกส์ และปัญญาประดิษฐ์สำหรับคัดกรองข้อพิพาท</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="n">2</div>
+        <div>
+          <h3>ออกแบบและพัฒนาแพลตฟอร์มซื้อขายบุคคลต่อบุคคล</h3>
+          <p>มีระบบยืนยันตัวตน บัญชีตัวกลาง และระบบคัดกรองข้อพิพาท</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="n">3</div>
+        <div>
+          <h3>ประเมินเว็บแอปพลิเคชันและการใช้งานจริง</h3>
+          <p>ประเมินการควบคุมธุรกรรมของระบบบัญชีตัวกลาง ควบคู่กับการประเมินผลการใช้งานแพลตฟอร์ม</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<aside class="notes" id="notes">
+  <div class="label">โพยพูด · สไลด์นี้</div>
+  <div class="cue" id="cue"></div>
+  <p id="script"></p>
+</aside>
+
+<div class="footer">
+  <div class="progress" id="bar"></div>
+  <div id="page">1 / 7</div>
+  <div class="hint">
+    <kbd>←</kbd> <kbd>→</kbd> เลื่อน
+    · <kbd>N</kbd> โพย
+    · <kbd>F</kbd> เต็มจอ
+    · <kbd>?</kbd> ปุ่มลัด
+  </div>
+  <div class="nav">
+    <button type="button" id="prev">ย้อน</button>
+    <button type="button" id="next">ถัดไป</button>
+    <button type="button" id="notesBtn" class="on">โพย</button>
+  </div>
+</div>
+
+<div class="help" id="help">
+  <div class="card">
+    <h3>ปุ่มลัดตอนพรีเซนต์</h3>
+    <ul>
+      <li><b>ลูกศร / Space / คลิกขวาสไลด์</b> — สไลด์ถัดไป</li>
+      <li><b>คลิกซ้ายของจอ</b> — สไลด์ก่อนหน้า</li>
+      <li><b>N</b> — เปิด/ปิดโพยพูด</li>
+      <li><b>F</b> — เต็มจอ</li>
+      <li><b>Home / End</b> — สไลด์แรก / สไลด์สุดท้าย</li>
+    </ul>
+    <p style="margin-top:12px;color:#5b6b7c;font-size:.9rem">โพยเปิดไว้ตอนซ้อมหรือเปิดโน้ตบุ๊กใกล้ตัว กด N เพื่อซ่อนก่อนฉายจอโปรเจกเตอร์</p>
+  </div>
+</div>
+
+<script>
+  const scripts = [
+    "สวัสดีครับ/ค่ะ วันนี้ผมขอนำเสนอโครงงาน Flixo — A Secure Online Marketplace Powered by Escrow and Artificial Intelligence หรือแพลตฟอร์มซื้อขายออนไลน์ระบบ Escrow และการตรวจสอบด้วยปัญญาประดิษฐ์ครับ โครงงานนี้อยู่ภายใต้การดูแลของอาจารย์ที่ปรึกษา ผศ.ดร. รวิ อุตตมธนินทร์ และ ผศ.ดร. พรภวิษย์ บุญศรีเมือง โดยมีคณะผู้จัดทำคือ นางสาวณภัทร แซ่ตั้ง นายธนพัตร ฉุยสุริฉาย และนางสาวอริษรา ราชนิยม ครับ",
+    "สำหรับหัวข้อที่จะนำเสนอวันนี้ แบ่งเป็น 5 ส่วนหลักคือ ที่มาและความสำคัญ วัตถุประสงค์ ขอบเขตของโครงงาน ประโยชน์ที่คาดว่าจะได้รับ และการออกแบบส่วนติดต่อผู้ใช้และประสบการณ์ผู้ใช้ครับ",
+    "เริ่มจากที่มาและความสำคัญของปัญหาครับ ปัจจุบันพาณิชย์อิเล็กทรอนิกส์ของไทยขยายตัวอย่างก้าวกระโดด ศูนย์วิจัยกรุงศรีคาดการณ์ว่ายอดขายออนไลน์จะเติบโตเฉลี่ยสูงถึงร้อยละ 12–13 ต่อปี จากพฤติกรรมผู้บริโภคที่คุ้นชินกับแพลตฟอร์มดิจิทัล โดยเฉพาะการซื้อขายแบบบุคคลกับบุคคลผ่านสื่อสังคมออนไลน์ เช่น Facebook Instagram และ LINE ซึ่งสะดวกและเข้าถึงง่ายครับ แต่แพลตฟอร์มเหล่านี้ไม่ได้ออกแบบมาเพื่อรองรับระบบยืนยันตัวตน และการควบคุมธุรกรรมมาตรฐาน จึงกลายเป็นช่องโหว่ให้เกิดคดีฉ้อโกงในวงกว้าง",
+    "สอดคล้องกับสถิติจากศูนย์ช่วยเหลือและจัดการปัญหาออนไลน์ของ ETDA ที่พบว่าปัญหาการซื้อขายออนไลน์ถูกร้องเรียนเป็นอันดับ 1 สูงถึง 10,306 เรื่อง คิดเป็นร้อยละ 41.79 ของข้อร้องเรียนทั้งหมด เช่น การหลอกโอนเงินแล้วไม่ได้รับสินค้า หรือได้รับสินค้าไม่ตรงปกครับ",
+    "ความเสียหายเหล่านี้สะท้อนถึงช่องว่างเชิงโครงสร้างที่ขาดระบบตรวจสอบความน่าเชื่อถือของผู้ใช้งาน และระบบควบคุมกระแสเงินที่มีประสิทธิภาพครับ แพลตฟอร์มขนาดใหญ่จะมีระบบคุ้มครองผู้ซื้อผ่านกลไกบัญชีตัวกลางอยู่แล้ว แต่ผู้บริโภคจำนวนมากยังนิยมซื้อขายผ่านสื่อสังคมออนไลน์ตามความเคยชิน จากปัญหาดังกล่าว คณะผู้จัดทำจึงพัฒนาแพลตฟอร์มที่มีระบบบัญชีตัวกลางเป็นกลไกหลัก ร่วมกับระบบยืนยันตัวตน และระบบช่วยคัดกรองข้อพิพาทด้วยปัญญาประดิษฐ์ โดยดำเนินการภายใต้ PDPA พ.ศ. 2562 ตามหลักเก็บข้อมูลเท่าที่จำเป็น และขอความยินยอมโดยชัดแจ้งครับ",
+    "ทีนี้ลองเทียบให้เห็นภาพชัด ๆ ครับ ฝั่งซ้ายคือผู้ซื้อที่ไม่มีระบบป้องกัน — ติดต่อผู้ขายผ่านโซเชียล โอนเงินตรงให้ผู้ขายทันที ถ้าผู้ขายไม่ส่งของหรือหนีหาย ผู้ซื้อก็เสียเงินฟรีเลย แต่ฝั่งขวาคือระบบของเรา ผู้ซื้อผู้ขายต้องยืนยันตัวตนก่อน เงินจะถูกล็อกไว้ใน Escrow Vault ไม่ได้โอนตรงถึงผู้ขายทันที ต้องรอผู้ซื้อยืนยันรับสินค้าก่อนถึงจะปล่อยเงิน นี่คือหัวใจสำคัญที่ Flixo จะเข้ามาแก้ปัญหานี้ครับ",
+    "วัตถุประสงค์ของโครงงานมี 3 ข้อครับ ข้อหนึ่ง เพื่อศึกษาแนวคิดและเทคโนโลยีที่เกี่ยวข้องกับระบบบัญชีตัวกลาง ระบบยืนยันตัวตนอิเล็กทรอนิกส์ และปัญญาประดิษฐ์สำหรับคัดกรองข้อพิพาท ข้อสอง เพื่อออกแบบและพัฒนาแพลตฟอร์มซื้อขายบุคคลต่อบุคคลที่มีระบบยืนยันตัวตน บัญชีตัวกลาง และระบบคัดกรองข้อพิพาท และข้อสาม เพื่อประเมินเว็บแอปพลิเคชันในการควบคุมธุรกรรมของระบบบัญชีตัวกลาง ควบคู่กับการประเมินผลการใช้งานแพลตฟอร์มครับ"
+  ];
+
+  const slides = [...document.querySelectorAll(".slide")];
+  let i = 0;
+
+  function render() {
+    slides.forEach((s, n) => s.classList.toggle("active", n === i));
+    document.getElementById("page").textContent = (i + 1) + " / " + slides.length;
+    document.getElementById("bar").style.width = ((i + 1) / slides.length * 100) + "%";
+    document.getElementById("cue").textContent = "ทิศทาง: " + (slides[i].dataset.cue || "");
+    document.getElementById("script").textContent = scripts[i];
+  }
+
+  function go(d) {
+    i = Math.max(0, Math.min(slides.length - 1, i + d));
+    render();
+  }
+
+  document.getElementById("prev").onclick = () => go(-1);
+  document.getElementById("next").onclick = () => go(1);
+  document.getElementById("notesBtn").onclick = toggleNotes;
+
+  function toggleNotes() {
+    document.body.classList.toggle("notes-on");
+    document.getElementById("notesBtn").classList.toggle("on", document.body.classList.contains("notes-on"));
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (["INPUT", "TEXTAREA"].includes(e.target.tagName)) return;
+    if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); go(1); }
+    if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); go(-1); }
+    if (e.key === "Home") { i = 0; render(); }
+    if (e.key === "End") { i = slides.length - 1; render(); }
+    if (e.key === "n" || e.key === "N") toggleNotes();
+    if (e.key === "f" || e.key === "F") {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+    if (e.key === "?" || e.key === "/") document.getElementById("help").classList.toggle("show");
+    if (e.key === "Escape") document.getElementById("help").classList.remove("show");
+  });
+
+  document.getElementById("deck").addEventListener("click", (e) => {
+    if (e.target.closest("button, a")) return;
+    const x = e.clientX / window.innerWidth;
+    go(x < 0.22 ? -1 : 1);
+  });
+  document.getElementById("help").addEventListener("click", () => {
+    document.getElementById("help").classList.remove("show");
+  });
+
+  render();
+</script>
+</body>
+</html>

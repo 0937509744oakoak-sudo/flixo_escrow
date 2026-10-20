@@ -1,0 +1,5 @@
+﻿No.,"Pair ID",Group,"GT Match (1/0)","OCR Pass (1/0)","Face Score","System Match (1/0)","KYC Status","OCR ms","Face ms","E2E ms","Correct (1/0)","ID file","Selfie file",Note
+1,a1,G1,1,1,99.99,1,approved,2463,4699,7164,1,a1_id.jpg,a1_selfie.jpg,ยืนยันตัวตนสำเร็จ
+2,b1,G1,1,0,,0,error,0,0,0,0,b1_id.jpg,b1_selfie.jpg,"EXCEPTION: AiGen: เชื่อมต่อไม่ได้ (Operation timed out after 90010 milliseconds with 0 bytes received) | OCR_FAIL"
+3,i1,G2,0,1,0,0,rejected,2482,4414,6897,1,i1_id.jpg,i1_selfie.jpg,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 0)"
+4,i2,G2,0,0,,0,error,0,0,0,0,i2_id.jpg,i2_selfie.jpg,"EXCEPTION: AiGen: เชื่อมต่อไม่ได้ (Operation timed out after 90012 milliseconds with 0 bytes received) | OCR_FAIL"

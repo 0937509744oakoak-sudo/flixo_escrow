@@ -1,0 +1,65 @@
+{
+  "n": 58,
+  "n_clean": 16,
+  "n_risky": 42,
+  "tp": 21,
+  "tn": 16,
+  "fp": 0,
+  "fn": 21,
+  "accuracy_pct": 63.79,
+  "precision": 1,
+  "recall": 0.5,
+  "avg_ms": 1892,
+  "p95_ms": 2675,
+  "mock_api_mode": false,
+  "vision_configured": true,
+  "csv": "tests/image_fraud_real_results.csv",
+  "subgroups": {
+    "clean_camera": {
+      "n": 16,
+      "accuracy_pct": 100.0,
+      "tp": 0,
+      "tn": 16,
+      "fp": 0,
+      "fn": 0,
+      "vision_calls": 16,
+      "avg_ms": 2014
+    },
+    "noexif": {
+      "n": 16,
+      "accuracy_pct": 0.0,
+      "tp": 0,
+      "tn": 0,
+      "fp": 0,
+      "fn": 16,
+      "vision_calls": 16,
+      "avg_ms": 2595
+    },
+    "tiny": {
+      "n": 16,
+      "accuracy_pct": 100.0,
+      "tp": 16,
+      "tn": 0,
+      "fp": 0,
+      "fn": 0,
+      "vision_calls": 0,
+      "avg_ms": 934
+    },
+    "screenshot": {
+      "n": 10,
+      "accuracy_pct": 50.0,
+      "tp": 5,
+      "tn": 0,
+      "fp": 0,
+      "fn": 5,
+      "vision_calls": 10,
+      "avg_ms": 2104
+    }
+  },
+  "interpretation": {
+    "clean_camera": "All passed (FP=0) — good specificity on phone photos",
+    "tiny": "All flagged — small-file heuristic works",
+    "noexif": "All missed as pass — stripped EXIF alone insufficient when file still large",
+    "screenshot": "Mixed; Vision catches some marketplace screenshots"
+  }
+}

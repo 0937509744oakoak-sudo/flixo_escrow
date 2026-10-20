@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>โพยพูด FLIXO — อ่านคนเดียวตอนพรีเซนต์</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f3efe6;
+    --ink: #1a1a1a;
+    --muted: #5c5c5c;
+    --line: #ddd6c8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Sarabun", "Segoe UI", sans-serif;
+  }
+  body { padding: 16px 14px 120px; max-width: 860px; margin: 0 auto; }
+  header { margin-bottom: 8px; }
+  header p { color: var(--muted); font-size: .95rem; }
+  h1 { font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; }
+
+  .now {
+    position: sticky;
+    top: 0;
+    z-index: 8;
+    background: #1f2937;
+    color: #fff;
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin: 10px 0 14px;
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+  .now span { color: #fde68a; }
+
+  .toolbar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  button {
+    font-family: inherit;
+    font-size: .95rem;
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+  button:hover { background: #efe8da; }
+
+  .block {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: 12px;
+    background: #fff;
+    border: 2px solid var(--line);
+    border-left: 8px solid var(--tone, #94a3b8);
+    border-radius: 14px;
+    padding: 14px 16px 14px 10px;
+    margin-bottom: 14px;
+    cursor: pointer;
+    opacity: .78;
+  }
+  .block:hover { opacity: 1; }
+  .block.here {
+    opacity: 1;
+    border-color: #f59e0b;
+    background: #fffbeb;
+    outline: 3px solid #fbbf24;
+  }
+  .icon {
+    display: grid;
+    place-items: center;
+    align-content: center;
+    text-align: center;
+    font-size: 2rem;
+    line-height: 1;
+  }
+  .icon small {
+    display: block;
+    margin-top: 6px;
+    font-size: .78rem;
+    font-weight: 800;
+    color: #334155;
+  }
+  .tag {
+    font-size: .95rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+  .cue {
+    display: inline-block;
+    background: #fde68a;
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: .92rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .say {
+    font-size: 1.28rem;
+    line-height: 1.85;
+  }
+  body.big .say { font-size: 1.48rem; }
+
+  .hint {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    background: #1f2937;
+    color: #e5e7eb;
+    padding: 10px 14px;
+    font-size: .9rem;
+    text-align: center;
+  }
+
+  @media print {
+    .toolbar, .hint, .now { display: none; }
+    body { padding: 0; background: #fff; }
+    .block { opacity: 1; break-inside: avoid; outline: none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>📌 โพยคำพูด FLIXO</h1>
+  <p>แตะกล่องที่กำลังพูด แล้วเงยหน้าได้ — กลับมาจะเจอกรอบเหลือง</p>
+</header>
+
+<div class="now">ตอนนี้อ่าน: <span id="nowText">ยังไม่ได้เลือก — แตะกล่องแรกได้เลย</span></div>
+
+<div class="toolbar">
+  <button type="button" id="prev">⬅️ กล่องก่อน</button>
+  <button type="button" id="next">กล่องถัดไป ➡️</button>
+  <button type="button" id="bigger">🔍 ตัวใหญ่ขึ้น</button>
+  <button type="button" onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+</div>
+
+<article>
+
+<div class="block" data-label="🎤 เปิดชื่อโครงงาน" style="--tone:#2563eb">
+  <div class="icon">🎤<small>1</small></div>
+  <div>
+    <div class="tag">🎤 เปิดชื่อโครงงาน</div>
+    <p class="say">สวัสดีครับ วันนี้กลุ่มของพวกเราขอนำเสนอโครงงาน Flixo ซึ่งเป็นแพลตฟอร์มซื้อขายออนไลน์ที่ใช้ระบบบัญชีตัวกลาง หรือ Escrow และใช้ปัญญาประดิษฐ์เข้ามาช่วยตรวจสอบครับ ชื่อภาษาอังกฤษคือ A Secure Online Marketplace Powered by Escrow and Artificial Intelligence</p>
+  </div>
+</div>
+
+<div class="block" data-label="👩‍🏫 แนะนำอาจารย์และทีม" style="--tone:#7c3aed">
+  <div class="icon">👩‍🏫<small>2</small></div>
+  <div>
+    <div class="tag">👩‍🏫 แนะนำอาจารย์และทีม</div>
+    <p class="say">โครงงานนี้มีอาจารย์ที่ปรึกษาคือ ผศ.ดร. รวิ อุตตมธนินทร์ และ ผศ.ดร. พรภวิษย์ บุญศรีเมือง ส่วนคณะผู้จัดทำมีสามคน ได้แก่ นางสาวณภัทร แซ่ตั้ง นายธนพัตร ฉุยสุริฉาย และนางสาวอริษรา ราชนิยม ครับ</p>
+  </div>
+</div>
+
+<div class="block" data-label="📋 หัวข้อการนำเสนอ" style="--tone:#0f766e">
+  <div class="icon">📋<small>3</small></div>
+  <div>
+    <div class="tag">📋 หัวข้อ 5 ส่วน</div>
+    <p class="say">วันนี้จะแบ่งการนำเสนอเป็นห้าส่วนครับ หนึ่ง ที่มาและความสำคัญ สอง วัตถุประสงค์ สาม ขอบเขตของโครงงาน สี่ ประโยชน์ที่คาดว่าจะได้รับ และห้า การออกแบบส่วนติดต่อผู้ใช้และประสบการณ์ผู้ใช้ครับ</p>
+  </div>
+</div>
+
+<div class="block" data-label="📈 ที่มา · อีคอมเมิร์ซโต" style="--tone:#c2410c">
+  <div class="icon">📈<small>4</small></div>
+  <div>
+    <div class="tag">📈 ที่มา · อีคอมเมิร์ซโต</div>
+    <p class="say">เริ่มที่ที่มาและความสำคัญครับ ตอนนี้การซื้อขายออนไลน์ในไทยเติบโตเร็วมาก ศูนย์วิจัยกรุงศรีประเมินว่ายอดขายออนไลน์จะโตเฉลี่ยราวร้อยละสิบสองถึงสิบสามต่อปี เพราะคนคุ้นกับการซื้อของบนโลกออนไลน์อยู่แล้ว โดยเฉพาะการซื้อขายกันเองผ่านโซเชียล เช่น Facebook Instagram และ LINE ซึ่งสะดวกและเข้าถึงง่ายครับ</p>
+  </div>
+</div>
+
+<div class="block" data-label="⚠️ ช่องโหว่ของโซเชียล" style="--tone:#b45309">
+  <div class="icon">⚠️<small>5</small></div>
+  <div>
+    <div class="tag">⚠️ ช่องโหว่ของโซเชียล</div>
+    <p class="say">ปัญหาคือแพลตฟอร์มพวกนี้ไม่ได้ถูกออกแบบมาให้ยืนยันตัวตน หรือคุมการโอนเงินได้มาตรฐาน จึงเปิดช่องให้เกิดการฉ้อโกงได้ง่ายครับ</p>
+  </div>
+</div>
+
+<div class="block" data-label="📊 สถิติ ETDA" style="--tone:#b91c1c">
+  <div class="icon">📊<small>6</small></div>
+  <div>
+    <div class="tag">📊 สถิติ ETDA</div>
+    <p class="say">ตรงนี้สอดคล้องกับข้อมูลของ ETDA ที่พบว่าปัญหาการซื้อขายออนไลน์ถูกร้องเรียนมากเป็นอันดับหนึ่ง รวมหนึ่งหมื่นสามร้อยหกเรื่อง คิดเป็นเกือบร้อยละสี่สิบสองของเรื่องร้องเรียนทั้งหมด เช่น โอนเงินไปแล้วไม่ได้ของ หรือได้ของไม่ตรงตามที่ตกลงครับ</p>
+  </div>
+</div>
+
+<div class="block" data-label="🧩 ช่องว่างของตลาด" style="--tone:#a16207">
+  <div class="icon">🧩<small>7</small></div>
+  <div>
+    <div class="tag">🧩 ช่องว่างของตลาด</div>
+    <p class="say">สิ่งที่สะท้อนออกมาคือ ยังขาดระบบเช็กความน่าเชื่อถือของผู้ใช้ และยังขาดระบบที่คุมเงินระหว่างซื้อขายได้อย่างชัดเจนครับ แพลตฟอร์มใหญ่ ๆ มีบัญชีตัวกลางคุ้มครองผู้ซื้ออยู่แล้ว แต่คนจำนวนมากยังซื้อขายผ่านโซเชียลตามความเคยชิน เลยเป็นช่องว่างที่เราอยากเข้าไปแก้ครับ</p>
+  </div>
+</div>
+
+<div class="block" data-label="🛡️ แนวทาง Flixo + PDPA" style="--tone:#15803d">
+  <div class="icon">🛡️<small>8</small></div>
+  <div>
+    <div class="tag">🛡️ แนวทางของโครงงาน + PDPA</div>
+    <p class="say">จากปัญหานี้ คณะผู้จัดทำจึงพัฒนาแพลตฟอร์มซื้อขายระหว่างบุคคล โดยใช้บัญชีตัวกลางเป็นแกนหลัก ร่วมกับระบบยืนยันตัวตน และใช้ AI ช่วยคัดกรองข้อพิพาท ส่วนข้อมูลส่วนบุคคลจะเก็บ ใช้ และเปิดเผยภายใต้ พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 หรือ PDPA โดยเก็บเท่าที่จำเป็น และขอความยินยอมให้ชัดเจน เพื่อลดข้อพิพาท และทำให้การซื้อขายออนไลน์ระหว่างบุคคลน่าเชื่อถือขึ้นครับ</p>
+  </div>
+</div>
+
+<div class="block" data-label="👈👉 เทียบภาพ Escrow" style="--tone:#ca8a04">
+  <div class="icon">👈👉<small>9</small></div>
+  <div>
+    <div class="tag">👈👉 เทียบภาพ</div>
+    <p class="cue">👉 ตอนนี้ชี้สไลด์เปรียบเทียบ</p>
+    <p class="say">ทีนี้ขอยกตัวอย่างให้เห็นภาพครับ ฝั่งซ้ายคือการซื้อแบบไม่มีระบบป้องกัน ผู้ซื้อทักผู้ขายผ่านโซเชียล แล้วโอนเงินให้เลย ถ้าผู้ขายไม่ส่งของหรือหายไป ผู้ซื้อก็เสียเงินทันที แต่ฝั่งขวาคือระบบของเรา ทั้งสองฝ่ายต้องยืนยันตัวตนก่อน เงินจะถูกพักไว้ในบัญชีตัวกลาง ไม่โอนถึงผู้ขายทันที ต้องรอให้ผู้ซื้อยืนยันว่าได้รับสินค้าแล้ว จึงค่อยปล่อยเงิน นี่คือจุดที่ Flixo เข้ามาแก้ปัญหาครับ</p>
+  </div>
+</div>
+
+<div class="block" data-label="🎯 วัตถุประสงค์ ข้อ 1–2" style="--tone:#1d4ed8">
+  <div class="icon">🎯<small>10</small></div>
+  <div>
+    <div class="tag">🎯 วัตถุประสงค์ ข้อ 1–2</div>
+    <p class="say">วัตถุประสงค์มีสามข้อครับ ข้อแรก เพื่อศึกษาแนวคิดและเทคโนโลยีที่เกี่ยวข้อง ทั้งระบบบัญชีตัวกลาง ระบบยืนยันตัวตนอิเล็กทรอนิกส์ และปัญญาประดิษฐ์ที่ใช้คัดกรองข้อพิพาท ข้อสอง เพื่อออกแบบและพัฒนาแพลตฟอร์มซื้อขายบุคคลต่อบุคคล ที่มีทั้งยืนยันตัวตน บัญชีตัวกลาง และระบบคัดกรองข้อพิพาท</p>
+  </div>
+</div>
+
+<div class="block" data-label="✅ วัตถุประสงค์ ข้อ 3" style="--tone:#0e7490">
+  <div class="icon">✅<small>11</small></div>
+  <div>
+    <div class="tag">✅ วัตถุประสงค์ ข้อ 3</div>
+    <p class="say">และข้อสาม เพื่อประเมินว่าระบบบัญชีตัวกลางควบคุมธุรกรรมได้จริง พร้อมประเมินการใช้งานแพลตฟอร์มครับ</p>
+  </div>
+</div>
+
+</article>
+
+<div class="hint">แตะกล่องที่กำลังพูด · ลูกศรซ้าย/ขวา เลื่อนกล่อง · เงยหน้าแล้วกลับมาดูแถบดำด้านบน หรือกรอบเหลือง</div>
+
+<script>
+  const blocks = [...document.querySelectorAll(".block")];
+  const nowText = document.getElementById("nowText");
+  let i = 0;
+
+  function pick(n) {
+    i = Math.max(0, Math.min(blocks.length - 1, n));
+    blocks.forEach((b, k) => b.classList.toggle("here", k === i));
+    nowText.textContent = (i + 1) + " / " + blocks.length + "  ·  " + blocks[i].dataset.label;
+    blocks[i].scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  blocks.forEach((b, n) => b.addEventListener("click", () => pick(n)));
+  document.getElementById("prev").onclick = () => pick(i - 1);
+  document.getElementById("next").onclick = () => pick(i + 1);
+  document.getElementById("bigger").onclick = () => document.body.classList.toggle("big");
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); pick(i + 1); }
+    if (e.key === "ArrowLeft") { e.preventDefault(); pick(i - 1); }
+  });
+  pick(0);
+</script>
+</body>
+</html>

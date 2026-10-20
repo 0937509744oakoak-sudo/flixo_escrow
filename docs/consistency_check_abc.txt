@@ -1,0 +1,22 @@
+OK	ch4 has Soft 0.952
+OK	ch4 has FN 3
+OK	ch4 has N=333
+OK	ch4 has N=33 survey
+OK	ch4 has 4.20
+OK	ch4 has 70.6
+OK	ch5 has 0.952
+OK	ch5 has N=33
+OK	slides Soft Rec
+OK	slides no claim win acc
+OK	slides eKYC caution
+OK	ch2 table 2.2
+OK	ch2 soft-trigger
+OK	NO leftover: ร้อยละ 97 as main chat
+OK	NO leftover: N=100 chat main claim
+OK	NO leftover: ทำได้บางส่วน 1.2.3
+OK	NO leftover: file path docs/appendix user csv
+FAIL	NO leftover: summary_ablation path in ch4	slides
+OK	NO leftover: Firebase in ch3
+OK	NO leftover: Flutter in ch3
+OK	ch1 1.2.3 functional scope
+OK	ch5 1.2.3 achieved

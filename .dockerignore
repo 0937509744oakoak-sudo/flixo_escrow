@@ -1,0 +1,23 @@
+# Never bake secrets, local state or research artifacts into the image.
+.env
+.env.*
+!.env.example
+
+.git
+.gitignore
+
+# Runtime state — Railway mounts a volume over uploads/ anyway.
+logs/
+uploads/
+storage/
+data_real/
+
+# Research / thesis material (~80 MB) irrelevant to the running app.
+docs/
+tests/
+repomix-output.xml
+
+**/__pycache__/
+**/*.pyc
+Thumbs.db
+.DS_Store

@@ -2,6 +2,8 @@
 // includes/ProductImageFraudService.php
 // Tier 1: EXIF metadata (free) → Tier 2: Google Cloud Vision (only suspicious images)
 
+require_once __DIR__ . '/MockApiHelper.php';
+
 class ProductImageFraudService {
     public const PROVIDER_OFF = 'off';
     public const PROVIDER_EXIF = 'exif';
@@ -18,6 +20,9 @@ class ProductImageFraudService {
     }
 
     public static function isCloudVisionConfigured(): bool {
+        if (MockApiHelper::isEnabled()) {
+            return true;
+        }
         return defined('GOOGLE_CLOUD_VISION_API_KEY') && GOOGLE_CLOUD_VISION_API_KEY !== '';
     }
 
@@ -93,6 +98,65 @@ class ProductImageFraudService {
 
     private function scanSingleImage(string $absolutePath, array $context): array {
         $basename = basename($absolutePath);
+
+        // Deterministic GT path for load tests under MOCK_API_MODE
+        if (MockApiHelper::isEnabled()) {
+            $forced = MockApiHelper::consumeImageFraudScenario();
+            if ($forced === 'clean') {
+                MockApiHelper::simulateLatency(400, 900);
+                return [
+                    'file_path' => $basename,
+                    'provider' => self::PROVIDER_EXIF,
+                    'risk_score' => (float) random_int(5, 25),
+                    'verdict' => self::VERDICT_PASS,
+                    'reasons' => [],
+                    'matches_listing' => true,
+                    'raw' => ['tier' => 1, 'mock_scenario' => 'clean', 'vision_skipped' => true],
+                ];
+            }
+            if ($forced === 'risky') {
+                // Re-set so cloudVisionAnnotate consumes the same intent
+                MockApiHelper::setImageFraudScenario('risky');
+                MockApiHelper::simulateLatency(200, 500);
+                $exifResult = [
+                    'trust_score' => 20,
+                    'suspicious' => true,
+                    'reasons' => ['จำลองภาพน่าสงสัยสำหรับ load test'],
+                    'signals' => [],
+                    'file_size' => (int) @filesize($absolutePath),
+                    'has_exif' => false,
+                    'camera_make' => null,
+                    'camera_model' => null,
+                    'has_gps' => false,
+                ];
+                try {
+                    $visionResult = $this->analyzeWithCloudVision($absolutePath, $context, $exifResult);
+                    $riskScore = max(0, min(100, (float) ($visionResult['risk_score'] ?? 80)));
+                    $verdict = $this->resolveVerdict($riskScore, self::VERDICT_REJECT);
+                    return [
+                        'file_path' => $basename,
+                        'provider' => self::PROVIDER_EXIF . '+' . self::PROVIDER_CLOUD_VISION,
+                        'risk_score' => $riskScore,
+                        'verdict' => $verdict,
+                        'reasons' => $this->normalizeReasons($visionResult['reasons'] ?? ['พบภาพเสี่ยง (mock)']),
+                        'matches_listing' => (bool) ($visionResult['matches_listing'] ?? false),
+                        'raw' => ['tier' => 2, 'mock_scenario' => 'risky', 'vision' => $visionResult],
+                    ];
+                } catch (Throwable $e) {
+                    return [
+                        'file_path' => $basename,
+                        'provider' => self::PROVIDER_EXIF,
+                        'risk_score' => 55.0,
+                        'verdict' => self::VERDICT_FLAG,
+                        'reasons' => ['mock vision error: ' . $e->getMessage()],
+                        'matches_listing' => true,
+                        'raw' => ['tier' => 1, 'vision_error' => $e->getMessage()],
+                        'scan_failed' => true,
+                    ];
+                }
+            }
+        }
+
         $exifResult = $this->analyzeExif($absolutePath);
 
         if (!$exifResult['suspicious']) {
@@ -271,8 +335,12 @@ class ProductImageFraudService {
             ]],
         ];
 
-        $url = 'https://vision.googleapis.com/v1/images:annotate?key=' . rawurlencode(GOOGLE_CLOUD_VISION_API_KEY);
-        $response = $this->httpJson('POST', $url, $payload);
+        if (MockApiHelper::isEnabled()) {
+            $response = MockApiHelper::cloudVisionAnnotate($payload);
+        } else {
+            $url = 'https://vision.googleapis.com/v1/images:annotate?key=' . rawurlencode(GOOGLE_CLOUD_VISION_API_KEY);
+            $response = $this->httpJson('POST', $url, $payload);
+        }
         $annotation = $response['responses'][0] ?? [];
 
         if (isset($annotation['error'])) {

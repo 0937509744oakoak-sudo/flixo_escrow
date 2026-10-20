@@ -14,15 +14,24 @@ if (!$payload) {
     exit(json_encode(['error' => 'No payload received']));
 }
 
-if (!isset($payload['secret_token']) || $payload['secret_token'] !== WEBHOOK_SECRET) {
+// The demo default is public knowledge, so treat it as "no secret configured"
+// anywhere but local development.
+if (WEBHOOK_SECRET === '' || (WEBHOOK_SECRET === 'FLIXO_SECRET_DEMO_2026' && APP_ENV !== 'local')) {
+    ErrorLogger::write('error', 'Slip webhook rejected: WEBHOOK_SECRET is unset or still the demo default');
+    http_response_code(503);
+    exit(json_encode(['error' => 'webhook not configured']));
+}
+
+$providedToken = (string) ($payload['secret_token'] ?? '');
+if (!hash_equals(WEBHOOK_SECRET, $providedToken)) {
     http_response_code(401); // Unauthorized
     error_log("Webhook Error: Invalid Token");
     exit(json_encode(['error' => 'Invalid Secret Token']));
 }
 
-if ($payload['status'] === 'success') {
-    $order_id = (int)$payload['order_id'];
-    $amount_received = (float)$payload['amount'];
+if (($payload['status'] ?? '') === 'success') {
+    $order_id = (int)($payload['order_id'] ?? 0);
+    $amount_received = (float)($payload['amount'] ?? 0);
 
     $stmt = $conn->prepare("SELECT id, amount, status, seller_name, buyer_name FROM orders WHERE id = ? AND status = '" . OrderStateMachine::WAITING_VERIFY . "'");
     $stmt->bind_param("i", $order_id);

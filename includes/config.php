@@ -8,13 +8,22 @@ $envFile = __DIR__ . '/../.env';
 if (file_exists($envFile)) {
     $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
-        if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
-            list($key, $value) = explode('=', $line, 2);
-            $key = trim($key);
-            $value = trim($value);
-            if (!getenv($key)) {
-                putenv("$key=$value");
-            }
+        $line = trim($line);
+        if ($line === '' || $line[0] === '#' || strpos($line, '=') === false) {
+            continue;
+        }
+        list($key, $value) = explode('=', $line, 2);
+        $key = trim($key);
+        $value = trim($value);
+        // Strip surrounding quotes so KEY="value with spaces" behaves as expected.
+        if (strlen($value) >= 2 && ($value[0] === '"' || $value[0] === "'") && $value[-1] === $value[0]) {
+            $value = substr($value, 1, -1);
+        }
+        // getenv() must be compared against false: a real env var set to "0" is
+        // falsy, and treating it as unset would let .env silently override the
+        // deployment's own configuration.
+        if (getenv($key) === false) {
+            putenv("$key=$value");
         }
     }
 }
@@ -136,6 +145,11 @@ $logErrorsEnv = getenv('LOG_ERRORS');
 define('LOG_ERRORS', $logErrorsEnv === '1' || ($logErrorsEnv !== '0' && (APP_ENV === 'production' || APP_ENV === 'local')));
 define('LOG_PATH', getenv('LOG_PATH') ?: '');
 
+// Mock external AI/API calls for load testing (no quota / rate-limit cost)
+// Accepts: 1, true, yes, on (case-insensitive). Default: false.
+$mockApiRaw = strtolower(trim((string) (getenv('MOCK_API_MODE') ?: '')));
+define('MOCK_API_MODE', in_array($mockApiRaw, ['1', 'true', 'yes', 'on'], true));
+
 // eKYC — provider: auto | manual | sumsub | aigen
 define('EKYC_PROVIDER', getenv('EKYC_PROVIDER') ?: 'auto');
 define('SUMSUB_APP_TOKEN', getenv('SUMSUB_APP_TOKEN') ?: '');
@@ -149,6 +163,27 @@ define('AIGEN_API_BASE', getenv('AIGEN_API_BASE') ?: 'https://api.aigen.online')
 define('AIGEN_FACE_THRESHOLD', getenv('AIGEN_FACE_THRESHOLD') !== false && getenv('AIGEN_FACE_THRESHOLD') !== ''
     ? (int) getenv('AIGEN_FACE_THRESHOLD') : 80);
 define('EKYC_REQUIRED_FOR_SELL', getenv('EKYC_REQUIRED_FOR_SELL') === '1');
+
+// ThaiD (DOPA Digital ID) — OpenID Connect. Deliberately not a value of
+// EKYC_PROVIDER: it runs *alongside* whichever provider is active, so a user can
+// verify with ThaiD while EKYC_PROVIDER stays on aigen.
+// Sandbox https://imauthsbx.bora.dopa.go.th — production https://imauth.bora.dopa.go.th
+define('THAID_ISSUER', rtrim(getenv('THAID_ISSUER') ?: 'https://imauthsbx.bora.dopa.go.th', '/'));
+define('THAID_CLIENT_ID', getenv('THAID_CLIENT_ID') ?: '');
+define('THAID_CLIENT_SECRET', getenv('THAID_CLIENT_SECRET') ?: '');
+// Must match the callback registered with DOPA byte for byte.
+define('THAID_REDIRECT_URI', getenv('THAID_REDIRECT_URI') ?: BASE_URL . '/controllers/ThaiDController.php');
+define('THAID_SCOPE', getenv('THAID_SCOPE') ?: 'openid pid name given_name family_name birthdate ial');
+// DOPA assurance levels: 1.3 card check, 2.2 face match, 2.3 ThaiD app + chip.
+// Withdrawals move money, so below 2.3 we queue for an admin instead of auto-approving.
+define('THAID_MIN_IAL', getenv('THAID_MIN_IAL') ?: '2.3');
+// Discovery does not advertise code_challenge_methods_supported, so PKCE is opt-in.
+define('THAID_USE_PKCE', getenv('THAID_USE_PKCE') === '1');
+// DOPA issues an API key alongside the client credentials; the header it belongs
+// in is specified in the manual they send on approval, so keep it configurable.
+define('THAID_API_KEY', getenv('THAID_API_KEY') ?: '');
+define('THAID_API_KEY_HEADER', getenv('THAID_API_KEY_HEADER') ?: 'Consumer-Key');
+define('THAID_ENABLED', THAID_CLIENT_ID !== '' && THAID_CLIENT_SECRET !== '');
 
 // AI product image fraud: Tier 1 EXIF (free) → Tier 2 Google Cloud Vision (suspicious only)
 define('IMAGE_FRAUD_PROVIDER', getenv('IMAGE_FRAUD_PROVIDER') ?: 'auto');
@@ -180,6 +215,9 @@ define('CHAT_MODERATION_AI_MIN_SCORE', getenv('CHAT_MODERATION_AI_MIN_SCORE') !=
     ? (float)getenv('CHAT_MODERATION_AI_MIN_SCORE') : 25.0);
 define('CHAT_MODERATION_AI_SKIP_ABOVE_SCORE', getenv('CHAT_MODERATION_AI_SKIP_ABOVE_SCORE') !== false && getenv('CHAT_MODERATION_AI_SKIP_ABOVE_SCORE') !== ''
     ? (float)getenv('CHAT_MODERATION_AI_SKIP_ABOVE_SCORE') : 80.0);
+// Soft escalation cues (payment-confirm bait, OCR variants, anonymized PII stand-ins) — default ON
+define('CHAT_MODERATION_SOFT_TRIGGER', getenv('CHAT_MODERATION_SOFT_TRIGGER') !== '0'
+    && getenv('CHAT_MODERATION_SOFT_TRIGGER') !== 'false');
 define('CHAT_MODERATION_GEMINI_MODEL', getenv('CHAT_MODERATION_GEMINI_MODEL') ?: 'gemini-2.0-flash');
 
 // AI Dispute Assistant — Groq (preferred) → OpenRouter → Gemini → heuristic
@@ -188,6 +226,18 @@ define('DISPUTE_AI_GEMINI_MODEL', getenv('DISPUTE_AI_GEMINI_MODEL') ?: 'gemini-2
 define('DISPUTE_AI_MODEL', getenv('DISPUTE_AI_MODEL') ?: (getenv('OPENROUTER_MODEL') ?: 'google/gemini-2.5-flash'));
 define('DISPUTE_AI_GROQ_MODEL', getenv('DISPUTE_AI_GROQ_MODEL') ?: (getenv('GROQ_MODEL') ?: 'llama-3.3-70b-versatile'));
 define('CHAT_MODERATION_GROQ_MODEL', getenv('CHAT_MODERATION_GROQ_MODEL') ?: (getenv('GROQ_MODEL') ?: 'llama-3.3-70b-versatile'));
+
+// Cascaded moderation telemetry (JSONL + optional deferred DB) — research metrics, no plaintext
+define('CHAT_MODERATION_TELEMETRY_ENABLED', getenv('CHAT_MODERATION_TELEMETRY_ENABLED') !== '0');
+define('CHAT_MODERATION_TELEMETRY_DB', getenv('CHAT_MODERATION_TELEMETRY_DB') !== '0');
+define('CHAT_MODERATION_TELEMETRY_SALT', getenv('CHAT_MODERATION_TELEMETRY_SALT') ?: '');
+define('CHAT_MODERATION_COST_GROQ_PER_M', getenv('CHAT_MODERATION_COST_GROQ_PER_M') !== false && getenv('CHAT_MODERATION_COST_GROQ_PER_M') !== ''
+    ? (float) getenv('CHAT_MODERATION_COST_GROQ_PER_M') : 0.70);
+define('CHAT_MODERATION_COST_OPENROUTER_PER_M', getenv('CHAT_MODERATION_COST_OPENROUTER_PER_M') !== false && getenv('CHAT_MODERATION_COST_OPENROUTER_PER_M') !== ''
+    ? (float) getenv('CHAT_MODERATION_COST_OPENROUTER_PER_M') : 0.30);
+define('CHAT_MODERATION_COST_GEMINI_PER_M', getenv('CHAT_MODERATION_COST_GEMINI_PER_M') !== false && getenv('CHAT_MODERATION_COST_GEMINI_PER_M') !== ''
+    ? (float) getenv('CHAT_MODERATION_COST_GEMINI_PER_M') : 0.20);
+
 define('DISPUTE_SELLER_RESPONSE_HOURS', getenv('DISPUTE_SELLER_RESPONSE_HOURS') !== false && getenv('DISPUTE_SELLER_RESPONSE_HOURS') !== ''
     ? (int)getenv('DISPUTE_SELLER_RESPONSE_HOURS') : 72);
 define('DISPUTE_EVIDENCE_HOURS', getenv('DISPUTE_EVIDENCE_HOURS') !== false && getenv('DISPUTE_EVIDENCE_HOURS') !== ''

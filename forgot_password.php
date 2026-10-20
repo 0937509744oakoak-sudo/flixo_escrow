@@ -5,6 +5,8 @@
 require_once __DIR__ . '/includes/init.php';
 require_once __DIR__ . '/models/User.php';
 require_once __DIR__ . '/includes/EmailService.php';
+require_once __DIR__ . '/includes/PasswordResetToken.php';
+require_once __DIR__ . '/includes/LoginThrottle.php';
 
 if (!empty($_SESSION['user'])) {
     redirectTo('dashboard.php');
@@ -13,31 +15,24 @@ if (!empty($_SESSION['user'])) {
 $csrf_token = getCsrfToken();
 $sent = false;
 
-function flixoResetSecret(): string {
-    $key = defined('ENCRYPTION_KEY') ? (string) ENCRYPTION_KEY : '';
-    if ($key === '') {
-        $key = defined('DB_NAME') ? (string) DB_NAME : 'flixo';
-    }
-    return hash('sha256', 'flixo-reset|' . $key);
-}
-
-function flixoMakeResetToken(int $userId): string {
-    $exp = time() + 3600;
-    $payload = $userId . '|' . $exp;
-    $sig = hash_hmac('sha256', $payload, flixoResetSecret());
-    return rtrim(strtr(base64_encode($payload . '|' . $sig), '+/', '-_'), '=');
-}
-
 if (isPostRequest()) {
     verifyCsrfToken($_POST['csrf_token'] ?? '', 'html');
     $email = filter_var(trim($_POST['email'] ?? ''), FILTER_VALIDATE_EMAIL) ?: '';
     $sent = true;
 
-    if ($email !== '') {
+    // Throttled like login: the response is deliberately identical either way,
+    // so this also caps how fast someone can probe for registered addresses.
+    $ip = LoginThrottle::clientIp();
+    $throttle = LoginThrottle::check($conn, 'password_reset', $email, $ip);
+    LoginThrottle::record($conn, 'password_reset', $email, $ip, false);
+
+    if ($throttle['allowed'] && $email !== '' && PasswordResetToken::isAvailable()) {
         $userModel = new User($conn);
         $user = $userModel->findByEmail($email);
-        if ($user && ($user['status'] ?? '') === 'active') {
-            $token = flixoMakeResetToken((int) $user['id']);
+        $token = ($user && ($user['status'] ?? '') === 'active')
+            ? PasswordResetToken::issue((int) $user['id'], (string) ($user['password'] ?? ''))
+            : null;
+        if ($token !== null) {
             $resetUrl = rtrim(BASE_URL, '/') . '/reset_password.php?token=' . urlencode($token);
             $mailer = new EmailService();
             $body = '<p>สวัสดี คุณ' . htmlspecialchars($user['real_name'] ?? $user['username']) . '</p>'
@@ -45,8 +40,15 @@ if (isPostRequest()) {
                 . '<p><a href="' . htmlspecialchars($resetUrl) . '">' . htmlspecialchars($resetUrl) . '</a></p>'
                 . '<p>หากคุณไม่ได้ขอรีเซ็ต ไม่ต้องทำอะไรกับอีเมลนี้</p>';
             $ok = $mailer->send($email, 'รีเซ็ตรหัสผ่าน FLIXO', $body, true);
+            // Showing the link to whoever submitted the form is account takeover
+            // by design, so it is limited to local development. Anywhere else a
+            // failed send is logged and the user simply never receives a link.
             if (!$ok) {
-                $_SESSION['flixo_dev_reset_url'] = $resetUrl;
+                if (APP_ENV === 'local') {
+                    $_SESSION['flixo_dev_reset_url'] = $resetUrl;
+                } else {
+                    ErrorLogger::write('error', 'Password reset email failed to send', ['user_id' => (int) $user['id']]);
+                }
             }
         }
     }

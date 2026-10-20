@@ -1,6 +1,7 @@
 <?php
 require_once 'includes/init.php';
 require_once 'models/User.php'; // 🔥 เรียกใช้ Model เข้ามา
+require_once 'includes/LoginThrottle.php';
 
 $csrf_token = getCsrfToken();
 
@@ -19,26 +20,36 @@ if (isPostRequest()) {
     verifyCsrfToken($_POST['csrf_token'] ?? '', 'html');
 
     $login = trim(getPostValue('username'));
-    $password = $_POST['password'];
+    $password = $_POST['password'] ?? '';
+    $ip = LoginThrottle::clientIp();
+    $throttle = LoginThrottle::check($conn, 'login', $login, $ip);
 
-    $userModel = new User($conn);
-    $user = $userModel->findByLogin($login);
-
-    if (!$user) {
-        $error = "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง";
-    } elseif ($user['status'] === 'banned') {
-        $error = "บัญชีของคุณถูกระงับ โปรดติดต่อฝ่ายสนับสนุน";
-    } elseif ($user['status'] !== 'active') {
-        $error = "บัญชีของคุณยังไม่สามารถใช้งานได้";
-    } elseif (!password_verify($password, $user['password'])) {
-        $error = "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง";
+    if (!$throttle['allowed']) {
+        $error = LoginThrottle::retryMessage($throttle['retry_after']);
     } else {
-        // ป้องกัน Session Fixation
-        session_regenerate_id(true);
-        $_SESSION['user'] = $user['username'];
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['role'] = $user['role'];
-        redirectTo($redirectAfter !== '' ? $redirectAfter : 'dashboard.php');
+        $userModel = new User($conn);
+        $user = $userModel->findByLogin($login);
+
+        if (!$user) {
+            $error = "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง";
+        } elseif ($user['status'] === 'banned') {
+            $error = "บัญชีของคุณถูกระงับ โปรดติดต่อฝ่ายสนับสนุน";
+        } elseif ($user['status'] !== 'active') {
+            $error = "บัญชีของคุณยังไม่สามารถใช้งานได้";
+        } elseif (!password_verify($password, $user['password'])) {
+            $error = "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง";
+        }
+
+        LoginThrottle::record($conn, 'login', $login, $ip, !isset($error));
+
+        if (!isset($error)) {
+            // ป้องกัน Session Fixation
+            session_regenerate_id(true);
+            $_SESSION['user'] = $user['username'];
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['role'] = $user['role'];
+            redirectTo($redirectAfter !== '' ? $redirectAfter : 'dashboard.php');
+        }
     }
 }
 

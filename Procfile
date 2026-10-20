@@ -1,1 +1,1 @@
-web: bash -c "a2dismod mpm_event mpm_worker || true; a2enmod mpm_prefork; sed -i 's/Listen 80/Listen 8080/g' /etc/apache2/ports.conf /etc/apache2/sites-available/*.conf; exec apache2-foreground"
+web: bash -c "cp -f /var/www/html/docker/flixo-security.conf /etc/apache2/conf-available/ 2>/dev/null && a2enconf flixo-security || true; a2dismod mpm_event mpm_worker || true; a2enmod mpm_prefork; sed -i 's/Listen 80/Listen 8080/g' /etc/apache2/ports.conf /etc/apache2/sites-available/*.conf; exec apache2-foreground"

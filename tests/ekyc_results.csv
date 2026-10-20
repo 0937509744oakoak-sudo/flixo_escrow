@@ -1,0 +1,101 @@
+﻿No.,Group,"GT Match (1/0)","OCR Pass (1/0)","Face Score","System Match (1/0)","KYC Status","OCR ms","Face ms","E2E ms",Device,Light,Note
+1,G1,1,1,89.46,1,approved,515,1769,2285,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+2,G2,0,1,50.13,0,rejected,1171,1661,2833,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 50.1)"
+3,G1,1,1,91.15,1,approved,892,1476,2369,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+4,G2,0,1,68.49,0,rejected,1722,1685,3407,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 68.5)"
+5,G2,0,1,73.93,0,rejected,867,595,1462,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 73.9)"
+6,G2,0,1,56.66,0,rejected,1982,674,2657,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 56.7)"
+7,G2,0,1,48.59,0,rejected,863,1367,2231,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 48.6)"
+8,G2,0,1,58.33,0,rejected,1020,785,1805,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 58.3)"
+9,G1,1,1,82.23,1,approved,1352,660,2012,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+10,G1,1,1,93.96,1,approved,613,1152,1765,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+11,G2,0,1,35.85,0,rejected,799,719,1520,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 35.9)"
+12,G1,1,1,89.06,1,approved,1021,627,1649,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+13,G1,1,1,86.32,1,approved,1025,720,1745,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+14,G1,1,1,94.16,1,approved,911,705,1616,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+15,G2,0,1,38.22,0,rejected,1068,753,1821,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 38.2)"
+16,G1,1,1,80.26,1,approved,1057,580,1638,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+17,G1,1,1,92.4,1,approved,1428,1145,2573,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+18,G2,0,1,69.93,0,rejected,1274,786,2060,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 69.9)"
+19,G2,0,1,51.1,0,rejected,1026,1435,2461,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 51.1)"
+20,G1,1,1,99.83,1,approved,1956,598,2555,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+21,G1,1,1,87.01,1,approved,1927,1131,3059,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+22,G2,0,1,59.87,0,rejected,597,618,1217,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 59.9)"
+23,G1,1,1,98.21,1,approved,932,1099,2032,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+24,G2,0,1,37.14,0,rejected,1462,615,2077,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 37.1)"
+25,G2,0,1,46.17,0,rejected,851,1386,2237,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 46.2)"
+26,G2,0,1,55.77,0,rejected,1794,1826,3620,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 55.8)"
+27,G2,0,1,72.41,0,rejected,2012,1322,3334,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 72.4)"
+28,G2,0,1,38.45,0,rejected,644,1727,2371,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 38.5)"
+29,G1,1,1,95.79,1,approved,1201,1944,3146,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+30,G1,1,1,80.67,1,approved,1398,1287,2685,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+31,G2,0,1,41.89,0,rejected,1053,1603,2657,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 41.9)"
+32,G1,1,1,97.06,1,approved,584,1148,1732,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+33,G1,1,1,96.88,1,approved,1428,1481,2909,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+34,G2,0,1,53.01,0,rejected,1323,1320,2643,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 53)"
+35,G1,1,1,91.5,1,approved,1226,819,2046,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+36,G2,0,1,53.72,0,rejected,849,799,1648,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 53.7)"
+37,G1,1,1,85.03,1,approved,1515,1068,2584,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+38,G2,0,1,45.38,0,rejected,721,1970,2691,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 45.4)"
+39,G1,1,1,90.59,1,approved,1836,770,2607,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+40,G1,1,1,90.75,1,approved,1725,753,2478,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+41,G2,0,1,54.29,0,rejected,1762,898,2660,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 54.3)"
+42,G2,0,1,51.97,0,rejected,1432,1501,2933,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 52)"
+43,G2,0,1,74.65,0,rejected,1672,630,2302,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 74.7)"
+44,G1,1,1,99.88,1,approved,1419,1421,2841,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+45,G1,1,1,93.61,1,approved,1293,1448,2742,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+46,G1,1,1,99.9,1,approved,674,1117,1791,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+47,G1,1,1,82.79,1,approved,1165,1037,2202,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+48,G2,0,1,47.66,0,rejected,850,1888,2738,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 47.7)"
+49,G1,1,1,83.83,1,approved,1955,899,2854,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+50,G2,0,1,43.85,0,rejected,644,1671,2315,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 43.9)"
+51,G1,1,1,86.29,1,approved,1783,1940,3723,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+52,G2,0,1,45.58,0,rejected,1445,772,2217,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 45.6)"
+53,G1,1,1,87.45,1,approved,1262,1855,3118,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+54,G1,1,1,98.98,1,approved,1276,1818,3094,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+55,G1,1,1,95.14,1,approved,717,1568,2284,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+56,G2,0,1,62.15,0,rejected,816,601,1416,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 62.2)"
+57,G2,0,1,59.2,0,rejected,1163,1547,2710,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 59.2)"
+58,G2,0,1,67.73,0,rejected,1673,1979,3653,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 67.7)"
+59,G2,0,1,45.96,0,rejected,987,1069,2056,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 46)"
+60,G1,1,1,81.89,1,approved,912,818,1731,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+61,G1,1,1,87.57,1,approved,1540,1445,2985,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+62,G1,1,1,86.08,1,approved,1472,1403,2876,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+63,G1,1,1,83.53,1,approved,1105,1060,2166,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+64,G2,0,1,36.58,0,rejected,520,1854,2373,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 36.6)"
+65,G1,1,1,98.51,1,approved,1734,1575,3308,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+66,G1,1,1,84.19,1,approved,1793,1590,3384,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+67,G2,0,1,74.74,0,rejected,798,1573,2372,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 74.7)"
+68,G2,0,1,39.95,0,rejected,1482,1468,2951,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 40)"
+69,G2,0,1,36,0,rejected,1226,1025,2251,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 36)"
+70,G1,1,1,88.95,1,approved,932,1102,2034,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+71,G1,1,1,90.05,1,approved,1719,1796,3515,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+72,G2,0,1,55.17,0,rejected,1059,647,1706,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 55.2)"
+73,G2,0,1,47.86,0,rejected,1683,1039,2722,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 47.9)"
+74,G2,0,1,61.3,0,rejected,648,1828,2477,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 61.3)"
+75,G2,0,1,72.68,0,rejected,1092,1698,2791,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 72.7)"
+76,G1,1,1,80.79,1,approved,899,1706,2605,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+77,G1,1,1,88.8,1,approved,1746,1866,3612,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+78,G1,1,1,86.34,1,approved,1884,639,2523,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+79,G1,1,1,85.63,1,approved,596,676,1272,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+80,G1,1,1,94.76,1,approved,1142,549,1691,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+81,G1,1,1,85.26,1,approved,1332,1110,2442,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+82,G1,1,1,91.12,1,approved,1112,1257,2371,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+83,G1,1,1,90.98,1,approved,708,1604,2312,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+84,G2,0,1,45.8,0,rejected,1467,643,2110,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 45.8)"
+85,G2,0,1,57.97,0,rejected,1377,1538,2916,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 58)"
+86,G2,0,1,47.92,0,rejected,908,1545,2453,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 47.9)"
+87,G2,0,1,39.17,0,rejected,727,1481,2208,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 39.2)"
+88,G1,1,1,95.1,1,approved,1072,1724,2797,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+89,G1,1,1,87.81,1,approved,782,824,1606,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+90,G1,1,1,95.67,1,approved,1549,1269,2819,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+91,G2,0,1,50.78,0,rejected,766,1791,2557,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 50.8)"
+92,G2,0,1,43.96,0,rejected,843,630,1474,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 44)"
+93,G2,0,1,40.29,0,rejected,1281,1220,2501,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 40.3)"
+94,G1,1,1,99.26,1,approved,846,534,1380,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+95,G1,1,1,81.54,1,approved,1723,1635,3359,"CLI-LoadTest / fixtures JPEG",Good,ยืนยันตัวตนสำเร็จ
+96,G2,0,1,71.69,0,rejected,1229,1694,2922,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 71.7)"
+97,G2,0,1,50.04,0,rejected,1914,612,2527,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 50)"
+98,G2,0,1,47.19,0,rejected,1150,800,1950,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 47.2)"
+99,G2,0,1,60.61,0,rejected,1134,1443,2577,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 60.6)"
+100,G2,0,1,70.37,0,rejected,1159,1196,2356,"CLI-LoadTest / fixtures JPEG",Good,"ใบหน้าไม่ตรงกับบัตรประชาชน (คะแนน: 70.4)"

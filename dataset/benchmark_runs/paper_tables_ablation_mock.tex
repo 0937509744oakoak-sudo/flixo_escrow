@@ -1,0 +1,14 @@
+% Auto-generated ablation tables (N=333)
+\begin{tabular}{lccccccrr}
+\toprule
+System & Acc & P & R & F1 & $\kappa$ & Tier1 & Mean ms & FP/FN \\
+\midrule
+Regex-only & 94.3\% & 0.978 & 0.714 & 0.826 & 0.79 & --- & 0.2 & 1/18 \\
+Cascade (no soft) & 94.9\% & 0.979 & 0.746 & 0.847 & 0.82 & 77.5\% & 33.9 & 1/16 \\
+Cascade+Soft (proposed) & 97.6\% & 0.887 & 1.000 & 0.940 & 0.93 & 70.6\% & 47.8 & 8/0 \\
+\bottomrule
+\end{tabular}
+
+% McNemar: regex vs cascade+soft: b=18, c=7, p=0.04550026
+% McNemar: cascade vs cascade+soft: b=16, c=7, p=0.09529283
+% FN rescued soft over cascade: 16

@@ -1,0 +1,13 @@
+ID,Scene,Module,Expected,Actual,Pass
+U-01,"ล็อกอินด้วย Password",Auth,"password hash ใช้งานได้","bcrypt/argon hash present for user#1",1
+U-02,"ล็อกอินด้วย Google","Google GIS","GOOGLE_CLIENT_ID ตั้งค่า + verifier ทำงาน","client_id set; reject-path verified in §4.9",1
+U-03,"eKYC Genuine ผ่าน AiGen",eKYC,"approved ในชุดทดลอง","ekyc_results.csv has approved",1
+U-04,"eKYC Impostor",eKYC,"rejected ในชุดทดลอง","ekyc_results.csv has rejected",1
+U-05,"eKYC เมื่อ AiGen ล่ม",Fallback,"pending + Admin","{""kyc_status"":""pending"",""is_verified"":""0"",""ekyc_provider"":""aigen""}",1
+U-06,ลงขายด้วยรูปกล้องจริง,"Image Fraud",pass,"image_fraud_results has pass",1
+U-07,ลงขายด้วยภาพสกรีน,"Image Fraud",flag/reject,"image_fraud_results has reject/flag",1
+U-08,ส่งข้อความชวนแอดไลน์,"Chat Mod",flag/reject,"{""verdict"":""flag"",""score"":65}",1
+U-09,ส่งข้อความปกติ,"Chat Mod",pass,"{""verdict"":""pass""}",1
+U-10,ชำระด้วยสลิปถูกต้อง,EasySlip,"auto paid decision","easyslip S1→PAID in CSV",1
+U-11,"ชำระ Omise PromptPay (sandbox)",Omise,"ได้ source/QR path","source=src_test_68ii84c683sqb0quha2 qr=null",1
+U-12,"แอดมินรัน Dispute AI","Dispute AI",ได้คำแนะนำ,"{""action"":""NEEDS_REVIEW"",""provider"":""heuristic""}",1

@@ -1,6 +1,7 @@
 <?php
 // dispute_detail.php — รายละเอียดและจัดการข้อพิพาท
 require_once 'includes/init.php';
+require_once 'includes/order_helper.php';
 require_once 'models/Dispute.php';
 require_once 'models/Order.php';
 require_once 'includes/Rbac.php';
@@ -55,30 +56,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (isset($_FILES['evidence_file']) && $_FILES['evidence_file']['size'] > 0) {
-        $file = $_FILES['evidence_file'];
-        $maxSize = 5 * 1024 * 1024;
-        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx'];
-        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-
-        if ($file['size'] > $maxSize) {
-            $error = 'ไฟล์ใหญ่เกินไป (สูงสุด 5 MB)';
-        } elseif (!in_array($ext, $allowed, true)) {
-            $error = 'ประเภทไฟล์ไม่อนุญาต';
-        } else {
-            $filename = 'dispute_' . $dispute_id . '_' . time() . '.' . $ext;
-            $filepath = 'uploads/disputes/' . $filename;
-
-            if (!is_dir('uploads/disputes')) {
-                mkdir('uploads/disputes', 0755, true);
-            }
-
-            if (move_uploaded_file($file['tmp_name'], $filepath)) {
-                $description = trim($_POST['evidence_description'] ?? '');
-                $disputeModel->addEvidence($dispute_id, $me, $description, $filepath);
-                header('Location: dispute_detail.php?dispute_id=' . $dispute_id);
-                exit;
-            }
-            $error = 'ไม่สามารถอัปโหลดไฟล์';
+        try {
+            // Same discipline as payment slips: content is sniffed rather than
+            // trusting the filename, the stored name is random, and the file is
+            // private (served via controllers/DisputeEvidenceController.php).
+            $stored = secureUploadCloud(
+                $_FILES['evidence_file'],
+                'disputes',
+                flixoUploadsSubdir('disputes'),
+                5 * 1024 * 1024,
+                false,
+                FLIXO_UPLOAD_EVIDENCE_TYPES
+            );
+            $description = trim($_POST['evidence_description'] ?? '');
+            $disputeModel->addEvidence($dispute_id, $me, $description, $stored);
+            header('Location: dispute_detail.php?dispute_id=' . $dispute_id);
+            exit;
+        } catch (Throwable $e) {
+            $error = $e->getMessage();
         }
     }
 }
@@ -366,8 +361,8 @@ include 'includes/header.php';
                         <div class="dispute-evidence-grid">
                             <?php foreach ($otherEvidences as $evidence):
                                 $ext = strtolower(pathinfo($evidence['file_path'], PATHINFO_EXTENSION));
-                                $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif'], true);
-                                $fileUrl = htmlspecialchars($evidence['file_path'], ENT_QUOTES, 'UTF-8');
+                                $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true);
+                                $fileUrl = safeText(disputeEvidenceUrl((int) $evidence['id']));
                             ?>
                                 <a href="<?php echo $fileUrl; ?>" target="_blank" rel="noopener" class="dispute-evidence-item">
                                     <div class="dispute-evidence-thumb">

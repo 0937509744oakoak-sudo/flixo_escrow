@@ -7,9 +7,19 @@ require_once __DIR__ . '/config.php';
 mysqli_report(MYSQLI_REPORT_OFF);
 
 // ใช้ค่าจาก Config
-$conn = @mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
-if (!$conn) {
-    $connectError = mysqli_connect_error();
+$conn = mysqli_init();
+
+// A database that accepts the TCP connection but never answers (a wedged MariaDB
+// on startup, for example) would otherwise hang every request forever, taking the
+// whole site down instead of showing the maintenance page below.
+$conn->options(MYSQLI_OPT_CONNECT_TIMEOUT, (int) (getenv('DB_CONNECT_TIMEOUT') ?: 5));
+if (php_sapi_name() !== 'cli') {
+    // CLI is exempt: migrations and batch scripts legitimately run long queries.
+    $conn->options(MYSQLI_OPT_READ_TIMEOUT, (int) (getenv('DB_READ_TIMEOUT') ?: 30));
+}
+
+if (!@$conn->real_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT)) {
+    $connectError = mysqli_connect_error() ?: $conn->connect_error;
     error_log('Database connection failed: ' . $connectError);
     if (php_sapi_name() === 'cli') {
         fwrite(STDERR, "Database connection failed: {$connectError}\n");

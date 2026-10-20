@@ -1,46 +1,19 @@
 <?php
 require_once __DIR__ . '/includes/init.php';
 require_once __DIR__ . '/models/User.php';
+require_once __DIR__ . '/includes/PasswordResetToken.php';
 
 if (!empty($_SESSION['user'])) {
     redirectTo('dashboard.php');
 }
 
-function flixoResetSecret(): string {
-    $key = defined('ENCRYPTION_KEY') ? (string) ENCRYPTION_KEY : '';
-    if ($key === '') {
-        $key = defined('DB_NAME') ? (string) DB_NAME : 'flixo';
-    }
-    return hash('sha256', 'flixo-reset|' . $key);
-}
-
-function flixoParseResetToken(string $token): ?array {
-    $raw = base64_decode(strtr($token, '-_', '+/'), true);
-    if ($raw === false) {
-        return null;
-    }
-    $parts = explode('|', $raw);
-    if (count($parts) !== 3) {
-        return null;
-    }
-    [$userId, $exp, $sig] = $parts;
-    if (!ctype_digit($userId) || !ctype_digit($exp)) {
-        return null;
-    }
-    if ((int) $exp < time()) {
-        return null;
-    }
-    $payload = $userId . '|' . $exp;
-    $expected = hash_hmac('sha256', $payload, flixoResetSecret());
-    if (!hash_equals($expected, $sig)) {
-        return null;
-    }
-    return ['user_id' => (int) $userId, 'exp' => (int) $exp];
-}
-
 $csrf_token = getCsrfToken();
 $token = trim($_GET['token'] ?? $_POST['token'] ?? '');
-$parsed = $token !== '' ? flixoParseResetToken($token) : null;
+$userModel = new User($conn);
+$parsed = PasswordResetToken::parse($token, static function (int $userId) use ($userModel): ?string {
+    $user = $userModel->findById($userId);
+    return ($user && ($user['status'] ?? '') === 'active') ? (string) ($user['password'] ?? '') : null;
+});
 $error = null;
 $done = false;
 
@@ -57,7 +30,6 @@ if ($parsed && isPostRequest()) {
     } elseif ($password !== $confirm) {
         $error = 'รหัสผ่านยืนยันไม่ตรงกัน';
     } else {
-        $userModel = new User($conn);
         if ($userModel->updatePassword($parsed['user_id'], password_hash($password, PASSWORD_DEFAULT))) {
             $done = true;
         } else {

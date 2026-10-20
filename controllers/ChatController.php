@@ -307,6 +307,8 @@ if ($action == 'send') {
             && defined('CHAT_MODERATION_BLOCK')
             && CHAT_MODERATION_BLOCK
         ) {
+            // Telemetry for every evaluation (including blocked) — hashed, no plaintext in telemetry sink.
+            $moderation->persistTelemetry($modResult, null, 'text');
             $moderation->logScan(null, $me, $partner, 'text', $msg, $modResult);
             http_response_code(400);
             echo $moderation->formatUserMessage($modResult);
@@ -322,10 +324,14 @@ if ($action == 'send') {
     // No-op if Redis is unavailable (SSE falls back to DB polling).
     chatRealtimePublish($me, $partner);
 
-    if ($modResult !== null && $modResult['verdict'] !== ChatModerationService::VERDICT_PASS) {
-        $messageId = (int)$conn->insert_id;
-        $moderation->updateMessageModeration($messageId, $modResult);
-        $moderation->logScan($messageId, $me, $partner, 'text', $msg, $modResult);
+    $messageId = (int) $conn->insert_id;
+    if ($modResult !== null) {
+        // Research telemetry: log EVERY cascade evaluation (ALLOW/FLAG/BLOCK).
+        $moderation->persistTelemetry($modResult, $messageId, 'text');
+        if ($modResult['verdict'] !== ChatModerationService::VERDICT_PASS) {
+            $moderation->updateMessageModeration($messageId, $modResult);
+            $moderation->logScan($messageId, $me, $partner, 'text', $msg, $modResult);
+        }
     }
 
     try {
@@ -494,6 +500,7 @@ if ($action == 'send_image') {
                 && defined('CHAT_MODERATION_BLOCK')
                 && CHAT_MODERATION_BLOCK
             ) {
+                $moderation->persistTelemetry($modResult, null, 'image');
                 $moderation->logScan(null, $me, $partner, 'image', '[รูปภาพ]', $modResult);
                 http_response_code(400);
                 echo $moderation->formatUserMessage($modResult);
@@ -511,8 +518,9 @@ if ($action == 'send_image') {
             // Real-time push (no-op if Redis unavailable → SSE DB-poll fallback)
             chatRealtimePublish($me, $partner);
 
+            $messageId = (int) $conn->insert_id;
+            $moderation->persistTelemetry($modResult, $messageId, 'image');
             if ($modResult['verdict'] !== ChatModerationService::VERDICT_PASS) {
-                $messageId = (int)$conn->insert_id;
                 $moderation->updateMessageModeration($messageId, $modResult);
                 $moderation->logScan($messageId, $me, $partner, 'image', '[รูปภาพ]', $modResult);
             }

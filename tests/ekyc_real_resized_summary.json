@@ -1,0 +1,15 @@
+{
+    "n_pairs": 4,
+    "tp": 2,
+    "tn": 2,
+    "fp": 0,
+    "fn": 0,
+    "ocr_fail": 0,
+    "accuracy_among_ocr_pass_pct": 100,
+    "accuracy_all_pairs_pct": 100,
+    "avg_e2e_ms": 4657,
+    "p95_e2e_ms": 5050,
+    "mock_api_mode": false,
+    "subjects": "2 people (A\/B) genuine + swapped impostor",
+    "csv": "tests\/ekyc_real_results.csv"
+}

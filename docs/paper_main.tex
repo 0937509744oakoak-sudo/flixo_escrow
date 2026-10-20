@@ -1,0 +1,478 @@
+%% =============================================================================
+%% Cascaded Hybrid Moderation for Thai C2C Escrow Chat
+%% IEEE conference format — copy into Overleaf and Compile with pdfLaTeX
+%% =============================================================================
+\documentclass[conference]{IEEEtran}
+
+%% ----- Packages (Overleaf / TeX Live compatible) -----
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{url}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue}
+
+%% Optional: uncomment after uploading figure PNG/PDF files to Overleaf
+%% \graphicspath{{./figures/}}
+
+\begin{document}
+
+\title{Closing the Cascade Gap: Soft-Triggered Hybrid Moderation
+for Thai C2C Escrow Chat Off-Platform Circumvention}
+
+\author{
+\IEEEauthorblockN{Anonymous Author(s)}
+\IEEEauthorblockA{\textit{Department of Computer Science} \\
+\textit{University Name}\\
+City, Country \\
+email@domain.edu}
+}
+
+\maketitle
+
+\begin{abstract}
+Consumer-to-consumer (C2C) escrow platforms fail when buyers and sellers
+coordinate payments outside the platform---sharing bank accounts, PromptPay
+identifiers, phone numbers, or Line contacts---thereby defeating escrow
+protection. Cascaded moderation (cheap local regex, then on-demand LLM) is
+attractive under latency and token-cost constraints, but a \emph{cascade gap}
+arises when Tier~1 under-scores evasive Thai bait and never escalates.
+We present a three-tier hybrid with \emph{soft-trigger} escalation: linguistic
+and structural cues (payment-confirmation bait, OCR-distorted PromptPay,
+account-holder phrasing, and anonymized-PII stand-ins) force Tier~2 even when
+the regex score is below the nominal escalate threshold. We evaluate on a Thai
+fraud-chat corpus of $N{=}333$ utterances OCR-extracted from 100 confirmed
+fraud screenshots (270~\textsc{allow}, 63~\textsc{block}), labeled by 100\%
+human adjudication. In a live 3-way ablation, soft-triggered cascade reaches
+93.4\% accuracy with \textbf{recall 0.952} and F1~0.845 (FN$=3$), versus
+legacy cascade recall 0.746 (FN$=16$) and regex-only recall 0.714 (FN$=18$),
+while still exiting at Tier~1 for 70.6\% of messages (70.6\% API-call saving
+versus LLM-on-every-message). Soft trigger rescues 13 false negatives relative
+to legacy cascade (7 via live LLM, 6 via Tier~3 soft fail-safe). We do
+\emph{not} claim an accuracy win over high-precision regex-only; the
+contribution is closing the cascade gap on recall under production cost
+constraints.
+\end{abstract}
+
+\begin{IEEEkeywords}
+C2C escrow, chat moderation, cascaded inference, Thai NLP, fraud detection,
+cost-aware AI systems.
+\end{IEEEkeywords}
+
+%% =============================================================================
+\section{Introduction}
+%% =============================================================================
+
+\subsection{Motivation}
+Escrow-mediated C2C marketplaces hold buyer funds until delivery conditions are
+met. This safety property collapses when counterparties move the conversation
+\emph{off-platform}: requesting direct bank transfer, PromptPay top-up, or
+Line/phone contact. In Thai peer marketplaces---especially Facebook Marketplace
+and Messenger-mediated deals---such circumvention is common, often culminating
+in non-delivery after a successful off-platform transfer.
+
+A deployed escrow product therefore needs \emph{in-chat detection} of
+off-platform payment and contact bait, with production constraints: low
+false-alarm rate (so legitimate bargaining is not blocked), low latency, and
+bounded cloud cost.
+
+\subsection{Empirical Insight from Real Fraud Screenshots}
+We collected 100 real Thai C2C fraud chat screenshots from public warning
+communities and Marketplace-related cases. Optical character recognition (OCR)
+yielded $N{=}333$ conversational utterances. Fraud dialogues rarely begin with
+slangy ``scam language.'' Instead, approximately 85\% of early turns resemble a
+\emph{normal trade flow}---price inquiry, condition questions, shipping
+logistics---while risky intent concentrates in later turns that share account
+numbers, PromptPay IDs, slips, or Line handles.
+
+This temporal structure motivates cascading: most messages should be decided
+locally at near-zero cost; only ambiguous mid-risk text should invoke an LLM.
+
+\subsection{Limitations of Extremes}
+\begin{enumerate}
+  \item \textbf{Regex-only.} Pattern matching on Thai off-platform keywords,
+        phones, and account formats is fast and highly precise when a strong cue
+        is present. Soft or fragmented bait---and OCR noise---produce false
+        negatives (FN), reducing recall.
+  \item \textbf{LLM-always.} Sending every message to a cloud LLM improves
+        contextual coverage but incurs high latency and API cost, which is
+        wasteful when ${\sim}$80\% of turns are routine inquiry.
+\end{enumerate}
+
+\subsection{Contributions}
+This paper makes three contributions:
+\begin{enumerate}
+  \item \textbf{Cascade-gap diagnosis.} We show that a score-gated cascade
+        under-escalates OCR fraud bait (payment-confirm phrases and redacted
+        contact/account tokens), so legacy hybrid barely improves recall over
+        regex-only on this corpus.
+  \item \textbf{Soft-triggered architecture.} A production 3-tier moderator
+        (regex~$\rightarrow$~multi-provider LLM~$\rightarrow$~graceful fallback)
+        with soft escalation cues that do \emph{not} hard-block by themselves,
+        but force Tier~2 (and inform Tier~3 fail-safe).
+  \item \textbf{Live 3-way ablation.} Regex-only vs.\ cascade (soft~OFF) vs.\
+        cascade+soft (proposed) on $N{=}333$ human-labeled utterances, reporting
+        detection metrics, McNemar tests, FN rescue counts, latency, and
+        projected token cost---without fabricated statistics.
+\end{enumerate}
+
+%% =============================================================================
+\section{Proposed Cascaded Architecture}
+%% =============================================================================
+
+We denote a message $x$ and a binary risk decision
+$y\in\{\mathrm{ALLOW},\mathrm{BLOCK}\}$, where production verdicts
+\texttt{flag}/\texttt{reject} map to \textsc{block} and \texttt{pass} maps to
+\textsc{allow}.
+
+\subsection{Tier 1 --- Local Regex and Heuristics}
+Tier~1 normalizes Thai/Latin text and scores cues including: Thai mobile and
+international phone patterns; bank-account digit formats and bank-name keywords;
+PromptPay and off-platform transfer phrases; Line ID / social contact patterns;
+and discount$+$bypass bait conjunctions.
+
+A risk score $s_{\mathrm{regex}}\in[0,100]$ is mapped to verdicts with production
+thresholds (flag~$\geq 45$, block/reject~$\geq 70$). These cutoffs, together with
+the escalation bounds below, are \emph{empirical prototype defaults} chosen by
+engineering intuition during development; they were \emph{not} tuned on a held-out
+split of this corpus (Section~\ref{sec:eval-protocol}).
+
+\subsection{Tier 2 --- Cloud LLM Multi-Provider Escalation}
+Escalation triggers when AI moderation is enabled and any of the following hold,
+with defaults $s_{\min}{=}25$ and $s_{\mathrm{skip}}{=}80$:
+\begin{equation}
+s_{\mathrm{regex}}\in[s_{\min}, s_{\mathrm{skip}})
+\quad\text{or}\quad
+\text{suspicious digit run}
+\quad\text{or}\quad
+\mathcal{C}_{\mathrm{soft}}(x)\neq\emptyset,
+\end{equation}
+where $\mathcal{C}_{\mathrm{soft}}$ is the soft-cue set defined below. Scores
+$s_{\mathrm{regex}}\geq s_{\mathrm{skip}}$ skip the LLM (Tier~1 already
+decisive).
+
+Providers are tried in order: \textbf{Groq~$\rightarrow$~OpenRouter~$\rightarrow$~Gemini}.
+The live ablation used free-tier endpoints with production default model IDs:
+\texttt{llama-3.3-70b-versatile} (Groq), \texttt{google/gemini-2.5-flash}
+(OpenRouter), and \texttt{gemini-2.0-flash} (Gemini). Decoding uses
+temperature~$0.1$ and JSON-object response format (\texttt{max\_tokens}$=2048$).
+The prompt asks the model to score only off-platform circumvention cues (bank /
+PromptPay identifiers, phone or Line contacts, external links, and solicitations
+to pay outside escrow) and to return JSON with
+\texttt{risk\_score}$\in[0,100]$,
+\texttt{verdict}$\in\{\texttt{pass},\texttt{flag},\texttt{reject}\}$,
+\texttt{reasons} (short Thai strings), and
+\texttt{categories}$\in\{\texttt{bank\_account},\texttt{phone\_contact},
+\texttt{off\_platform\_transfer},\texttt{external\_link},\texttt{none}\}$.
+Invalid JSON, empty responses, authentication errors, and timeouts are treated as
+provider failures and fall through the chain; if all providers fail, Tier~3
+returns the Tier~1 decision unless soft cues or digit-run heuristics raise
+\texttt{pass}$\rightarrow$\texttt{flag} (fail-safe).
+
+Results are merged conservatively with Tier~1 via
+$\max(s_{\mathrm{regex}}, s_{\mathrm{llm}})$ and a worse-verdict operator
+(\texttt{reject}$\succ$\texttt{flag}$\succ$\texttt{pass}): the LLM cannot
+\emph{downgrade} a high regex score. This policy is intentionally
+false-negative-averse (prefer over-flagging to missing a bypass), at the cost of
+additional false positives.
+
+\subsection{Soft-Trigger Escalation (Proposed Gate)}
+\label{sec:soft-trigger}
+Legacy score-gating only escalates when $s_{\mathrm{regex}}\geq s_{\min}$ (or a
+long digit run). On this OCR corpus, many \textsc{block} utterances score
+$0$---e.g., ``โอนแล้วแจ้งสลิป'' (transfer-done / send-slip bait) and messages
+whose strong identifiers were replaced by
+\texttt{[PHONE\_NUM]}/\texttt{[BANK\_ACCOUNT]}/\texttt{[LINE\_ID]}---so the LLM
+never runs. Soft triggers close this gap \emph{without} treating the cues as
+hard regex blocks (which would inflate FP on benign slip talk). Cue families:
+\begin{itemize}
+  \item \textbf{Payment-confirm bait:} Thai phrases such as transfer-done /
+        send-slip / confirm-slip patterns.
+  \item \textbf{Anonymized PII stand-ins:} evaluation placeholders that mirror
+        digit/contact patterns removed by redaction.
+  \item \textbf{Account-holder phrasing} and OCR-distorted PromptPay spellings.
+  \item \textbf{Soft phone contact:} ``เบอร์''/``โทร'' near digits or phone
+        placeholders; spaced bank labels (e.g., ``K Bank'').
+\end{itemize}
+Soft cues force Tier~2; if the provider chain fails, Tier~3 may raise to
+\texttt{flag} when cues are present (availability-preserving fail-safe).
+
+\subsection{Tier 3 --- Graceful Degradation}
+If all providers fail, the system returns the Tier~1 decision and optionally
+raises \texttt{pass}$\rightarrow$\texttt{flag} on digit-run or soft-cue
+heuristics, preserving chat availability under cloud outage.
+
+Fig.~\ref{fig:architecture} summarizes the pipeline (system architecture diagram;
+see accompanying Mermaid source in the submission package).
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox{0.92\columnwidth}{\centering\vspace{1.2em}
+\textit{[Insert architecture diagram here]}\\[0.4em]
+\small Export from \texttt{docs/architecture\_diagram.md}\\
+(Mermaid~$\rightarrow$~PNG/PDF) as \texttt{fig2\_cascade.pdf}
+\vspace{1.2em}}}
+\caption{Three-tier cascaded hybrid moderation pipeline: Tier~1 local
+regex/heuristics, Tier~2 multi-provider LLM escalation
+(Groq~$\rightarrow$~OpenRouter~$\rightarrow$~Gemini), and Tier~3 graceful
+fallback, producing \texttt{pass}/\texttt{flag}/\texttt{reject}
+(\textsc{allow}/\textsc{block} for evaluation).}
+\label{fig:architecture}
+\end{figure}
+
+%% =============================================================================
+\section{Dataset and Experimental Setup}
+%% =============================================================================
+
+\subsection{Corpus Construction}
+Table~\ref{tab:corpus-pipeline} summarizes corpus construction. Final label
+counts are 270~\textsc{allow} and 63~\textsc{block} ($N{=}333$).
+
+\begin{table}[t]
+\centering
+\caption{OCR fraud-screenshot corpus construction pipeline.}
+\label{tab:corpus-pipeline}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Step} & \textbf{Description} \\
+\midrule
+Source & 100 screenshots from public Thai anti-scam pages \\
+ & (confirmed fraud cases; Facebook/Messenger UI) \\
+OCR & Google Cloud Vision \texttt{DOCUMENT\_TEXT\_DETECTION} \\
+Segmentation & Bubble heuristics + fragment deduplication \\
+Gold labels & 100\% human adjudication, utterance-level \\
+ & (independent of the production Tier~1 detector) \\
+Anonymization & \texttt{[LINE\_ID]}, \texttt{[PHONE\_NUM]}, \texttt{[BANK\_ACCOUNT]}, \texttt{[PROMPTPAY]} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox{0.92\columnwidth}{\centering\vspace{1.2em}
+\textit{[Insert Figure~1 chat examples here]}\\[0.4em]
+\small Build panels from \texttt{docs/figure\_1\_cases.md}\\
+as \texttt{fig1\_examples.pdf}
+\vspace{1.2em}}}
+\caption{Representative anonymized Thai C2C chat utterances from the OCR
+fraud-screenshot corpus ($N{=}333$). (a)~Benign marketplace inquiry and
+logistics (\textsc{allow}). (b)~Direct off-platform payment / slip requests
+(\textsc{block}). (c)~Bank-account / QR / Line-contact sharing
+(\textsc{block}). Personal identifiers are replaced with placeholders.}
+\label{fig:examples}
+\end{figure}
+
+\subsection{Gold Labels}
+Screenshots were collected from public Thai anti-scam community pages that
+document confirmed fraud cases (conversation-level fraud is therefore 100\%).
+Utterance-level gold labels were assigned by a \emph{single human annotator}
+(the author) who read every OCR utterance in screenshot context. Coverage is
+100\% of the $N{=}333$ retained utterances. The rubric is independent of the
+production Tier~1 regex/heuristic detector:
+\begin{itemize}
+  \item \textsc{allow}: ordinary marketplace inquiry, bargaining, or logistics.
+  \item \textsc{block}: sharing a bank account, PromptPay ID, phone number, or
+        Line contact, or soliciting a transfer outside escrow.
+\end{itemize}
+Because labeling was performed by one annotator, inter-annotator agreement (IAA)
+is not reported; this remains a limitation. Residual OCR/UI noise can still
+distort the \emph{input text} even when the intended label is correct.
+
+\subsection{Systems Compared}
+\begin{itemize}
+  \item \textbf{Regex-only:} Tier~1 only
+        (\texttt{scanTextRegexOnly}).
+  \item \textbf{Cascade (no soft):} full cascade with soft trigger disabled
+        (legacy score/digit gate only).
+  \item \textbf{Cascade+Soft (proposed):} full cascade with soft-trigger
+        escalation enabled (\texttt{scanText} with
+        \texttt{soft\_trigger=true}).
+\end{itemize}
+Binary mapping: $\{\texttt{flag},\texttt{reject}\}\!\rightarrow\!\textsc{block}$,
+$\{\texttt{pass}\}\!\rightarrow\!\textsc{allow}$. Gold labels were \emph{not}
+derived from this detector, so regex-only is not scored against its own rules.
+
+\subsection{Evaluation Protocol}
+\label{sec:eval-protocol}
+This study is a production-path evaluation, not a trained classifier: there is
+no parameter learning. Thresholds
+($s_{\min}{=}25$, $s_{\mathrm{skip}}{=}80$, flag~$\geq 45$, reject~$\geq 70$)
+are empirical defaults from prototype development and were \emph{not} selected
+on a development split of this corpus. Soft-cue patterns were designed from
+cascade-gap failure analysis on the prior live run (FN with
+$s_{\mathrm{regex}}{=}0$), then re-evaluated in a fresh 3-way ablation on the
+same $N{=}333$ set; we treat held-out cue/threshold calibration as future work.
+Runner: \texttt{scripts/run\_chat\_benchmark\_ablation.php -{}-mode=live}.
+
+\subsection{Metrics}
+Detection: accuracy, precision, recall, F1, Cohen's $\kappa$. Significance:
+McNemar tests on paired per-utterance correctness (regex vs.\ soft; cascade vs.\
+soft). Effect-size narrative: FN rescued and FP introduced between systems.
+Efficiency: Tier~1 exit rate, mean/P95 latency, and \emph{projected} LLM-token
+cost versus an LLM-every-message counterfactual. Google Cloud Vision OCR is a
+fixed corpus-construction cost, not a cascade operating cost. USD figures use
+blended \$/1M rates and a character-based token proxy (research estimate, not
+invoices).
+
+%% =============================================================================
+\section{Results and Discussion}
+%% =============================================================================
+
+All numbers below are from the \emph{live} 3-way ablation
+(\texttt{summary\_ablation\_live.json}). Soft-cue histogram on the corpus:
+payment-confirm~$17$, anonymized-PII~$23$, account-holder~$7$,
+PromptPay-OCR~$2$, soft-phone~$4$, bank-label~$1$.
+
+\subsection{Classification Performance}
+Table~\ref{tab:ablation-detection} reports the ablation.
+Table~\ref{tab:ablation-mcnemar} reports confusion counts and McNemar tests.
+
+\begin{table}[t]
+\centering
+\caption{3-way live ablation on OCR Thai C2C fraud-chat utterances ($N{=}333$).
+FLAG/REJECT map to BLOCK. Cascade+Soft is the proposed system.}
+\label{tab:ablation-detection}
+\begin{tabular}{lcccccc}
+\toprule
+System & Acc. (\%) & Prec. & Rec. & F1 & $\kappa$ & Tier1 (\%) \\
+\midrule
+Regex-only & 94.3 & 0.978 & 0.714 & 0.826 & 0.79 & --- \\
+Cascade (no soft) & 90.7 & 0.758 & 0.746 & 0.752 & 0.69 & 77.5 \\
+Cascade+Soft (proposed) & 93.4 & 0.759 & \textbf{0.952} & \textbf{0.845} & 0.80 & 70.6 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Confusion counts and McNemar tests. $b$: system~B correct when A wrong;
+$c$: opposite. Continuity-corrected $\chi^{2}$, df$=1$.}
+\label{tab:ablation-mcnemar}
+\begin{tabular}{lcccccc}
+\toprule
+System & TP & TN & FP & FN & vs.\ prior $(b,c)$ & $p$ \\
+\midrule
+Regex-only & 45 & 269 & 1 & 18 & -- & -- \\
+Cascade (no soft) & 47 & 255 & 15 & 16 & vs.\ regex $(2,14)$ & $0.006$ \\
+Cascade+Soft & 60 & 251 & 19 & 3 & vs.\ cascade $(15,6)$ & $0.081$ \\
+ &  &  &  &  & vs.\ regex $(15,18)$ & $0.728$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Cascade gap without soft triggers.}
+Regex-only is highly precise (FP$=1$, Precision$=0.978$) but misses many
+\textsc{block} cases (FN$=18$, Recall$=0.714$). Legacy cascade barely moves
+recall ($0.714\!\rightarrow\!0.746$) while adding FP ($1\!\rightarrow\!15$) and
+\emph{hurting} accuracy ($94.3\%\!\rightarrow\!90.7\%$; McNemar $p{=}0.006$
+\emph{against} cascade). Soft triggers are therefore not a cosmetic add-on:
+without them the cascade is a poor accuracy trade on this corpus.
+
+\paragraph{Soft trigger closes the gap.}
+Cascade+Soft lifts recall to $0.952$ (FN $16\!\rightarrow\!3$) and F1 to
+$0.845$, recovering \textbf{13} false negatives relative to legacy cascade
+(7 decided by live Tier~2 LLM; 6 by Tier~3 soft fail-safe when providers
+failed). Residual FN$=3$ are soft payment-confirm phrases where the LLM (or
+merge) still returned \textsc{allow}. McNemar cascade$\rightarrow$soft is
+borderline ($p{=}0.081$); we emphasize the effect size (FN $-81\%$,
+recall $+20.6$\,pp) rather than a significance claim at $\alpha{=}0.05$.
+
+\paragraph{Accuracy versus operational risk.}
+Cascade+Soft does \emph{not} beat regex-only on accuracy ($93.4\%$ vs.\
+$94.3\%$; McNemar $p{=}0.728$). The trade is intentional for escrow safety:
+missing a bypass (FN) is costlier than a false alarm (FP). Soft trigger buys
+near-complete \textsc{block} coverage at the cost of FP $1\!\rightarrow\!19$.
+
+\subsection{System Efficiency}
+\begin{table}[t]
+\centering
+\caption{Efficiency (live ablation). Cost is a projected LLM-token proxy.}
+\label{tab:ablation-efficiency}
+\begin{tabular}{lcccc}
+\toprule
+System & Mean (ms) & Est.\ cost (USD) & Tier1 exit & API-call save \\
+\midrule
+Regex-only & 0.2 & 0.000 & 100\% & 100\% \\
+Cascade (no soft) & 491.6 & 0.0069 & 77.5\% & 77.5\% \\
+Cascade+Soft & 549.3 & 0.0083 & 70.6\% & 70.6\% \\
+LLM every (counterfactual) & -- & 0.0474 & 0\% & 0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Soft trigger escalates more often (Tier1 $77.5\%\!\rightarrow\!70.6\%$) but still
+saves 70.6\% of API calls versus LLM-every, with projected token cost
+\$0.0083 versus \$0.0474 (${\approx}82\%$ saving under the proxy rates). Mean
+latency rises modestly (492\,ms$\rightarrow$549\,ms). Scaled to 1M messages,
+the soft cascade remains ${\sim}$5$\times$ cheaper than always-on LLM under the
+same proxy---the systems motivation for cascading.
+
+\subsection{Failure and Trade-off Analysis}
+\paragraph{False positives (Soft FP$=19$).}
+LLM over-flags ambiguous logistics / OCR chrome; soft payment-confirm cues also
+escalate benign ``send slip'' talk that is legitimate \emph{inside} escrow.
+Tier~3 soft fail-safe can contribute FP when providers fail.
+
+\paragraph{False negatives (Soft FN$=3$).}
+All remaining misses are payment-confirm bait that soft-escalated but were not
+blocked after LLM/merge---prompt and merge calibration targets for future work.
+
+\paragraph{Design takeaway.}
+The research question is not ``does an LLM beat regex on accuracy?'' but
+\emph{when} should a cascade call the LLM. Soft triggers answer that for Thai
+OCR fraud chat: escalate low-score bait that regex under-scores, accept more FP
+to slash FN, keep ${\sim}$70\% of traffic on Tier~1.
+
+\subsection{Limitations}
+\label{sec:limitations}
+\begin{enumerate}
+  \item \textbf{Single annotator.} Gold is 100\% human-labeled by one author;
+        IAA is unavailable.
+  \item \textbf{Cue design on observed gaps.} Soft patterns were motivated by
+        prior FN analysis on this corpus; held-out cue discovery is future work.
+  \item \textbf{Provider instability.} This live run had non-zero Tier~3
+        fallbacks; 6/13 FN rescues used soft fail-safe rather than a successful
+        LLM JSON verdict---we report both sources explicitly.
+  \item \textbf{Anonymization stand-ins.} \texttt{[PHONE\_NUM]} etc.\ are
+        evaluation proxies for redacted identifiers; production digit/contact
+        regex would often fire on the unreacted text.
+  \item \textbf{No held-out threshold tuning;} utterance-level only;
+        LLM variability not repeated; domain limited to Thai anti-scam
+        Facebook/Messenger screenshots; cost figures are projected proxies.
+\end{enumerate}
+
+%% =============================================================================
+\section{Conclusion and Future Work}
+%% =============================================================================
+
+We identified a cascade gap in score-gated Thai escrow chat moderation and
+closed it with soft-trigger escalation. On $N{=}333$ live-evaluated OCR
+utterances, Cascade+Soft reaches recall $0.952$ and F1 $0.845$ (FN$=3$),
+rescuing 13 misses versus legacy cascade while retaining a 70.6\% Tier~1 exit
+rate. We do not claim an accuracy win over high-precision regex-only; we claim
+a production-relevant recall recovery under bounded cloud cost.
+
+Future work: held-out soft-cue/threshold calibration; merge/prompt ablations to
+cut FP; second-annotator IAA; conversation-level early-warning metrics; and
+repeated LLM trials under stable paid quotas.
+
+%% =============================================================================
+\section*{Acknowledgment}
+%% =============================================================================
+The authors thank the course advisors and reviewers for feedback on the system
+framing and evaluation protocol.
+
+%% Optional bibliography (Overleaf: add refs.bib or leave empty)
+\begin{thebibliography}{00}
+\bibitem{b1} S. Bowman et al., ``Measuring the similarities between the
+vocabularies of different languages,'' \textit{Proc. Example Conf.}, 2020.
+%% Replace with real citations before camera-ready submission.
+\end{thebibliography}
+
+\end{document}

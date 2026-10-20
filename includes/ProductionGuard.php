@@ -5,10 +5,12 @@ class ProductionGuard {
     private const DEMO_WEBHOOK_SECRET = 'FLIXO_SECRET_DEMO_2026';
 
     /**
+     * @param bool $force run the checks even outside production (used by
+     *                    scripts/validate_production_config.php --strict)
      * @return array<int, string> list of validation errors
      */
-    public static function validate(): array {
-        if (!defined('APP_ENV') || APP_ENV !== 'production') {
+    public static function validate(bool $force = false): array {
+        if (!$force && (!defined('APP_ENV') || APP_ENV !== 'production')) {
             return [];
         }
 
@@ -39,6 +41,20 @@ class ProductionGuard {
         $baseUrl = defined('BASE_URL') ? BASE_URL : '';
         if ($baseUrl === '' || str_starts_with($baseUrl, 'http://localhost')) {
             $errors[] = 'BASE_URL must be your public HTTPS domain in production.';
+        }
+
+        // Mock mode makes eKYC, chat moderation and image-fraud checks return
+        // fabricated results, so serving real users with it on is worse than
+        // having no verification at all — the UI still claims users are verified.
+        if (defined('MOCK_API_MODE') && MOCK_API_MODE) {
+            $errors[] = 'MOCK_API_MODE must be off in production (eKYC and AI checks would be simulated).';
+        }
+
+        // Without this secret api/webhook_ekyc.php cannot authenticate Sumsub,
+        // and anyone could POST themselves a passing KYC result.
+        if (defined('EKYC_PROVIDER') && EKYC_PROVIDER !== 'manual'
+            && (!defined('SUMSUB_WEBHOOK_SECRET') || SUMSUB_WEBHOOK_SECRET === '')) {
+            $errors[] = 'SUMSUB_WEBHOOK_SECRET is required to authenticate eKYC webhooks.';
         }
 
         return $errors;

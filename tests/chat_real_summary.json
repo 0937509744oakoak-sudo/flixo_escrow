@@ -1,0 +1,58 @@
+{
+    "n": 100,
+    "tp": 48,
+    "tn": 49,
+    "fp": 1,
+    "fn": 2,
+    "accuracy_pct": 97,
+    "precision": 0.9796,
+    "recall": 0.96,
+    "f1": 0.9697,
+    "avg_ms": 427,
+    "p95_ms": 1908,
+    "providers": {
+        "groq": 27,
+        "none": 66,
+        "openrouter": 7
+    },
+    "mock_api_mode": false,
+    "misses": [
+        {
+            "no": 43,
+            "group": "C2",
+            "gt": 1,
+            "verdict": "pass",
+            "provider": "none",
+            "text": "Line ID sell_cash โอนสดรับของเร็ว",
+            "note": "MISS | pred=0 | preview: Line ID sell_cash โอนสดรับของเร็ว"
+        },
+        {
+            "no": 52,
+            "group": "C2",
+            "gt": 1,
+            "verdict": "pass",
+            "provider": "none",
+            "text": "ไลน์: escrow_skip คุยโอนเงินนอก",
+            "note": "MISS | pred=0 | preview: ไลน์: escrow_skip คุยโอนเงินนอก"
+        },
+        {
+            "no": 84,
+            "group": "C1",
+            "gt": 0,
+            "verdict": "flag",
+            "provider": "groq",
+            "text": "ลดเหลือเท่านี้นะคับ แล้วกดซื้อผ่านแอป",
+            "note": "MISS | pred=1 | พบคำชักชวนโอน\/ติดต่อนอกระบบ (ผ่านแอป); พูดถึงการซื้อผ่านแอป"
+        }
+    ],
+    "compare_to_mock": {
+        "mock_accuracy_pct": 97,
+        "mock_tp_tn_fp_fn": [
+            48,
+            49,
+            1,
+            2
+        ],
+        "delta_accuracy_pp": 0
+    }
+}
