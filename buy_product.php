@@ -4,6 +4,7 @@ require_once 'includes/auth.php';
 require_once 'includes/order_helper.php';
 require_once 'includes/OrderStateMachine.php';
 require_once 'includes/OmiseService.php';
+require_once 'includes/PromptPay.php';
 
 if (!isset($_SESSION['user']) || !isset($_GET['order_id'])) {
     redirectTo('dashboard.php');
@@ -37,31 +38,11 @@ $csrf = getCsrfToken();
 $amountFormatted = number_format($order['amount'], 2);
 
 $final_qr_image = '';
-if ($order['status'] === OrderStateMachine::PENDING_PAYMENT && SLIP_API_KEY !== '') {
-    $curl = curl_init();
-    curl_setopt_array($curl, [
-        CURLOPT_URL => SLIP_API_QR_URL,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_SSL_VERIFYPEER => true,
-        CURLOPT_SSL_VERIFYHOST => 2,
-        CURLOPT_POSTFIELDS => json_encode([
-            'amount' => (float)$order['amount'],
-            'type' => 'PROMPTPAY',
-            'msisdn' => PROMPTPAY_NUMBER,
-        ]),
-        CURLOPT_HTTPHEADER => [
-            'Authorization: Bearer ' . SLIP_API_KEY,
-            'Content-Type: application/json',
-        ],
-    ]);
-    $api_response = curl_exec($curl);
-    curl_close($curl);
-    $qr_data = json_decode($api_response, true);
-    if (!empty($qr_data['data']['payload'])) {
-        $final_qr_image = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' . urlencode($qr_data['data']['payload']);
-    } elseif (!empty($qr_data['data']['rawQr'])) {
-        $final_qr_image = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' . urlencode($qr_data['data']['rawQr']);
+if ($order['status'] === OrderStateMachine::PENDING_PAYMENT) {
+    try {
+        $final_qr_image = promptPayQrImageUrl(buildPromptPayPayload(PROMPTPAY_NUMBER, (float) $order['amount']));
+    } catch (InvalidArgumentException $e) {
+        error_log('[PromptPay QR] ' . $e->getMessage());
     }
 }
 

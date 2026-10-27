@@ -111,7 +111,6 @@ define('PROMPTPAY_NAME', getenv('PROMPTPAY_NAME') ?: 'บริษัท ฟล�
 // ==========================================
 // 4. External API / Secret Configuration
 // ==========================================
-define('SLIP_API_QR_URL', getenv('SLIP_API_QR_URL') ?: 'https://developer.easyslip.com/api/v1/qr/generate');
 define('SLIP_API_URL', getenv('SLIP_API_URL') ?: 'https://api.thunder.in.th/v2/verify/bank');
 define('SLIP_API_KEY', getenv('SLIP_API_KEY') ?: '');
 
