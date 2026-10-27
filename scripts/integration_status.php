@@ -54,7 +54,7 @@ function yn(bool $v): string {
 $rows = [
     ['MOCK_API_MODE', yn(defined('MOCK_API_MODE') && MOCK_API_MODE)],
     ['APP_ENV', defined('APP_ENV') ? APP_ENV : '?'],
-    ['EasySlip key', yn(defined('SLIP_API_KEY') && SLIP_API_KEY !== '')],
+    ['Thunder Slip API key', yn(defined('SLIP_API_KEY') && SLIP_API_KEY !== '')],
     ['Omise configured', yn(defined('OMISE_PUBLIC_KEY') && OMISE_PUBLIC_KEY !== '' && defined('OMISE_SECRET_KEY') && OMISE_SECRET_KEY !== '')],
     ['Omise mode', modeFromOmise(
         defined('OMISE_PUBLIC_KEY') ? OMISE_PUBLIC_KEY : '',

@@ -135,6 +135,12 @@ try {
 
         $target_dir = flixoUploadsSubdir('slips');
         $tmp_path = $_FILES["slip_image"]['tmp_name'] ?? '';
+        if (!isset($_FILES['slip_image']) || ($_FILES['slip_image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            throw new Exception('กรุณาเลือกไฟล์สลิปที่ต้องการตรวจสอบ');
+        }
+        if ((int) ($_FILES['slip_image']['size'] ?? 0) > 4194304) {
+            throw new Exception('ไฟล์สลิปต้องมีขนาดไม่เกิน 4 MB');
+        }
 
         // Dedup + integrity check from the TEMP file, BEFORE storing anywhere,
         // so a duplicate is rejected without uploading (cloud or disk).
@@ -154,7 +160,7 @@ try {
         // Store slip → Cloud Object Storage (PRIVATE: returns an object key, not a
         // public URL) or local disk fallback. SlipController streams it to
         // authorized users only.
-        $new_filename = secureUploadCloud($_FILES["slip_image"], 'slips', $target_dir, 5242880, false);
+        $new_filename = secureUploadCloud($_FILES["slip_image"], 'slips', $target_dir, 4194304, false);
 
         if ($slipHash !== null && !$slipHashExists) {
             $insHash = $conn->prepare("INSERT INTO slip_hashes (slip_hash, order_id, username) VALUES (?, ?, ?)");
@@ -162,7 +168,7 @@ try {
             $insHash->execute();
         }
 
-        // Local file path to hand to the EasySlip API (it POSTs the file via
+        // Local file path to hand to the Thunder API (it POSTs the file via
         // CURLFILE). Cloud path: the temp upload is still present (not moved).
         // Local path: the temp file was moved into uploads/slips.
         $full_file_path = (is_string($tmp_path) && is_file($tmp_path))
@@ -197,7 +203,11 @@ try {
             CURLOPT_SSL_VERIFYHOST => 2,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => array('file' => new CURLFILE($full_file_path)),
+            CURLOPT_POSTFIELDS => array(
+                'image' => new CURLFile($full_file_path),
+                'checkDuplicate' => 'true',
+                'matchAmount' => number_format((float) $order['amount'], 2, '.', ''),
+            ),
             CURLOPT_HTTPHEADER => array(
                 'Authorization: Bearer ' . $api_key
             ),
@@ -205,7 +215,18 @@ try {
 
         $response = curl_exec($curl);
         $err = curl_error($curl);
+        $httpStatus = (int) curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
+
+        // Keep the complete Thunder response in Render Logs to diagnose API
+        // rejections. Never include the Authorization header or API key here.
+        error_log(sprintf(
+            '[Thunder slip verification] order_id=%d HTTP Status Code=%d Response Payload=%s%s',
+            $order_id,
+            $httpStatus,
+            is_string($response) ? $response : '(no response body)',
+            $err !== '' ? ' cURL Error=' . $err : ''
+        ));
 
         $orderModel->updatePaymentSlip($order_id, $new_filename);
 
@@ -219,23 +240,33 @@ try {
             exit();
         }
 
-        $result = json_decode($response, true);
-
-        // 🔥 ถ้า API ไม่สามารถอ่าน QR code ให้ fallback เป็น manual verification
-        $qr_errors = ['qrcode_not_found', 'invalid_qr', 'qr_not_recognized'];
-        $api_error = strtolower(isset($result['message']) ? $result['message'] : '');
-        
-        if (in_array($api_error, $qr_errors) || (isset($result['status']) && $result['status'] != 200 && strpos($api_error, 'qr') !== false)) {
-            if (!$alreadyWaiting) {
-                OrderStateMachine::validate($order, OrderStateMachine::WAITING_VERIFY, $currentUser);
-                $orderModel->changeStatus($order_id, $order['status'], OrderStateMachine::WAITING_VERIFY, $currentUser['username'], 'API ไม่สามารถอ่าน QR code ได้ - เปลี่ยนเป็นรอแอดมินตรวจแบบ Manual');
-                createNotification($conn, $order['seller_name'], "💳 ผู้ซื้อส่งสลิปชำระเงินออเดอร์ #$order_id แล้ว — รอตรวจสอบยอดเงิน", "dashboard.php?tab=orders");
-            }
-            echo json_encode(['status' => 'success', 'message' => 'ส่งสลิปแล้ว (ระบบไม่สามารถอ่าน QR code ได้ รอแอดมินตรวจสอบแบบ Manual)']);
-            exit();
+        $result = is_string($response) ? json_decode($response, true) : null;
+        if (!is_array($result)) {
+            throw new Exception('Thunder API ส่งข้อมูลกลับมาไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง');
         }
 
-        if (isset($result['status']) && $result['status'] == 200) {
+        // Thunder API v2 uses success/data on success and error.code/message on failure.
+        $apiErrorCode = strtoupper((string) ($result['error']['code'] ?? ''));
+        $apiErrorMessage = (string) ($result['error']['message'] ?? $result['message'] ?? '');
+        $qr_errors = ['SLIP_NOT_FOUND', 'SLIP_PENDING'];
+        
+        if (empty($result['success']) || $httpStatus < 200 || $httpStatus >= 300) {
+            if (in_array($apiErrorCode, $qr_errors, true)) {
+                if (!$alreadyWaiting) {
+                    OrderStateMachine::validate($order, OrderStateMachine::WAITING_VERIFY, $currentUser);
+                    $orderModel->changeStatus($order_id, $order['status'], OrderStateMachine::WAITING_VERIFY, $currentUser['username'], 'API ไม่สามารถอ่าน QR code ได้ - เปลี่ยนเป็นรอแอดมินตรวจแบบ Manual');
+                    createNotification($conn, $order['seller_name'], "💳 ผู้ซื้อส่งสลิปชำระเงินออเดอร์ #$order_id แล้ว — รอตรวจสอบยอดเงิน", "dashboard.php?tab=orders");
+                }
+                echo json_encode(['status' => 'success', 'message' => 'ส่งสลิปแล้ว (ระบบไม่สามารถอ่าน QR code ได้ รอแอดมินตรวจสอบแบบ Manual)']);
+                exit();
+            }
+            throw new Exception('ตรวจสลิปไม่ผ่าน: ' . ($apiErrorMessage !== '' ? $apiErrorMessage : 'Thunder API ปฏิเสธคำขอ (HTTP ' . $httpStatus . ')'));
+        }
+
+        if (!empty($result['success']) && is_array($result['data'] ?? null)) {
+            if (!empty($result['data']['isDuplicate'])) {
+                throw new Exception('สลิปนี้ถูกใช้ตรวจสอบแล้ว ไม่สามารถนำมาใช้ซ้ำได้');
+            }
             
             $slip_amount = extractSlipAmount($result['data'] ?? []);
             $order_amount = round((float) $order['amount'], 2);
@@ -264,7 +295,7 @@ try {
                     'verified_by' => 'System_API',
                     'slip_amount' => $slip_amount,
                     'order_amount' => $order_amount,
-                    'raw_amount' => $result['data']['amount'] ?? null,
+                    'raw_amount' => $result['data']['rawSlip']['amount'] ?? $result['data']['amountInSlip'] ?? null,
                 ], JSON_UNESCAPED_UNICODE);
                 $tx = $conn->prepare("INSERT INTO transaction_logs (order_id, type, amount, currency, meta) VALUES (?, ?, ?, ?, ?)");
                 $type = 'slip_auto_verified';
@@ -284,7 +315,7 @@ try {
             }
 
         } else {
-            $error_msg = isset($result['message']) ? $result['message'] : 'ไม่สามารถอ่านข้อมูลสลิปได้';
+            $error_msg = $apiErrorMessage !== '' ? $apiErrorMessage : 'ไม่สามารถอ่านข้อมูลสลิปได้';
             throw new Exception("ตรวจไม่ผ่าน: " . $error_msg);
         }
     }

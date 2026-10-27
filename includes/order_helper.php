@@ -160,11 +160,12 @@ function withdrawalSlipPath(?string $slipImage): ?string {
 }
 
 /**
- * EasySlip returns amount as either a number or { amount: number, local: {...} }.
- * Casting an array to float in PHP yields 1.0 — never do (float)$data['amount'].
+ * Thunder v2 returns amountInSlip, with rawSlip.amount.amount as a fallback.
+ * Legacy EasySlip payloads are retained for historical callers/data fixtures.
+ * Casting an array to float in PHP yields 1.0 — never do that for amount data.
  */
 function extractSlipAmount(array $slipData): float {
-    $raw = $slipData['amount'] ?? null;
+    $raw = $slipData['amountInSlip'] ?? $slipData['rawSlip']['amount'] ?? $slipData['amount'] ?? null;
 
     if (is_array($raw)) {
         if (isset($raw['amount']) && is_numeric($raw['amount'])) {
@@ -359,8 +360,8 @@ function secureUpload($fileArray, $targetDir, $maxSize = 5242880, ?array $allowe
 }
 
 /**
- * อัปโหลดรูปแบบปลอดภัย → Cloud Object Storage (Cloudflare R2 / S3) เมื่อมีการตั้งค่า
- * ถ้ายังไม่ได้ตั้งค่า cloud → fallback ไปเก็บ local ผ่าน secureUpload() เหมือนเดิม
+ * อัปโหลดรูปแบบปลอดภัย → Cloudinary สำหรับรูปภาพสาธารณะเมื่อมีการตั้งค่า
+ * ไฟล์ส่วนตัว (สลิป/หลักฐาน) ยังใช้ private object storage หรือ local ตามเดิม
  *
  * ค่าที่คืน:
  *   - cloud พร้อมใช้งาน → คืน URL เต็ม (https://...) สำหรับบันทึกลง DB โดยตรง
@@ -402,7 +403,20 @@ function secureUploadCloud(array $fileArray, string $subdir, string $localTarget
     $subdir    = trim(str_replace(['\\', '..'], ['/', ''], $subdir), '/');
     $objectKey = ($subdir !== '' ? $subdir . '/' : '') . $filename;
 
-    // 2) มี cloud storage → อัปขึ้น cloud
+    // 2) รูปภาพสาธารณะให้เก็บบน Cloudinary (เช่น รูปสินค้าและแชท)
+    if ($public && str_starts_with($mime, 'image/')) {
+        require_once __DIR__ . '/CloudinaryStorage.php';
+        $cloudinary = new CloudinaryStorage();
+        if ($cloudinary->isConfigured()) {
+            return $cloudinary->upload($fileArray['tmp_name'], $subdir, pathinfo($filename, PATHINFO_FILENAME), $mime);
+        }
+        // In production, do not silently save public images on ephemeral server disk.
+        if (defined('APP_ENV') && APP_ENV === 'production') {
+            throw new Exception('ยังไม่ได้ตั้งค่า Cloudinary สำหรับอัปโหลดรูปภาพ');
+        }
+    }
+
+    // 3) Private files retain the existing object-storage path.
     require_once __DIR__ . '/ObjectStorage.php';
     $storage = new ObjectStorage();
     if ($storage->isConfigured()) {
@@ -412,7 +426,7 @@ function secureUploadCloud(array $fileArray, string $subdir, string $localTarget
         return $public ? $url : $objectKey;
     }
 
-    // 3) Fallback: เก็บ local ผ่าน secureUpload() เดิม (คืนชื่อไฟล์)
+    // 4) Local development fallback (คืนชื่อไฟล์)
     $dir = rtrim($localTargetDir, "/\\") . DIRECTORY_SEPARATOR;
     return secureUpload($fileArray, $dir, $maxSize, $allowed);
 }

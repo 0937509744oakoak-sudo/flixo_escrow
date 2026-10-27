@@ -35,7 +35,7 @@ class ProductionGuard {
         }
 
         if (!defined('SLIP_API_KEY') || SLIP_API_KEY === '') {
-            $errors[] = 'SLIP_API_KEY is required in production for slip verification.';
+            $errors[] = 'SLIP_API_KEY is required in production for Thunder slip verification.';
         }
 
         $baseUrl = defined('BASE_URL') ? BASE_URL : '';
